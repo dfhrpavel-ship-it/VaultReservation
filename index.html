@@ -2,170 +2,197 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>VAULT RESERVATION</title>
 <meta name="description" content="VAULT RESERVATION - Guest Reservation Management System">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#0a3d1f">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-/* ═══════════════════════════════════════════════════
-   VAULT RESERVATION — COMPLETE STYLESHEET
-   ═══════════════════════════════════════════════════ */
-:root {
-  --primary:#6366f1;--primary-light:#818cf8;--primary-dark:#4f46e5;
-  --accent:#f59e0b;--accent-light:#fbbf24;
-  --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--bg4:#475569;
-  --text:#f8fafc;--text2:#94a3b8;--text3:#64748b;
+:root{
+  --green:#0a3d1f;--green2:#0d4f2b;--green3:#127a3e;--green4:#1a9c50;--green5:#22c55e;
+  --gold:#b8860b;--gold2:#d4a017;--gold3:#e8b830;--gold4:#f0d060;--gold5:#f5e090;
+  --bg:#050f08;--bg2:#0a1a0e;--bg3:#122816;--bg4:#1c3a22;
+  --text:#f0f8f2;--text2:#a8c8ae;--text3:#6a9a72;
   --success:#22c55e;--warning:#eab308;--danger:#ef4444;--info:#3b82f6;
-  --radius:10px;--radius-lg:16px;--shadow:0 4px 24px rgba(0,0,0,.3);
-  --sidebar-w:260px;--topbar-h:60px;
+  --radius:10px;--radius-lg:16px;--shadow:0 4px 24px rgba(0,0,0,.4);
+  --sidebar-w:260px;--topbar-h:56px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
-a{color:var(--primary-light);text-decoration:none;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;-webkit-tap-highlight-color:transparent;}
+a{color:var(--gold2);text-decoration:none;}
 input,select,textarea,button{font-family:inherit;font-size:14px;border:none;outline:none;}
 button{cursor:pointer;}
-::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
-::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+::-webkit-scrollbar-thumb{background:var(--green3);border-radius:3px;}
 
-/* ── Login Page ──────────────────────────────── */
-#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%);padding:20px;}
-.login-box{background:var(--bg2);border-radius:var(--radius-lg);padding:40px;width:100%;max-width:420px;box-shadow:var(--shadow);}
-.login-box .logo{text-align:center;margin-bottom:30px;}
-.login-box .logo h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.login-box .logo p{color:var(--text3);font-size:13px;margin-top:4px;}
-.form-group{margin-bottom:16px;}
-.form-group label{display:block;color:var(--text2);font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--bg3);border-radius:var(--radius);color:var(--text);transition:.2s;}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15);}
-.form-group textarea{min-height:60px;resize:vertical;}
-.btn{padding:10px 20px;border-radius:var(--radius);font-weight:600;transition:.2s;display:inline-flex;align-items:center;gap:6px;}
-.btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-dark);}
-.btn-success{background:var(--success);color:#fff;}.btn-success:hover{opacity:.9;}
+/* ── LOGIN ── */
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--bg) 0%,var(--green) 50%,var(--bg) 100%);padding:16px;}
+.login-box{background:var(--bg2);border:1px solid var(--green3);border-radius:var(--radius-lg);padding:32px 24px;width:100%;max-width:400px;box-shadow:var(--shadow);}
+.login-box .logo{text-align:center;margin-bottom:24px;}
+.login-box .logo h1{font-size:24px;font-weight:800;background:linear-gradient(135deg,var(--gold3),var(--gold5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.login-box .logo p{color:var(--text3);font-size:12px;margin-top:4px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;color:var(--gold2);font-size:11px;font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--bg4);border-radius:var(--radius);color:var(--text);transition:.2s;font-size:14px;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(212,160,23,.15);}
+.fg textarea{min-height:50px;resize:vertical;}
+.btn{padding:9px 18px;border-radius:var(--radius);font-weight:600;transition:.2s;display:inline-flex;align-items:center;gap:6px;font-size:13px;}
+.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold3));color:#000;font-weight:700;}.btn-gold:hover{background:linear-gradient(135deg,var(--gold3),var(--gold4));}
+.btn-green{background:var(--green3);color:#fff;}.btn-green:hover{background:var(--green4);}
 .btn-danger{background:var(--danger);color:#fff;}.btn-danger:hover{opacity:.9;}
-.btn-warning{background:var(--warning);color:#000;}.btn-warning:hover{opacity:.9;}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--bg3);}.btn-ghost:hover{background:var(--bg3);}
-.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--bg4);}.btn-ghost:hover{background:var(--bg4);}
+.btn-sm{padding:5px 10px;font-size:11px;}
 .btn-full{width:100%;justify-content:center;}
-.login-error{color:var(--danger);font-size:13px;margin-top:10px;text-align:center;min-height:20px;}
-.gas-settings{margin-top:20px;padding-top:20px;border-top:1px solid var(--bg3);}
-.gas-settings summary{color:var(--primary-light);font-size:13px;cursor:pointer;font-weight:600;}
-.gas-settings .form-group{margin-top:12px;}
-.gas-status{font-size:11px;margin-top:6px;padding:4px 8px;border-radius:4px;}
+.login-error{color:var(--danger);font-size:12px;margin-top:8px;text-align:center;min-height:18px;}
+.gas-settings{margin-top:16px;padding-top:16px;border-top:1px solid var(--bg4);}
+.gas-settings summary{color:var(--gold2);font-size:12px;cursor:pointer;font-weight:700;}
+.gas-status{font-size:10px;margin-top:5px;padding:3px 6px;border-radius:4px;}
 .gas-status.connected{color:var(--success);background:rgba(34,197,94,.1);}
 .gas-status.disconnected{color:var(--danger);background:rgba(239,68,68,.1);}
 
-/* ── App Layout ──────────────────────────────── */
+/* ── APP LAYOUT ── */
 #app{display:none;height:100vh;}
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--bg3);overflow-y:auto;z-index:100;transition:transform .3s;}
-.sidebar-header{padding:20px;border-bottom:1px solid var(--bg3);}
-.sidebar-header h2{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.sidebar-header .role-badge{font-size:11px;color:var(--accent);background:rgba(245,158,11,.1);padding:2px 8px;border-radius:10px;display:inline-block;margin-top:4px;}
-.sidebar-nav{padding:10px 0;}
-.nav-section{padding:8px 20px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;color:var(--text2);cursor:pointer;transition:.15s;font-size:13px;border-left:3px solid transparent;}
-.nav-item:hover{background:var(--bg3);color:var(--text);}
-.nav-item.active{background:rgba(99,102,241,.1);color:var(--primary-light);border-left-color:var(--primary);}
-.nav-item .icon{width:18px;text-align:center;font-size:15px;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,var(--bg2),var(--green));border-right:1px solid var(--bg4);overflow-y:auto;z-index:100;transition:transform .3s;}
+.sidebar.open{transform:translateX(0);}
+.sidebar-header{padding:16px;border-bottom:1px solid var(--bg4);background:var(--green);}
+.sidebar-header h2{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--gold3),var(--gold5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sidebar-header .role-badge{font-size:10px;color:var(--gold2);background:rgba(212,160,23,.12);padding:2px 8px;border-radius:10px;display:inline-block;margin-top:2px;}
+.nav-section{padding:10px 16px 3px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:800;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;color:var(--text2);cursor:pointer;transition:.15s;font-size:12px;border-left:3px solid transparent;}
+.nav-item:hover{background:var(--bg4);color:var(--text);}
+.nav-item.active{background:rgba(212,160,23,.08);color:var(--gold3);border-left-color:var(--gold2);}
+.nav-item .icon{width:16px;text-align:center;font-size:14px;}
 .main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
-.topbar{height:var(--topbar-h);background:var(--bg2);border-bottom:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50;}
-.topbar-left{display:flex;align-items:center;gap:12px;}
-.topbar-left .hamburger{display:none;background:none;color:var(--text);font-size:22px;padding:4px;}
-.topbar-left h3{font-size:16px;font-weight:600;}
-.topbar-right{display:flex;align-items:center;gap:12px;}
-.lang-toggle{background:var(--bg3);color:var(--text2);padding:4px 10px;border-radius:var(--radius);font-size:12px;font-weight:600;}
-.lang-toggle:hover{background:var(--bg4);}
-.user-info{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:13px;}
-.user-info .avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
-.content{flex:1;padding:24px;overflow-y:auto;}
+.topbar{height:var(--topbar-h);background:var(--bg2);border-bottom:1px solid var(--bg4);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:8px;}
+.topbar-left .hamburger{display:none;background:none;color:var(--gold2);font-size:20px;padding:4px;}
+.topbar-left h3{font-size:14px;font-weight:700;color:var(--gold3);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.lang-toggle{background:var(--bg4);color:var(--gold2);padding:3px 8px;border-radius:var(--radius);font-size:11px;font-weight:700;}
+.lang-toggle:hover{background:var(--green3);}
+.user-info{display:flex;align-items:center;gap:6px;color:var(--text2);font-size:12px;}
+.user-info .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold2),var(--gold3));color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+.content{flex:1;padding:16px;overflow-y:auto;}
 
-/* ── Cards ───────────────────────────────────── */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px;}
-.stat-card{border-radius:var(--radius-lg);padding:20px;color:#fff;position:relative;overflow:hidden;}
-.stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.1);}
-.stat-card .label{font-size:12px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
-.stat-card .value{font-size:28px;font-weight:800;margin-top:4px;}
-.stat-card .sub{font-size:11px;opacity:.7;margin-top:4px;}
-.grad-purple{background:linear-gradient(135deg,#6366f1,#8b5cf6);}
-.grad-green{background:linear-gradient(135deg,#22c55e,#16a34a);}
-.grad-orange{background:linear-gradient(135deg,#f59e0b,#d97706);}
-.grad-blue{background:linear-gradient(135deg,#3b82f6,#2563eb);}
-.grad-red{background:linear-gradient(135deg,#ef4444,#dc2626);}
-.grad-teal{background:linear-gradient(135deg,#14b8a6,#0d9488);}
+/* ── CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px;}
+.stat-card{border-radius:var(--radius-lg);padding:16px;color:#fff;position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:-15px;right:-15px;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.08);}
+.stat-card .label{font-size:10px;opacity:.85;text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.stat-card .value{font-size:26px;font-weight:800;margin-top:2px;}
+.stat-card .sub{font-size:10px;opacity:.7;margin-top:2px;}
+.grad-green{background:linear-gradient(135deg,var(--green2),var(--green4));}
+.grad-gold{background:linear-gradient(135deg,var(--gold),var(--gold3));color:#000!important;}
+.grad-red{background:linear-gradient(135deg,#b91c1c,#ef4444);}
+.grad-teal{background:linear-gradient(135deg,#0d7377,#14b8a6);}
+.grad-purple{background:linear-gradient(135deg,#6b21a8,#8b5cf6);}
+.grad-blue{background:linear-gradient(135deg,#1d4ed8,#3b82f6);}
 
-/* ── Panel / Section ─────────────────────────── */
-.panel{background:var(--bg2);border-radius:var(--radius-lg);padding:20px;margin-bottom:20px;border:1px solid var(--bg3);}
-.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
-.panel-header h3{font-size:16px;font-weight:700;}
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.filter-bar input,.filter-bar select{padding:6px 10px;background:var(--bg);border:1px solid var(--bg3);border-radius:var(--radius);color:var(--text);font-size:12px;}
-.filter-bar input:focus,.filter-bar select:focus{border-color:var(--primary);}
+/* ── PANEL ── */
+.panel{background:var(--bg2);border-radius:var(--radius-lg);padding:14px;margin-bottom:14px;border:1px solid var(--bg4);}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.panel-header h3{font-size:14px;font-weight:700;color:var(--gold3);}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.filter-bar input,.filter-bar select{padding:5px 8px;background:var(--bg);border:1px solid var(--bg4);border-radius:var(--radius);color:var(--text);font-size:11px;}
 
-/* ── Tables ──────────────────────────────────── */
-.table-wrap{overflow-x:auto;}
+/* ── TABLES ── */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;}
-th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--bg3);font-size:13px;white-space:nowrap;}
-th{color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;background:var(--bg);position:sticky;top:0;}
-tr:hover{background:rgba(99,102,241,.03);}
-.badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
-.badge-success{background:rgba(34,197,94,.15);color:var(--success);}
-.badge-warning{background:rgba(234,179,8,.15);color:var(--warning);}
-.badge-danger{background:rgba(239,68,68,.15);color:var(--danger);}
-.badge-info{background:rgba(59,130,246,.15);color:var(--info);}
-.badge-purple{background:rgba(99,102,241,.15);color:var(--primary-light);}
-.badge-teal{background:rgba(20,184,166,.15);color:#14b8a6;}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--bg4);font-size:12px;white-space:nowrap;}
+th{color:var(--gold2);font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;background:var(--bg);position:sticky;top:0;}
+tr:hover{background:rgba(212,160,23,.03);}
+.badge{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.badge-success{background:rgba(34,197,94,.12);color:var(--success);}
+.badge-warning{background:rgba(234,179,8,.12);color:var(--warning);}
+.badge-danger{background:rgba(239,68,68,.12);color:var(--danger);}
+.badge-info{background:rgba(59,130,246,.12);color:var(--info);}
+.badge-gold{background:rgba(212,160,23,.12);color:var(--gold3);}
+.badge-green{background:rgba(34,197,94,.12);color:var(--green5);}
 
-/* ── Floor Plan ──────────────────────────────── */
-.floor-plan{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;padding:10px;}
-.table-unit{border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:.2s;border:2px solid transparent;min-height:100px;display:flex;flex-direction:column;justify-content:center;align-items:center;}
-.table-unit:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.3);}
-.table-unit.available{background:rgba(34,197,94,.1);border-color:var(--success);color:var(--success);}
-.table-unit.reserved{background:rgba(245,158,11,.1);border-color:var(--warning);color:var(--warning);}
-.table-unit.occupied{background:rgba(239,68,68,.1);border-color:var(--danger);color:var(--danger);}
-.table-unit .t-num{font-size:22px;font-weight:800;}
-.table-unit .t-cap{font-size:11px;opacity:.8;margin-top:2px;}
-.table-unit .t-loc{font-size:10px;opacity:.6;margin-top:2px;}
+/* ── FLOOR PLAN ── */
+.floor-plan{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;padding:8px;}
+.table-unit{border-radius:var(--radius);padding:12px 8px;text-align:center;cursor:pointer;transition:.2s;border:2px solid transparent;min-height:80px;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+.table-unit:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.table-unit.available{background:rgba(34,197,94,.08);border-color:var(--green5);color:var(--green5);}
+.table-unit.reserved{background:rgba(212,160,23,.08);border-color:var(--gold2);color:var(--gold2);}
+.table-unit.occupied{background:rgba(239,68,68,.08);border-color:var(--danger);color:var(--danger);}
+.table-unit .t-num{font-size:18px;font-weight:800;}
+.table-unit .t-cap{font-size:10px;opacity:.8;margin-top:2px;}
+.table-unit .t-loc{font-size:9px;opacity:.6;margin-top:1px;}
 
-/* ── Charts (CSS/SVG) ────────────────────────── */
-.chart-container{margin-top:16px;}
-.bar-chart{display:flex;align-items:flex-end;gap:8px;height:200px;padding:0 4px;}
-.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:30px;}
-.bar{width:100%;border-radius:4px 4px 0 0;transition:.3s;min-height:2px;position:relative;}
+/* ── CHARTS ── */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 2px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:24px;}
+.bar{width:100%;border-radius:3px 3px 0 0;transition:.3s;min-height:2px;}
 .bar:hover{opacity:.85;}
-.bar-label{font-size:10px;color:var(--text3);margin-top:6px;text-align:center;word-break:break-word;max-width:60px;}
-.bar-value{font-size:10px;color:var(--text2);margin-bottom:4px;font-weight:600;}
-.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);}
-.legend-dot{width:10px;height:10px;border-radius:50%;}
-.line-chart-svg{width:100%;height:200px;}
-.line-chart-svg text{fill:var(--text3);font-size:10px;}
-.line-chart-svg .grid-line{stroke:var(--bg3);stroke-width:.5;}
-.line-chart-svg .data-line{fill:none;stroke:var(--primary-light);stroke-width:2;}
-.line-chart-svg .data-area{fill:url(#areaGrad);opacity:.3;}
-.line-chart-svg .data-dot{fill:var(--primary-light);stroke:var(--bg2);stroke-width:2;}
+.bar-label{font-size:9px;color:var(--text3);margin-top:4px;text-align:center;word-break:break-word;max-width:50px;}
+.bar-value{font-size:9px;color:var(--gold3);margin-bottom:3px;font-weight:700;}
+.line-chart-svg{width:100%;height:180px;}
+.line-chart-svg text{fill:var(--text3);font-size:9px;}
+.line-chart-svg .grid-line{stroke:var(--bg4);stroke-width:.5;}
+.line-chart-svg .data-line{fill:none;stroke:var(--gold2);stroke-width:2;}
+.line-chart-svg .data-area{fill:url(#areaGrad);opacity:.2;}
+.line-chart-svg .data-dot{fill:var(--gold3);stroke:var(--bg2);stroke-width:2;}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
 
-/* ── Modal ───────────────────────────────────── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;padding:20px;}
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:10px;}
 .modal-overlay.show{display:flex;}
-.modal{background:var(--bg2);border-radius:var(--radius-lg);padding:24px;width:100%;max-width:550px;max-height:90vh;overflow-y:auto;border:1px solid var(--bg3);}
-.modal h3{margin-bottom:16px;font-size:18px;}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:500px){.form-row{grid-template-columns:1fr;}}
+.modal{background:var(--bg2);border-radius:var(--radius-lg);padding:20px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;border:1px solid var(--green3);}
+.modal h3{margin-bottom:14px;font-size:16px;color:var(--gold3);}
+.modal-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:16px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-/* ── QR Code ─────────────────────────────────── */
-.qr-display{text-align:center;padding:20px;}
-.qr-display canvas,.qr-display img{margin:0 auto;border-radius:8px;}
+/* ── DYNAMIC FORM STYLES ── */
+.step-indicator{display:flex;gap:4px;margin-bottom:16px;}
+.step-dot{flex:1;height:4px;border-radius:2px;background:var(--bg4);transition:.3s;}
+.step-dot.active{background:var(--gold2);}
+.step-dot.done{background:var(--green4);}
+.menu-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(212,160,23,.1);border:1px solid var(--gold2);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--gold3);margin:3px;}
+.menu-chip .remove-menu{cursor:pointer;color:var(--danger);font-weight:700;margin-left:4px;}
+.suggestion-box{position:absolute;background:var(--bg2);border:1px solid var(--green3);border-radius:var(--radius);max-height:150px;overflow-y:auto;z-index:300;width:100%;top:100%;left:0;box-shadow:var(--shadow);}
+.suggestion-item{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--bg4);}
+.suggestion-item:hover{background:var(--bg4);}
+.suggestion-item .s-name{font-weight:600;color:var(--gold3);}
+.suggestion-item .s-phone{font-size:10px;color:var(--text3);}
 
-/* ── Waitlist ────────────────────────────────── */
-.waitlist-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:var(--radius);background:var(--bg);margin-bottom:8px;border-left:4px solid var(--accent);}
+/* ── VIEW CARD (PDF/JPG Export) ── */
+.view-card{background:#fff;color:#111;border-radius:12px;overflow:hidden;font-family:'Segoe UI',sans-serif;}
+.view-card .vc-header{background:linear-gradient(135deg,var(--green),var(--green3));color:#fff;padding:20px;text-align:center;}
+.view-card .vc-header .vc-logo{max-height:60px;margin-bottom:8px;}
+.view-card .vc-header h1{font-size:20px;color:var(--gold4);margin:0;}
+.view-card .vc-header p{font-size:11px;opacity:.8;margin-top:2px;}
+.view-card .vc-body{padding:16px;}
+.view-card .vc-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e5e7eb;font-size:12px;}
+.view-card .vc-row .vc-label{font-weight:700;color:#374151;min-width:120px;}
+.view-card .vc-row .vc-value{color:#111;text-align:right;flex:1;}
+.view-card .vc-section{margin-top:12px;padding-top:8px;border-top:2px solid var(--green3);}
+.view-card .vc-section h4{font-size:13px;color:var(--green);margin-bottom:6px;}
+.view-card .vc-menu-item{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:4px;font-size:12px;display:flex;justify-content:space-between;}
+.view-card .vc-footer{text-align:center;padding:12px;font-size:10px;color:#9ca3af;border-top:1px solid #e5e7eb;}
+.view-card .vc-qr{text-align:center;padding:8px;}
+
+/* ── WAITLIST ── */
+.waitlist-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:var(--radius);background:var(--bg);margin-bottom:6px;border-left:4px solid var(--gold2);}
 .waitlist-item .wl-info{flex:1;}
-.waitlist-item .wl-name{font-weight:600;font-size:14px;}
-.waitlist-item .wl-meta{font-size:12px;color:var(--text3);margin-top:2px;}
+.waitlist-item .wl-name{font-weight:600;font-size:13px;}
+.waitlist-item .wl-meta{font-size:11px;color:var(--text3);margin-top:1px;}
 
-/* ── Responsive ──────────────────────────────── */
+/* ── OCCASION ── */
+.occasion-card{background:var(--bg);border-radius:var(--radius);padding:10px;border-left:4px solid var(--gold2);margin-bottom:6px;}
+.occasion-card .occ-type{font-weight:700;color:var(--gold3);}
+.occasion-card .occ-date{font-size:11px;color:var(--text3);}
+
+/* ── FORECAST ── */
+.forecast-card{background:var(--bg);border-radius:var(--radius);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-left:4px solid var(--gold2);}
+.forecast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+
+/* ── RESPONSIVE ── */
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);}
   .sidebar.open{transform:translateX(0);}
@@ -173,56 +200,43 @@ tr:hover{background:rgba(99,102,241,.03);}
   .topbar-left .hamburger{display:block;}
   .stats-grid{grid-template-columns:1fr 1fr;}
   .form-row{grid-template-columns:1fr;}
-  .content{padding:14px;}
+  .content{padding:10px;}
+  .modal{max-width:100%;padding:14px;}
+  .panel{padding:10px;}
+  table{font-size:11px;}
+  th,td{padding:6px 8px;}
 }
-@media(max-width:480px){
+@media(max-width:400px){
   .stats-grid{grid-template-columns:1fr;}
-  .floor-plan{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));}
+  .floor-plan{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));}
+  .login-box{padding:20px 16px;}
 }
 
-/* ── Toast ───────────────────────────────────── */
-.toast-container{position:fixed;top:20px;right:20px;z-index:999;}
-.toast{padding:12px 20px;border-radius:var(--radius);margin-bottom:8px;font-size:13px;font-weight:500;animation:slideIn .3s;box-shadow:var(--shadow);}
-.toast-success{background:var(--success);color:#fff;}
+/* ── TOAST ── */
+.toast-container{position:fixed;top:12px;right:12px;z-index:999;}
+.toast{padding:10px 16px;border-radius:var(--radius);margin-bottom:6px;font-size:12px;font-weight:500;animation:slideIn .3s;box-shadow:var(--shadow);}
+.toast-success{background:var(--green3);color:#fff;}
 .toast-error{background:var(--danger);color:#fff;}
-.toast-info{background:var(--info);color:#fff;}
-@keyframes slideIn{from{transform:translateX(100px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.toast-info{background:var(--gold2);color:#000;}
+@keyframes slideIn{from{transform:translateX(80px);opacity:0;}to{transform:translateX(0);opacity:1;}}
 
-/* ── Tab system ──────────────────────────────── */
-.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--bg3);padding-bottom:4px;}
-.tab-btn{padding:8px 16px;font-size:13px;font-weight:600;border-radius:var(--radius) var(--radius) 0 0;background:transparent;color:var(--text3);transition:.2s;}
-.tab-btn.active{background:var(--bg3);color:var(--primary-light);}
+/* ── TAB ── */
+.tabs{display:flex;gap:3px;margin-bottom:12px;border-bottom:1px solid var(--bg4);padding-bottom:4px;overflow-x:auto;}
+.tab-btn{padding:6px 14px;font-size:12px;font-weight:700;border-radius:var(--radius) var(--radius) 0 0;background:transparent;color:var(--text3);transition:.2s;white-space:nowrap;}
+.tab-btn.active{background:var(--bg4);color:var(--gold3);}
 
-/* ── Forecast ────────────────────────────────── */
-.forecast-card{background:var(--bg);border-radius:var(--radius);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-left:4px solid var(--primary);}
-.forecast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+/* ── MULTI-LANG ── */
+[data-lang="bn"] .lang-bn{display:inline;}[data-lang="bn"] .lang-en{display:none;}
+[data-lang="en"] .lang-bn{display:none;}[data-lang="en"] .lang-en{display:inline;}
+.lang-bn{display:none;}.lang-en{display:inline;}
 
-/* ── Occasion ────────────────────────────────── */
-.occasion-card{background:var(--bg);border-radius:var(--radius);padding:12px;border-left:4px solid var(--accent);margin-bottom:8px;}
-.occasion-card .occ-type{font-weight:700;color:var(--accent);}
-.occasion-card .occ-date{font-size:12px;color:var(--text3);}
-
-/* ── Multi-language ──────────────────────────── */
-[data-lang="bn"] .lang-bn{display:inline;}
-[data-lang="bn"] .lang-en{display:none;}
-[data-lang="en"] .lang-bn{display:none;}
-[data-lang="en"] .lang-en{display:inline;}
-.lang-bn{display:none;}
-.lang-en{display:inline;}
-
-/* ── Print ───────────────────────────────────── */
-@media print{
-  .sidebar,.topbar,.filter-bar,.modal-overlay,.toast-container{display:none!important;}
-  .main{margin-left:0!important;}
-  body{background:#fff;color:#000;}
-}
+/* ── PRINT ── */
+@media print{.sidebar,.topbar,.filter-bar,.modal-overlay,.toast-container,.no-print{display:none!important;}.main{margin-left:0!important;}body{background:#fff;color:#000;}}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════
-     LOGIN PAGE
-     ═══════════════════════════════════════════════════ -->
+<!-- ═══ LOGIN PAGE ═══ -->
 <div id="loginPage">
   <div class="login-box">
     <div class="logo">
@@ -230,1933 +244,576 @@ tr:hover{background:rgba(99,102,241,.03);}
       <p class="lang-en">Guest Reservation Management System</p>
       <p class="lang-bn">গেস্ট রিজার্ভেশন ম্যানেজমেন্ট সিস্টেম</p>
     </div>
-    <div class="form-group">
-      <label class="lang-en">Username</label><label class="lang-bn">ইউজারনেম</label>
-      <input type="text" id="loginUser" placeholder="Enter username" autocomplete="username">
-    </div>
-    <div class="form-group">
-      <label class="lang-en">Password</label><label class="lang-bn">পাসওয়ার্ড</label>
-      <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
-    </div>
-    <button class="btn btn-primary btn-full" onclick="doLogin()">
-      <span class="lang-en">Login</span><span class="lang-bn">লগইন</span>
-    </button>
+    <div class="fg"><label class="lang-en">Username</label><label class="lang-bn">ইউজারনেম</label><input type="text" id="loginUser" placeholder="Enter username" autocomplete="username"></div>
+    <div class="fg"><label class="lang-en">Password</label><label class="lang-bn">পাসওয়ার্ড</label><input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password"></div>
+    <button class="btn btn-gold btn-full" onclick="doLogin()"><span class="lang-en">Login</span><span class="lang-bn">লগইন</span></button>
     <div class="login-error" id="loginError"></div>
-
-    <!-- GAS URL Settings — on login page itself -->
     <details class="gas-settings" id="gasSettings">
-      <summary>⚙️ <span class="lang-en">Backend Connection Settings</span><span class="lang-bn">ব্যাকএন্ড কানেকশন সেটিংস</span></summary>
-      <div class="form-group">
-        <label class="lang-en">Google Apps Script URL</label><label class="lang-bn">Google Apps Script URL</label>
-        <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/XXXXX/exec">
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="testGasConnection()">
-        <span class="lang-en">Test Connection</span><span class="lang-bn">কানেকশন টেস্ট</span>
-      </button>
-      <button class="btn btn-primary btn-sm" onclick="saveGasUrl()" style="margin-left:6px;">
-        <span class="lang-en">Save URL</span><span class="lang-bn">URL সেভ করুন</span>
-      </button>
-      <div id="gasStatus" class="gas-status disconnected">
-        <span class="lang-en">Not connected</span><span class="lang-bn">কানেক্ট হয়নি</span>
-      </div>
+      <summary>⚙️ <span class="lang-en">Backend Connection</span><span class="lang-bn">ব্যাকএন্ড কানেকশন</span></summary>
+      <div class="fg"><label>GAS Web App URL</label><input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/XXXXX/exec"></div>
+      <button class="btn btn-ghost btn-sm" onclick="testGasConnection()"><span class="lang-en">Test</span><span class="lang-bn">টেস্ট</span></button>
+      <button class="btn btn-gold btn-sm" onclick="saveGasUrl()" style="margin-left:4px;"><span class="lang-en">Save</span><span class="lang-bn">সেভ</span></button>
+      <div id="gasStatus" class="gas-status disconnected"><span class="lang-en">Not connected</span><span class="lang-bn">কানেক্ট নেই</span></div>
     </details>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     MAIN APP
-     ═══════════════════════════════════════════════════ -->
+<!-- ═══ MAIN APP ═══ -->
 <div id="app">
-  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <h2>🔐 VAULT</h2>
-      <span class="role-badge" id="roleBadge">ADMIN</span>
-    </div>
+    <div class="sidebar-header"><h2>🔐 VAULT</h2><span class="role-badge" id="roleBadge">ADMIN</span></div>
     <nav class="sidebar-nav">
-      <div class="nav-section" data-i18n="main">Main</div>
-      <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
-        <span class="icon">📊</span><span class="lang-en">Dashboard</span><span class="lang-bn">ড্যাশবোর্ড</span>
-      </div>
-      <div class="nav-item" data-page="reservations" onclick="navigate('reservations')">
-        <span class="icon">📋</span><span class="lang-en">Reservations</span><span class="lang-bn">রিজার্ভেশন</span>
-      </div>
-      <div class="nav-item" data-page="floorplan" onclick="navigate('floorplan')">
-        <span class="icon">🪑</span><span class="lang-en">Floor Plan</span><span class="lang-bn">ফ্লোর প্ল্যান</span>
-      </div>
-      <div class="nav-item" data-page="waitlist" onclick="navigate('waitlist')">
-        <span class="icon">⏳</span><span class="lang-en">Waitlist</span><span class="lang-bn">ওয়েটলিস্ট</span>
-      </div>
-      <div class="nav-item" data-page="checkin" onclick="navigate('checkin')">
-        <span class="icon">✅</span><span class="lang-en">Check-In</span><span class="lang-bn">চেক-ইন</span>
-      </div>
-
-      <div class="nav-section" data-i18n="management">Management</div>
-      <div class="nav-item" data-page="recurring" onclick="navigate('recurring')">
-        <span class="icon">🔄</span><span class="lang-en">Recurring</span><span class="lang-bn">রিকারিং</span>
-      </div>
-      <div class="nav-item" data-page="occasions" onclick="navigate('occasions')">
-        <span class="icon">🎂</span><span class="lang-en">Occasions</span><span class="lang-bn">অকেশন</span>
-      </div>
-      <div class="nav-item" data-page="menupackages" onclick="navigate('menupackages')">
-        <span class="icon">🍽️</span><span class="lang-en">Menu/Packages</span><span class="lang-bn">মেনু/প্যাকেজ</span>
-      </div>
-      <div class="nav-item" data-page="payments" onclick="navigate('payments')">
-        <span class="lang-en">Payments</span><span class="lang-bn">পেমেন্ট</span>
-        <span class="icon">💰</span>
-      </div>
-      <div class="nav-item" data-page="reminders" onclick="navigate('reminders')">
-        <span class="icon">📲</span><span class="lang-en">Reminders</span><span class="lang-bn">রিমাইন্ডার</span>
-      </div>
-
-      <div class="nav-section" data-i18n="reports">Reports</div>
-      <div class="nav-item" data-page="reports" onclick="navigate('reports')">
-        <span class="icon">📈</span><span class="lang-en">Analytics</span><span class="lang-bn">অ্যানালিটিক্স</span>
-      </div>
-      <div class="nav-item" data-page="revenue" onclick="navigate('revenue')">
-        <span class="icon">💵</span><span class="lang-en">Revenue</span><span class="lang-bn">রেভিনিউ</span>
-      </div>
-      <div class="nav-item" data-page="forecast" onclick="navigate('forecast')">
-        <span class="icon">🔮</span><span class="lang-en">Forecasting</span><span class="lang-bn">ফোরকাস্টিং</span>
-      </div>
-      <div class="nav-item" data-page="preferences" onclick="navigate('preferences')">
-        <span class="icon">🧠</span><span class="lang-en">Guest AI</span><span class="lang-bn">গেস্ট AI</span>
-      </div>
-
-      <div class="nav-section" data-i18n="system">System</div>
-      <div class="nav-item" data-page="users" onclick="navigate('users')">
-        <span class="icon">👥</span><span class="lang-en">Users</span><span class="lang-bn">ইউজার</span>
-      </div>
-      <div class="nav-item" data-page="tables" onclick="navigate('tables')">
-        <span class="icon">🪑</span><span class="lang-en">Tables</span><span class="lang-bn">টেবিল</span>
-      </div>
-      <div class="nav-item" data-page="settings" onclick="navigate('settings')">
-        <span class="icon">⚙️</span><span class="lang-en">Settings</span><span class="lang-bn">সেটিংস</span>
-      </div>
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')"><span class="icon">📊</span><span class="lang-en">Dashboard</span><span class="lang-bn">ড্যাশবোর্ড</span></div>
+      <div class="nav-item" data-page="reservations" onclick="navigate('reservations')"><span class="icon">📋</span><span class="lang-en">Reservations</span><span class="lang-bn">রিজার্ভেশন</span></div>
+      <div class="nav-item" data-page="floorplan" onclick="navigate('floorplan')"><span class="icon">🪑</span><span class="lang-en">Floor Plan</span><span class="lang-bn">ফ্লোর প্ল্যান</span></div>
+      <div class="nav-item" data-page="waitlist" onclick="navigate('waitlist')"><span class="icon">⏳</span><span class="lang-en">Waitlist</span><span class="lang-bn">ওয়েটলিস্ট</span></div>
+      <div class="nav-item" data-page="checkin" onclick="navigate('checkin')"><span class="icon">✅</span><span class="lang-en">Check-In</span><span class="lang-bn">চেক-ইন</span></div>
+      <div class="nav-section">Management</div>
+      <div class="nav-item" data-page="recurring" onclick="navigate('recurring')"><span class="icon">🔄</span><span class="lang-en">Recurring</span><span class="lang-bn">রিকারিং</span></div>
+      <div class="nav-item" data-page="occasions" onclick="navigate('occasions')"><span class="icon">🎂</span><span class="lang-en">Occasions</span><span class="lang-bn">অকেশন</span></div>
+      <div class="nav-item" data-page="menupackages" onclick="navigate('menupackages')"><span class="icon">🍽️</span><span class="lang-en">Menu/Packages</span><span class="lang-bn">মেনু/প্যাকেজ</span></div>
+      <div class="nav-item" data-page="payments" onclick="navigate('payments')"><span class="icon">💰</span><span class="lang-en">Payments</span><span class="lang-bn">পেমেন্ট</span></div>
+      <div class="nav-item" data-page="reminders" onclick="navigate('reminders')"><span class="icon">📲</span><span class="lang-en">Reminders</span><span class="lang-bn">রিমাইন্ডার</span></div>
+      <div class="nav-section">Reports</div>
+      <div class="nav-item" data-page="reports" onclick="navigate('reports')"><span class="icon">📈</span><span class="lang-en">Analytics</span><span class="lang-bn">অ্যানালিটিক্স</span></div>
+      <div class="nav-item" data-page="revenue" onclick="navigate('revenue')"><span class="icon">💵</span><span class="lang-en">Revenue</span><span class="lang-bn">রেভিনিউ</span></div>
+      <div class="nav-item" data-page="forecast" onclick="navigate('forecast')"><span class="icon">🔮</span><span class="lang-en">Forecast</span><span class="lang-bn">ফোরকাস্ট</span></div>
+      <div class="nav-item" data-page="preferences" onclick="navigate('preferences')"><span class="icon">🧠</span><span class="lang-en">Guest AI</span><span class="lang-bn">গেস্ট AI</span></div>
+      <div class="nav-section">System</div>
+      <div class="nav-item" data-page="users" onclick="navigate('users')"><span class="icon">👥</span><span class="lang-en">Users</span><span class="lang-bn">ইউজার</span></div>
+      <div class="nav-item" data-page="tables" onclick="navigate('tables')"><span class="icon">🪑</span><span class="lang-en">Tables</span><span class="lang-bn">টেবিল</span></div>
+      <div class="nav-item" data-page="settings" onclick="navigate('settings')"><span class="icon">⚙️</span><span class="lang-en">Settings</span><span class="lang-bn">সেটিংস</span></div>
     </nav>
   </aside>
-
-  <!-- Main Content -->
   <div class="main">
     <header class="topbar">
-      <div class="topbar-left">
-        <button class="hamburger" onclick="toggleSidebar()">☰</button>
-        <h3 id="pageTitle">Dashboard</h3>
-      </div>
+      <div class="topbar-left"><button class="hamburger" onclick="toggleSidebar()">☰</button><h3 id="pageTitle">Dashboard</h3></div>
       <div class="topbar-right">
         <button class="lang-toggle" onclick="toggleLang()" id="langBtn">বাং</button>
-        <div class="user-info">
-          <div class="avatar" id="userAvatar">A</div>
-          <span id="userName">Admin</span>
-        </div>
+        <div class="user-info"><div class="avatar" id="userAvatar">A</div><span id="userName">Admin</span></div>
         <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
       </div>
     </header>
-    <div class="content" id="contentArea">
-      <!-- Dynamic content loaded here -->
-    </div>
+    <div class="content" id="contentArea"></div>
   </div>
 </div>
 
-<!-- Toast Container -->
+<!-- ═══ TOAST ═══ -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ═══════════════════════════════════════════════════
-     MODALS
-     ═══════════════════════════════════════════════════ -->
-
-<!-- Reservation Modal -->
+<!-- ═══ RESERVATION MODAL (Upgraded) ═══ -->
 <div class="modal-overlay" id="reservationModal">
-  <div class="modal">
-    <h3 id="resModalTitle">New Reservation</h3>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Guest Name *</label>
-        <input type="text" id="resGuestName" required>
+  <div class="modal" style="max-width:620px;">
+    <h3 id="resModalTitle">🔐 New Reservation</h3>
+    <div class="step-indicator" id="resSteps"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+
+    <!-- Step 1: Phone + Guest -->
+    <div id="resStep1">
+      <div class="fg" style="position:relative;">
+        <label>📞 Phone Number *</label>
+        <input type="tel" id="resGuestPhone" placeholder="01XXXXXXXXX" oninput="autoSuggestGuest()" autocomplete="off">
+        <div class="suggestion-box" id="suggestBox" style="display:none;"></div>
       </div>
-      <div class="form-group">
-        <label>Phone *</label>
-        <input type="text" id="resGuestPhone" required>
+      <div class="fg"><label>👤 Guest Name *</label><input type="text" id="resGuestName" placeholder="Full name"></div>
+      <div class="fg"><label>📧 Email</label><input type="email" id="resGuestEmail" placeholder="guest@email.com"></div>
+      <div style="text-align:right;margin-top:10px;"><button class="btn btn-gold" onclick="resNextStep(2)">Next →</button></div>
+    </div>
+
+    <!-- Step 2: Date/Time/Category -->
+    <div id="resStep2" style="display:none;">
+      <div class="form-row">
+        <div class="fg"><label>📅 Date *</label><input type="date" id="resDate"></div>
+        <div class="fg"><label>🕐 Time *</label><input type="time" id="resTime"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>🍽️ Category *</label>
+          <select id="resCategory">
+            <option value="lunch">☀️ Lunch</option>
+            <option value="dinner">🌙 Dinner</option>
+          </select>
+        </div>
+        <div class="fg"><label>🪑 Table</label><select id="resTable"><option value="">Auto-assign</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>👨 Adults *</label><input type="number" id="resAdults" min="1" value="2"></div>
+        <div class="fg"><label>👶 Babies/Kids</label><input type="number" id="resBabies" min="0" value="0"></div>
+      </div>
+      <div class="fg"><label>📋 Type</label>
+        <select id="resType"><option value="reservation">Reservation</option><option value="walkin">Walk-in</option></select>
+      </div>
+      <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:10px;">
+        <button class="btn btn-ghost" onclick="resNextStep(1)">← Back</button>
+        <button class="btn btn-gold" onclick="resNextStep(3)">Next →</button>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="resGuestEmail">
+
+    <!-- Step 3: Menu + Payment + Notes -->
+    <div id="resStep3" style="display:none;">
+      <div class="fg">
+        <label>🍽️ Menu Packages</label>
+        <div style="display:flex;gap:6px;">
+          <select id="resMenuSelect" style="flex:1;padding:8px;background:var(--bg);border:1px solid var(--bg4);border-radius:var(--radius);color:var(--text);font-size:12px;"><option value="">+ Add menu</option></select>
+          <button class="btn btn-green btn-sm" onclick="addMenuToReservation()">Add</button>
+        </div>
+        <div id="resMenuChips" style="margin-top:6px;"></div>
       </div>
-      <div class="form-group">
-        <label>Guests *</label>
-        <input type="number" id="resGuests" min="1" value="2" required>
+      <div class="form-row">
+        <div class="fg"><label>💰 Deposit Amount</label><input type="number" id="resDeposit" min="0" value="0"></div>
+        <div class="fg"><label>Deposit Status</label>
+          <select id="resDepositStatus"><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="partial">Partial</option></select>
+        </div>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Date *</label>
-        <input type="date" id="resDate" required>
+      <div class="form-row">
+        <div class="fg"><label>🎉 Occasion</label>
+          <select id="resOccasion"><option value="">None</option><option value="birthday">Birthday</option><option value="anniversary">Anniversary</option><option value="corporate">Corporate</option><option value="date">Date Night</option><option value="family">Family</option></select>
+        </div>
+        <div class="fg"><label>📝 Notes</label><input type="text" id="resNotes" placeholder="Special requests..."></div>
       </div>
-      <div class="form-group">
-        <label>Time *</label>
-        <input type="time" id="resTime" required>
+      <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:10px;">
+        <button class="btn btn-ghost" onclick="resNextStep(2)">← Back</button>
+        <button class="btn btn-gold" onclick="saveReservation()">💾 Save Reservation</button>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Table</label>
-        <select id="resTable"><option value="">Auto-assign</option></select>
-      </div>
-      <div class="form-group">
-        <label>Type</label>
-        <select id="resType">
-          <option value="reservation">Reservation</option>
-          <option value="walkin">Walk-in</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Menu Package</label>
-        <select id="resMenu"><option value="">None</option></select>
-      </div>
-      <div class="form-group">
-        <label>Occasion</label>
-        <select id="resOccasion">
-          <option value="">None</option>
-          <option value="birthday">Birthday</option>
-          <option value="anniversary">Anniversary</option>
-          <option value="corporate">Corporate</option>
-          <option value="date">Date Night</option>
-          <option value="family">Family Gathering</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Deposit Amount</label>
-        <input type="number" id="resDeposit" min="0" value="0">
-      </div>
-      <div class="form-group">
-        <label>Deposit Status</label>
-        <select id="resDepositStatus">
-          <option value="unpaid">Unpaid</option>
-          <option value="paid">Paid</option>
-          <option value="partial">Partial</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea id="resNotes" rows="2"></textarea>
     </div>
     <input type="hidden" id="resEditId">
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('reservationModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveReservation()">Save Reservation</button>
+    <input type="hidden" id="resMenuList" value="[]">
+  </div>
+</div>
+
+<!-- ═══ RESERVATION VIEW MODAL ═══ -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal" style="max-width:500px;padding:0;overflow:hidden;">
+    <div id="viewCardContainer"></div>
+    <div style="padding:12px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;" class="no-print">
+      <button class="btn btn-gold btn-sm" onclick="exportViewPDF()">📄 Export PDF</button>
+      <button class="btn btn-green btn-sm" onclick="exportViewJPG()">🖼️ Export JPG (WhatsApp)</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('viewModal')">✕ Close</button>
     </div>
   </div>
 </div>
 
-<!-- User Modal -->
-<div class="modal-overlay" id="userModal">
-  <div class="modal">
-    <h3 id="userModalTitle">Add User</h3>
-    <div class="form-row">
-      <div class="form-group"><label>Full Name *</label><input type="text" id="userFullName"></div>
-      <div class="form-group"><label>Username *</label><input type="text" id="userUsername"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Password *</label><input type="password" id="userPassword"></div>
-      <div class="form-group"><label>Role</label>
-        <select id="userRole"><option value="staff">Staff</option><option value="admin">Admin</option></select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Email</label><input type="email" id="userEmail"></div>
-      <div class="form-group"><label>Phone</label><input type="text" id="userPhone"></div>
-    </div>
-    <input type="hidden" id="userEditId">
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('userModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveUser()">Save User</button>
-    </div>
-  </div>
-</div>
+<!-- ═══ Other Modals (simplified for space) ═══ -->
+<div class="modal-overlay" id="userModal"><div class="modal"><h3 id="userModalTitle">Add User</h3>
+  <div class="form-row"><div class="fg"><label>Full Name *</label><input type="text" id="userFullName"></div><div class="fg"><label>Username *</label><input type="text" id="userUsername"></div></div>
+  <div class="form-row"><div class="fg"><label>Password *</label><input type="password" id="userPassword"></div><div class="fg"><label>Role</label><select id="userRole"><option value="staff">Staff</option><option value="admin">Admin</option></select></div></div>
+  <div class="form-row"><div class="fg"><label>Email</label><input type="email" id="userEmail"></div><div class="fg"><label>Phone</label><input type="text" id="userPhone"></div></div>
+  <input type="hidden" id="userEditId"><div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('userModal')">Cancel</button><button class="btn btn-gold" onclick="saveUser()">Save</button></div>
+</div></div>
 
-<!-- Table Modal -->
-<div class="modal-overlay" id="tableModal">
-  <div class="modal">
-    <h3 id="tableModalTitle">Add Table</h3>
-    <div class="form-row">
-      <div class="form-group"><label>Table Number *</label><input type="text" id="tableNumber"></div>
-      <div class="form-group"><label>Capacity *</label><input type="number" id="tableCapacity" min="1"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Location</label>
-        <select id="tableLocation"><option>Indoor</option><option>Outdoor</option><option>VIP</option><option>Bar</option></select>
-      </div>
-      <div class="form-group"><label>Status</label>
-        <select id="tableStatus"><option value="available">Available</option><option value="reserved">Reserved</option><option value="occupied">Occupied</option></select>
-      </div>
-    </div>
-    <input type="hidden" id="tableEditId">
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('tableModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveTable()">Save Table</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="tableModal"><div class="modal"><h3 id="tableModalTitle">Add Table</h3>
+  <div class="form-row"><div class="fg"><label>Table Number *</label><input type="text" id="tableNumber"></div><div class="fg"><label>Capacity *</label><input type="number" id="tableCapacity" min="1"></div></div>
+  <div class="form-row"><div class="fg"><label>Location</label><select id="tableLocation"><option>Indoor</option><option>Outdoor</option><option>VIP</option><option>Bar</option></select></div><div class="fg"><label>Status</label><select id="tableStatus"><option value="available">Available</option><option value="reserved">Reserved</option><option value="occupied">Occupied</option></select></div></div>
+  <input type="hidden" id="tableEditId"><div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('tableModal')">Cancel</button><button class="btn btn-gold" onclick="saveTable()">Save</button></div>
+</div></div>
 
-<!-- Menu Package Modal -->
-<div class="modal-overlay" id="menuModal">
-  <div class="modal">
-    <h3 id="menuModalTitle">Add Menu Package</h3>
-    <div class="form-group"><label>Name *</label><input type="text" id="menuName"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Price</label><input type="number" id="menuPrice" min="0"></div>
-      <div class="form-group"><label>Category</label>
-        <select id="menuCategory"><option>standard</option><option>premium</option><option>vip</option><option>corporate</option></select>
-      </div>
-    </div>
-    <div class="form-group"><label>Items (comma-separated)</label><textarea id="menuItems" rows="2"></textarea></div>
-    <div class="form-group"><label>Description</label><textarea id="menuDesc" rows="2"></textarea></div>
-    <input type="hidden" id="menuEditId">
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('menuModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveMenuPackage()">Save Package</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="menuModal"><div class="modal"><h3 id="menuModalTitle">Add Menu Package</h3>
+  <div class="fg"><label>Name *</label><input type="text" id="menuName"></div>
+  <div class="form-row"><div class="fg"><label>Price</label><input type="number" id="menuPrice" min="0"></div><div class="fg"><label>Category</label><select id="menuCategory"><option>standard</option><option>premium</option><option>vip</option><option>corporate</option></select></div></div>
+  <div class="fg"><label>Items (comma-separated)</label><textarea id="menuItems" rows="2"></textarea></div>
+  <div class="fg"><label>Description</label><textarea id="menuDesc" rows="2"></textarea></div>
+  <input type="hidden" id="menuEditId"><div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('menuModal')">Cancel</button><button class="btn btn-gold" onclick="saveMenuPackage()">Save</button></div>
+</div></div>
 
-<!-- Recurring Modal -->
-<div class="modal-overlay" id="recurringModal">
-  <div class="modal">
-    <h3>Add Recurring Reservation</h3>
-    <div class="form-row">
-      <div class="form-group"><label>Guest Name *</label><input type="text" id="recGuestName"></div>
-      <div class="form-group"><label>Phone *</label><input type="text" id="recGuestPhone"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Frequency</label>
-        <select id="recFrequency"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
-      </div>
-      <div class="form-group"><label>Day (for weekly: Mon/Tue... / monthly: 1-31)</label><input type="text" id="recDay"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Time *</label><input type="time" id="recTime"></div>
-      <div class="form-group"><label>Guests</label><input type="number" id="recGuests" min="1" value="2"></div>
-    </div>
-    <div class="form-group"><label>Table</label><select id="recTable"><option value="">Auto-assign</option></select></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('recurringModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveRecurring()">Save</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="recurringModal"><div class="modal"><h3>Recurring Reservation</h3>
+  <div class="form-row"><div class="fg"><label>Guest Name *</label><input type="text" id="recGuestName"></div><div class="fg"><label>Phone *</label><input type="text" id="recGuestPhone"></div></div>
+  <div class="form-row"><div class="fg"><label>Frequency</label><select id="recFrequency"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div><div class="fg"><label>Day</label><input type="text" id="recDay"></div></div>
+  <div class="form-row"><div class="fg"><label>Time *</label><input type="time" id="recTime"></div><div class="fg"><label>Guests</label><input type="number" id="recGuests" min="1" value="2"></div></div>
+  <div class="fg"><label>Table</label><select id="recTable"><option value="">Auto-assign</option></select></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('recurringModal')">Cancel</button><button class="btn btn-gold" onclick="saveRecurring()">Save</button></div>
+</div></div>
 
-<!-- Occasion Modal -->
-<div class="modal-overlay" id="occasionModal">
-  <div class="modal">
-    <h3>Add Occasion</h3>
-    <div class="form-row">
-      <div class="form-group"><label>Guest Name *</label><input type="text" id="occGuestName"></div>
-      <div class="form-group"><label>Phone *</label><input type="text" id="occGuestPhone"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Occasion Type</label>
-        <select id="occType"><option>Birthday</option><option>Anniversary</option><option>Corporate Event</option><option>Graduation</option><option>Other</option></select>
-      </div>
-      <div class="form-group"><label>Date *</label><input type="date" id="occDate"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Reminder (days before)</label><input type="number" id="occReminderDays" min="1" value="7"></div>
-      <div class="form-group"><label>Notes</label><input type="text" id="occNotes"></div>
-    </div>
-    <input type="hidden" id="occEditId">
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('occasionModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveOccasion()">Save</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="occasionModal"><div class="modal"><h3>Add Occasion</h3>
+  <div class="form-row"><div class="fg"><label>Guest Name *</label><input type="text" id="occGuestName"></div><div class="fg"><label>Phone *</label><input type="text" id="occGuestPhone"></div></div>
+  <div class="form-row"><div class="fg"><label>Type</label><select id="occType"><option>Birthday</option><option>Anniversary</option><option>Corporate</option><option>Graduation</option><option>Other</option></select></div><div class="fg"><label>Date *</label><input type="date" id="occDate"></div></div>
+  <div class="form-row"><div class="fg"><label>Reminder (days)</label><input type="number" id="occReminderDays" min="1" value="7"></div><div class="fg"><label>Notes</label><input type="text" id="occNotes"></div></div>
+  <input type="hidden" id="occEditId"><div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('occasionModal')">Cancel</button><button class="btn btn-gold" onclick="saveOccasion()">Save</button></div>
+</div></div>
 
-<!-- Payment Modal -->
-<div class="modal-overlay" id="paymentModal">
-  <div class="modal">
-    <h3>Record Payment</h3>
-    <div class="form-group"><label>Reservation ID *</label><input type="text" id="payResId"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Amount *</label><input type="number" id="payAmount" min="0"></div>
-      <div class="form-group"><label>Method</label>
-        <select id="payMethod"><option>Cash</option><option>Card</option><option>bKash</option><option>Nagad</option><option>Bank Transfer</option></select>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('paymentModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="savePayment()">Record Payment</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="paymentModal"><div class="modal"><h3>Record Payment</h3>
+  <div class="fg"><label>Reservation ID *</label><input type="text" id="payResId"></div>
+  <div class="form-row"><div class="fg"><label>Amount *</label><input type="number" id="payAmount" min="0"></div><div class="fg"><label>Method</label><select id="payMethod"><option>Cash</option><option>Card</option><option>bKash</option><option>Nagad</option><option>Bank</option></select></div></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('paymentModal')">Cancel</button><button class="btn btn-gold" onclick="savePayment()">Record</button></div>
+</div></div>
 
-<!-- Reminder Modal -->
-<div class="modal-overlay" id="reminderModal">
-  <div class="modal">
-    <h3>Send Reminder</h3>
-    <div class="form-group"><label>Reservation ID</label><input type="text" id="remResId"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Type</label>
-        <select id="remType"><option value="email">Email</option><option value="sms">SMS</option><option value="whatsapp">WhatsApp</option></select>
-      </div>
-      <div class="form-group"><label>Phone (for SMS/WA)</label><input type="text" id="remPhone"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Email (for Email)</label><input type="email" id="remEmail"></div>
-      <div class="form-group"><label>Custom Message (optional)</label><input type="text" id="remMessage"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('reminderModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="sendReminder()">Send</button>
-    </div>
-  </div>
-</div>
-
-<!-- QR Modal -->
-<div class="modal-overlay" id="qrModal">
-  <div class="modal">
-    <h3>QR Code Check-In</h3>
-    <div class="qr-display" id="qrDisplay"></div>
-    <div class="form-group" style="margin-top:16px;">
-      <label>Or enter Reservation ID manually:</label>
-      <input type="text" id="qrResId" placeholder="VR-XXXXXX">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('qrModal')">Close</button>
-      <button class="btn btn-success" onclick="manualCheckin()">Check In</button>
-    </div>
-  </div>
-</div>
-
+<div class="modal-overlay" id="reminderModal"><div class="modal"><h3>Send Reminder</h3>
+  <div class="fg"><label>Reservation ID</label><input type="text" id="remResId"></div>
+  <div class="form-row"><div class="fg"><label>Type</label><select id="remType"><option value="email">Email</option><option value="sms">SMS</option><option value="whatsapp">WhatsApp</option></select></div><div class="fg"><label>Phone</label><input type="text" id="remPhone"></div></div>
+  <div class="form-row"><div class="fg"><label>Email</label><input type="email" id="remEmail"></div><div class="fg"><label>Message</label><input type="text" id="remMessage"></div></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('reminderModal')">Cancel</button><button class="btn btn-gold" onclick="sendReminder()">Send</button></div>
+</div></div>
 
 <!-- ═══════════════════════════════════════════════════
-     JAVASCRIPT — COMPLETE APPLICATION LOGIC
+     JAVASCRIPT
      ═══════════════════════════════════════════════════ -->
 <script>
-// ══════════════════════════════════════════════════════════
-//  GLOBAL STATE
-// ══════════════════════════════════════════════════════════
-const APP = {
-  gasUrl: localStorage.getItem('VAULT_GAS_URL') || '',
-  user: JSON.parse(localStorage.getItem('VAULT_USER') || 'null'),
-  lang: localStorage.getItem('VAULT_LANG') || 'en',
-  currentPage: 'dashboard',
-  reservations: [],
-  tables: [],
-  users: [],
-  waitlist: [],
-  menuPackages: [],
-  payments: [],
-  reminders: [],
-  recurring: [],
-  occasions: [],
-  checkins: [],
-  revenue: [],
-  guestPrefs: [],
-  reportFilters: {},
-  dashboardStats: null,
+const APP={
+  gasUrl:localStorage.getItem('VAULT_GAS_URL')||'',
+  user:JSON.parse(localStorage.getItem('VAULT_USER')||'null'),
+  lang:localStorage.getItem('VAULT_LANG')||'en',
+  currentPage:'dashboard',reservations:[],tables:[],users:[],waitlist:[],
+  menuPackages:[],payments:[],reminders:[],recurring:[],occasions:[],
+  checkins:[],revenue:[],guestPrefs:[],reportFilters:{},dashboardStats:null,
+  selectedMenus:[],logo:localStorage.getItem('VAULT_LOGO')||'',
 };
+const COLORS=['#0d4f2b','#d4a017','#22c55e','#ef4444','#3b82f6','#14b8a6','#8b5cf6','#ec4899','#f97316','#06b6d4','#84cc16','#a855f7'];
 
-const COLORS = ['#6366f1','#22c55e','#f59e0b','#ef4444','#3b82f6','#14b8a6','#8b5cf6','#ec4899','#f97316','#06b6d4','#84cc16','#a855f7'];
-
-// ══════════════════════════════════════════════════════════
-//  GAS API COMMUNICATION
-// ══════════════════════════════════════════════════════════
-async function gasGet(action, params = {}) {
-  if (!APP.gasUrl) return { error: 'GAS URL not configured' };
-  const url = new URL(APP.gasUrl);
-  url.searchParams.set('action', action);
-  Object.entries(params).forEach(([k, v]) => { if (v) url.searchParams.set(k, v); });
-  try {
-    const res = await fetch(url.toString());
-    return await res.json();
-  } catch (e) {
-    return { error: e.message };
-  }
+// ═══ GAS API ═══
+async function gasGet(action,params={}){
+  if(!APP.gasUrl)return{error:'GAS URL not configured'};
+  const url=new URL(APP.gasUrl);
+  url.searchParams.set('action',action);
+  Object.entries(params).forEach(([k,v])=>{if(v)url.searchParams.set(k,v);});
+  try{const r=await fetch(url.toString(),{redirect:'follow',headers:{'Accept':'application/json'}});if(r.ok){const t=await r.text();try{return JSON.parse(t)}catch(e){return{data:t}}}}catch(e){console.warn('fetch fail',e.message)}
+  try{return await new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('GET',url.toString(),true);x.onload=function(){try{res(JSON.parse(x.responseText))}catch(e){res({data:x.responseText})}};x.onerror=()=>rej(new Error('XHR fail'));x.send()})}catch(e){}
+  return{error:'Failed to fetch. Check: 1) URL ends /exec 2) Access: Anyone 3) Run setupVault() first',checks:['1. URL ends with /exec','2. Deployed as Web App','3. Execute as: Me','4. Access: Anyone (NOT "Anyone with Google Account")','5. Run setupVault() first','6. New Deployment after code change']};
+}
+async function gasPost(action,data={}){
+  if(!APP.gasUrl)return{error:'GAS URL not configured'};
+  data.action=action;
+  try{const r=await fetch(APP.gasUrl,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});if(r.ok||r.redirected){const t=await r.text();try{return JSON.parse(t)}catch(e){return{success:true}}}}catch(e){console.warn('POST fetch fail',e.message)}
+  try{return await new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('POST',APP.gasUrl,true);x.setRequestHeader('Content-Type','text/plain;charset=utf-8');x.onload=function(){try{res(JSON.parse(x.responseText))}catch(e){res({success:true})}};x.onerror=()=>rej(new Error('XHR POST fail'));x.send(JSON.stringify(data))})}catch(e){}
+  return{error:'POST failed. Check GAS deployment: Access must be "Anyone"'};
 }
 
-async function gasPost(action, data = {}) {
-  if (!APP.gasUrl) return { error: 'GAS URL not configured' };
-  data.action = action;
-  try {
-    const res = await fetch(APP.gasUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(data),
-    });
-    return await res.json();
-  } catch (e) {
-    return { error: e.message };
-  }
+function saveGasUrl(){const u=document.getElementById('gasUrlInput').value.trim();if(!u){toast('Enter URL','error');return}APP.gasUrl=u;localStorage.setItem('VAULT_GAS_URL',u);toast('Saved!','success');testGasConnection();}
+async function testGasConnection(){
+  const u=document.getElementById('gasUrlInput').value.trim();const s=document.getElementById('gasStatus');
+  if(!u){s.className='gas-status disconnected';s.innerHTML='No URL';return}
+  if(!u.includes('script.google.com')||!u.endsWith('/exec')){s.className='gas-status disconnected';s.innerHTML='❌ Invalid URL — must end /exec';return}
+  APP.gasUrl=u;s.innerHTML='Testing...';
+  const r=await gasGet('init');
+  if(r.error){s.className='gas-status disconnected';let h='❌ '+r.error;if(r.checks)h+='<br>'+r.checks.map(c=>'• '+c).join('<br>');h+='<br><span style="color:var(--gold2)">⚠️ Fix: Access → "Anyone" (not "Anyone with Google Account")</span>';s.innerHTML=h}
+  else{s.className='gas-status connected';s.innerHTML='✅ Connected!';localStorage.setItem('VAULT_GAS_URL',u)}
 }
 
-// ══════════════════════════════════════════════════════════
-//  GAS URL CONFIG & CONNECTION TEST
-// ══════════════════════════════════════════════════════════
-function saveGasUrl() {
-  const url = document.getElementById('gasUrlInput').value.trim();
-  if (!url) { toast('Please enter a valid URL', 'error'); return; }
-  APP.gasUrl = url;
-  localStorage.setItem('VAULT_GAS_URL', url);
-  toast('GAS URL saved!', 'success');
-  testGasConnection();
+// ═══ AUTH ═══
+async function doLogin(){
+  const u=document.getElementById('loginUser').value.trim(),p=document.getElementById('loginPass').value.trim();
+  if(!u||!p){document.getElementById('loginError').textContent='Enter username & password';return}
+  if(!APP.gasUrl){document.getElementById('loginError').textContent='Set GAS URL first (below ⚙️)';return}
+  const r=await gasPost('login',{username:u,password:p});
+  if(r.success){APP.user=r.user;localStorage.setItem('VAULT_USER',JSON.stringify(r.user));showApp()}
+  else document.getElementById('loginError').textContent=r.error||'Login failed';
 }
+function doLogout(){APP.user=null;localStorage.removeItem('VAULT_USER');document.getElementById('app').style.display='none';document.getElementById('loginPage').style.display='flex';}
+function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='block';document.getElementById('userName').textContent=APP.user?.full_name||APP.user?.username;document.getElementById('userAvatar').textContent=(APP.user?.full_name||'A').charAt(0).toUpperCase();document.getElementById('roleBadge').textContent=(APP.user?.role||'staff').toUpperCase();setLang(APP.lang);navigate('dashboard');}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+function toggleLang(){setLang(APP.lang==='en'?'bn':'en');}
+function setLang(l){APP.lang=l;localStorage.setItem('VAULT_LANG',l);document.documentElement.setAttribute('data-lang',l);document.getElementById('langBtn').textContent=l==='en'?'বাং':'EN';}
 
-async function testGasConnection() {
-  const url = document.getElementById('gasUrlInput').value.trim();
-  const statusEl = document.getElementById('gasStatus');
-  if (!url) {
-    statusEl.className = 'gas-status disconnected';
-    statusEl.innerHTML = '<span class="lang-en">No URL provided</span><span class="lang-bn">URL দেওয়া হয়নি</span>';
-    return;
-  }
-  APP.gasUrl = url;
-  statusEl.innerHTML = '<span class="lang-en">Testing...</span><span class="lang-bn">টেস্ট হচ্ছে...</span>';
-  const result = await gasGet('init');
-  if (result.error) {
-    statusEl.className = 'gas-status disconnected';
-    statusEl.innerHTML = '❌ ' + result.error;
-  } else {
-    statusEl.className = 'gas-status connected';
-    statusEl.innerHTML = '✅ <span class="lang-en">Connected! Sheets initialized.</span><span class="lang-bn">কানেক্টেড! শিট ইনিশিয়ালাইজড।</span>';
-    localStorage.setItem('VAULT_GAS_URL', url);
-  }
-}
+// ═══ NAVIGATION ═══
+const PAGE_TITLES={dashboard:{en:'Dashboard',bn:'ড্যাশবোর্ড'},reservations:{en:'Reservations',bn:'রিজার্ভেশন'},floorplan:{en:'Floor Plan',bn:'ফ্লোর প্ল্যান'},waitlist:{en:'Waitlist',bn:'ওয়েটলিস্ট'},checkin:{en:'Check-In',bn:'চেক-ইন'},recurring:{en:'Recurring',bn:'রিকারিং'},occasions:{en:'Occasions',bn:'অকেশন'},menupackages:{en:'Menu & Packages',bn:'মেনু ও প্যাকেজ'},payments:{en:'Payments',bn:'পেমেন্ট'},reminders:{en:'Reminders',bn:'রিমাইন্ডার'},reports:{en:'Analytics',bn:'অ্যানালিটিক্স'},revenue:{en:'Revenue',bn:'রেভিনিউ'},forecast:{en:'Forecast',bn:'ফোরকাস্ট'},preferences:{en:'Guest AI',bn:'গেস্ট AI'},users:{en:'Users',bn:'ইউজার'},tables:{en:'Tables',bn:'টেবিল'},settings:{en:'Settings',bn:'সেটিংস'}};
+function navigate(p){APP.currentPage=p;document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));const n=document.querySelector(`.nav-item[data-page="${p}"]`);if(n)n.classList.add('active');document.getElementById('pageTitle').textContent=PAGE_TITLES[p]?.[APP.lang]||p;document.getElementById('sidebar').classList.remove('open');renderPage(p);}
+async function renderPage(p){const c=document.getElementById('contentArea');c.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">Loading...</div>';switch(p){case'dashboard':await renderDashboard();break;case'reservations':await renderReservations();break;case'floorplan':await renderFloorPlan();break;case'waitlist':await renderWaitlist();break;case'checkin':await renderCheckin();break;case'recurring':await renderRecurring();break;case'occasions':await renderOccasions();break;case'menupackages':await renderMenuPackages();break;case'payments':await renderPayments();break;case'reminders':await renderReminders();break;case'reports':await renderReports();break;case'revenue':await renderRevenue();break;case'forecast':await renderForecast();break;case'preferences':await renderPreferences();break;case'users':await renderUsers();break;case'tables':await renderTables();break;case'settings':await renderSettings();break;default:c.innerHTML='<p>Not found</p>';}}
 
-// ══════════════════════════════════════════════════════════
-//  AUTH
-// ══════════════════════════════════════════════════════════
-async function doLogin() {
-  const username = document.getElementById('loginUser').value.trim();
-  const password = document.getElementById('loginPass').value.trim();
-  if (!username || !password) {
-    document.getElementById('loginError').textContent = 'Please enter username and password';
-    return;
-  }
-  if (!APP.gasUrl) {
-    document.getElementById('loginError').textContent = 'Please configure GAS URL first (see settings below)';
-    return;
-  }
-  const result = await gasPost('login', { username, password });
-  if (result.success) {
-    APP.user = result.user;
-    localStorage.setItem('VAULT_USER', JSON.stringify(result.user));
-    showApp();
-  } else {
-    document.getElementById('loginError').textContent = result.error || 'Login failed';
-  }
-}
-
-function doLogout() {
-  APP.user = null;
-  localStorage.removeItem('VAULT_USER');
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('loginPage').style.display = 'flex';
-}
+// ═══ DATA LOADERS ═══
+async function loadReservations(p){const r=await gasGet('getreservations',p);APP.reservations=r.data||[];return APP.reservations;}
+async function loadTables(){const r=await gasGet('gettables');APP.tables=r.data||[];return APP.tables;}
+async function loadUsers(){const r=await gasGet('getusers');APP.users=r.data||[];return APP.users;}
+async function loadWaitlist(){const r=await gasGet('getwaitlist');APP.waitlist=r.data||[];return APP.waitlist;}
+async function loadMenuPackages(){const r=await gasGet('getmenupackages');APP.menuPackages=r.data||[];return APP.menuPackages;}
+async function loadPayments(p){const r=await gasGet('getpayments',p);APP.payments=r.data||[];return APP.payments;}
+async function loadReminders(){const r=await gasGet('getreminders');APP.reminders=r.data||[];return APP.reminders;}
+async function loadRecurring(){const r=await gasGet('getrecurring');APP.recurring=r.data||[];return APP.recurring;}
+async function loadOccasions(){const r=await gasGet('getoccasions');APP.occasions=r.data||[];return APP.occasions;}
+async function loadGuestPrefs(){const r=await gasGet('getguestpreferences');APP.guestPrefs=r.data||[];return APP.guestPrefs;}
 
 // ══════════════════════════════════════════════════════════
-//  APP INIT
+//  DASHBOARD — Today's Lunch/Dinner Split
 // ══════════════════════════════════════════════════════════
-function showApp() {
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('userName').textContent = APP.user.full_name || APP.user.username;
-  document.getElementById('userAvatar').textContent = (APP.user.full_name || APP.user.username).charAt(0).toUpperCase();
-  document.getElementById('roleBadge').textContent = APP.user.role.toUpperCase();
-  setLang(APP.lang);
-  navigate('dashboard');
-}
-
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-function toggleLang() {
-  const newLang = APP.lang === 'en' ? 'bn' : 'en';
-  setLang(newLang);
-}
-
-function setLang(lang) {
-  APP.lang = lang;
-  localStorage.setItem('VAULT_LANG', lang);
-  document.documentElement.setAttribute('data-lang', lang);
-  document.getElementById('langBtn').textContent = lang === 'en' ? 'বাং' : 'EN';
-}
-
-// ══════════════════════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════════════════════
-const PAGE_TITLES = {
-  dashboard: { en: 'Dashboard', bn: 'ড্যাশবোর্ড' },
-  reservations: { en: 'Reservations', bn: 'রিজার্ভেশন' },
-  floorplan: { en: 'Floor Plan / Live Table Status', bn: 'ফ্লোর প্ল্যান / লাইভ টেবিল স্ট্যাটাস' },
-  waitlist: { en: 'Waitlist Management', bn: 'ওয়েটলিস্ট ম্যানেজমেন্ট' },
-  checkin: { en: 'QR Code Check-In', bn: 'QR কোড চেক-ইন' },
-  recurring: { en: 'Recurring Reservations', bn: 'রিকারিং রিজার্ভেশন' },
-  occasions: { en: 'Occasion Reminders', bn: 'অকেশন রিমাইন্ডার' },
-  menupackages: { en: 'Menu & Packages', bn: 'মেনু ও প্যাকেজ' },
-  payments: { en: 'Payments & Deposits', bn: 'পেমেন্ট ও ডিপোজিট' },
-  reminders: { en: 'SMS / WhatsApp / Email Reminders', bn: 'SMS / WhatsApp / ইমেইল রিমাইন্ডার' },
-  reports: { en: 'Analytics & Reports', bn: 'অ্যানালিটিক্স ও রিপোর্ট' },
-  revenue: { en: 'Revenue Tracking', bn: 'রেভিনিউ ট্র্যাকিং' },
-  forecast: { en: 'Forecasting', bn: 'ফোরকাস্টিং' },
-  preferences: { en: 'AI Guest Preferences', bn: 'AI গেস্ট প্রেফারেন্স' },
-  users: { en: 'User Management', bn: 'ইউজার ম্যানেজমেন্ট' },
-  tables: { en: 'Table Management', bn: 'টেবিল ম্যানেজমেন্ট' },
-  settings: { en: 'Settings', bn: 'সেটিংস' },
-};
-
-function navigate(page) {
-  APP.currentPage = page;
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  const navEl = document.querySelector(`.nav-item[data-page="${page}"]`);
-  if (navEl) navEl.classList.add('active');
-  const t = PAGE_TITLES[page] || { en: page, bn: page };
-  document.getElementById('pageTitle').textContent = t[APP.lang] || t.en;
-  // Close mobile sidebar
-  document.getElementById('sidebar').classList.remove('open');
-  renderPage(page);
-}
-
-async function renderPage(page) {
-  const content = document.getElementById('contentArea');
-  content.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3);">Loading...</div>';
-
-  switch (page) {
-    case 'dashboard': await renderDashboard(); break;
-    case 'reservations': await renderReservations(); break;
-    case 'floorplan': await renderFloorPlan(); break;
-    case 'waitlist': await renderWaitlist(); break;
-    case 'checkin': await renderCheckin(); break;
-    case 'recurring': await renderRecurring(); break;
-    case 'occasions': await renderOccasions(); break;
-    case 'menupackages': await renderMenuPackages(); break;
-    case 'payments': await renderPayments(); break;
-    case 'reminders': await renderReminders(); break;
-    case 'reports': await renderReports(); break;
-    case 'revenue': await renderRevenue(); break;
-    case 'forecast': await renderForecast(); break;
-    case 'preferences': await renderPreferences(); break;
-    case 'users': await renderUsers(); break;
-    case 'tables': await renderTables(); break;
-    case 'settings': await renderSettings(); break;
-    default: content.innerHTML = '<p>Page not found</p>';
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-//  DATA LOADERS
-// ══════════════════════════════════════════════════════════
-async function loadReservations(params) { const r = await gasGet('getreservations', params); APP.reservations = r.data || []; return APP.reservations; }
-async function loadTables() { const r = await gasGet('gettables'); APP.tables = r.data || []; return APP.tables; }
-async function loadUsers() { const r = await gasGet('getusers'); APP.users = r.data || []; return APP.users; }
-async function loadWaitlist() { const r = await gasGet('getwaitlist'); APP.waitlist = r.data || []; return APP.waitlist; }
-async function loadMenuPackages() { const r = await gasGet('getmenupackages'); APP.menuPackages = r.data || []; return APP.menuPackages; }
-async function loadPayments(params) { const r = await gasGet('getpayments', params); APP.payments = r.data || []; return APP.payments; }
-async function loadReminders() { const r = await gasGet('getreminders'); APP.reminders = r.data || []; return APP.reminders; }
-async function loadRecurring() { const r = await gasGet('getrecurring'); APP.recurring = r.data || []; return APP.recurring; }
-async function loadOccasions() { const r = await gasGet('getoccasions'); APP.occasions = r.data || []; return APP.occasions; }
-async function loadGuestPrefs() { const r = await gasGet('getguestpreferences'); APP.guestPrefs = r.data || []; return APP.guestPrefs; }
-
-// ══════════════════════════════════════════════════════════
-//  1. DASHBOARD
-// ══════════════════════════════════════════════════════════
-async function renderDashboard() {
-  const stats = await gasGet('getdashboardstats');
-  APP.dashboardStats = stats;
-  const s = stats.error ? {} : stats;
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
+async function renderDashboard(){
+  const stats=await gasGet('getdashboardstats');const s=stats.error?{}:stats;
+  const today=new Date().toISOString().split('T')[0];
+  await loadReservations({date_from:today,date_to:today});
+  const todayRes=APP.reservations.filter(r=>r.date===today);
+  const lunchRes=todayRes.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])<17));
+  const dinnerRes=todayRes.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])>=17));
+  const c=document.getElementById('contentArea');
+  c.innerHTML=`
     <div class="stats-grid">
-      <div class="stat-card grad-purple">
-        <div class="label">Today's Reservations</div>
-        <div class="value">${s.total_reservations_today || 0}</div>
-        <div class="sub">Active: ${s.active_reservations || 0}</div>
-      </div>
-      <div class="stat-card grad-green">
-        <div class="label">Total Guests Today</div>
-        <div class="value">${s.total_guests_today || 0}</div>
-        <div class="sub">Across all bookings</div>
-      </div>
-      <div class="stat-card grad-orange">
-        <div class="label">Tables Occupied</div>
-        <div class="value">${s.occupied_tables || 0}/${s.total_tables || 0}</div>
-        <div class="sub">Waitlist: ${s.waitlist_count || 0}</div>
-      </div>
-      <div class="stat-card grad-blue">
-        <div class="label">Today's Revenue</div>
-        <div class="value">৳${(s.today_revenue || 0).toLocaleString()}</div>
-        <div class="sub">Walk-in: ${s.walkins_today || 0} | Reserve: ${s.reservations_today || 0}</div>
-      </div>
+      <div class="stat-card grad-green"><div class="label">Today's Total</div><div class="value">${s.total_reservations_today||0}</div><div class="sub">Active: ${s.active_reservations||0}</div></div>
+      <div class="stat-card grad-gold"><div class="label">☀️ Lunch</div><div class="value">${lunchRes.length}</div><div class="sub">${lunchRes.reduce((a,r)=>a+(parseInt(r.adults)||0)+(parseInt(r.babies)||0),0)} guests</div></div>
+      <div class="stat-card grad-teal"><div class="label">🌙 Dinner</div><div class="value">${dinnerRes.length}</div><div class="sub">${dinnerRes.reduce((a,r)=>a+(parseInt(r.adults)||0)+(parseInt(r.babies)||0),0)} guests</div></div>
+      <div class="stat-card grad-purple"><div class="label">👥 Total Guests</div><div class="value">${s.total_guests_today||0}</div><div class="sub">Adults + Babies</div></div>
+      <div class="stat-card grad-red"><div class="label">🪑 Tables</div><div class="value">${s.occupied_tables||0}/${s.total_tables||0}</div><div class="sub">Waitlist: ${s.waitlist_count||0}</div></div>
+      <div class="stat-card grad-blue"><div class="label">💵 Revenue</div><div class="value">৳${(s.today_revenue||0).toLocaleString()}</div><div class="sub">Walk-in: ${s.walkins_today||0}</div></div>
     </div>
-
-    ${s.upcoming_occasions && s.upcoming_occasions.length > 0 ? `
-    <div class="panel">
-      <div class="panel-header"><h3>🎂 Upcoming Occasions</h3></div>
-      ${s.upcoming_occasions.map(o => `
-        <div class="occasion-card">
-          <span class="occ-type">${o.occasion_type}</span> — ${o.guest_name}
-          <span class="occ-date">${o.occasion_date} | 📞 ${o.guest_phone}</span>
-        </div>
-      `).join('')}
-    </div>` : ''}
-
-    <div class="panel">
-      <div class="panel-header"><h3>📊 Quick Stats</h3></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-          <tbody>
-            <tr><td>Walk-ins Today</td><td>${s.walkins_today || 0}</td></tr>
-            <tr><td>Reservations Today</td><td>${s.reservations_today || 0}</td></tr>
-            <tr><td>Waitlist Count</td><td>${s.waitlist_count || 0}</td></tr>
-            <tr><td>Table Utilization</td><td>${s.total_tables ? Math.round((s.occupied_tables/s.total_tables)*100) : 0}%</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
+    ${s.upcoming_occasions&&s.upcoming_occasions.length?`<div class="panel"><div class="panel-header"><h3>🎂 Upcoming Occasions</h3></div>${s.upcoming_occasions.map(o=>`<div class="occasion-card"><span class="occ-type">${o.occasion_type}</span> — ${o.guest_name} <span class="occ-date">${o.occasion_date} | 📞 ${o.guest_phone}</span></div>`).join('')}</div>`:''}
+    <div class="panel"><div class="panel-header"><h3>📋 Today's Reservations</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Phone</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th></tr></thead><tbody>
+    ${todayRes.map(r=>`<tr><td>${r.guest_name}</td><td>${r.guest_phone||''}</td><td>${r.time}</td><td><span class="badge ${r.category==='dinner'?'badge-gold':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge badge-${r.status==='confirmed'?'success':r.status==='checked_in'?'info':'warning'}">${r.status}</span></td></tr>`).join('')}
+    </tbody></table></div></div>`;
 }
 
 // ══════════════════════════════════════════════════════════
-//  RESERVATIONS (CRUD)
+//  RESERVATIONS — Upgraded with View/Edit/Delete
 // ══════════════════════════════════════════════════════════
-async function renderReservations() {
-  await loadReservations();
-  await loadTables();
-  await loadMenuPackages();
-  populateTableSelect('resTable');
-  populateMenuSelect('resMenu');
-  const c = document.getElementById('contentArea');
-  const today = new Date().toISOString().split('T')[0];
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>All Reservations</h3>
-        <div class="filter-bar">
-          <input type="date" id="resFilterFrom" value="" onchange="filterReservations()">
-          <input type="date" id="resFilterTo" value="" onchange="filterReservations()">
-          <select id="resFilterStatus" onchange="filterReservations()">
-            <option value="">All Status</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="checked_in">Checked In</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="no_show">No Show</option>
-          </select>
-          <select id="resFilterType" onchange="filterReservations()">
-            <option value="">All Type</option>
-            <option value="reservation">Reservation</option>
-            <option value="walkin">Walk-in</option>
-          </select>
-          <button class="btn btn-primary btn-sm" onclick="openReservationModal()">+ New Reservation</button>
-          <button class="btn btn-ghost btn-sm" onclick="exportReservationsCSV()">📥 CSV</button>
-        </div>
-      </div>
-      <div class="table-wrap" id="resTableBody"></div>
-    </div>
-  `;
+async function renderReservations(){
+  await loadReservations();await loadTables();await loadMenuPackages();await loadGuestPrefs();
+  populateTableSelect('resTable');populateMenuSelect('resMenuSelect');
+  const c=document.getElementById('contentArea');
+  c.innerHTML=`<div class="panel"><div class="panel-header"><h3>All Reservations</h3><div class="filter-bar">
+    <input type="date" id="resFilterFrom" onchange="filterReservations()"><input type="date" id="resFilterTo" onchange="filterReservations()">
+    <select id="resFilterStatus" onchange="filterReservations()"><option value="">All Status</option><option value="confirmed">Confirmed</option><option value="checked_in">Checked In</option><option value="cancelled">Cancelled</option><option value="no_show">No Show</option></select>
+    <select id="resFilterCat" onchange="filterReservations()"><option value="">All Category</option><option value="lunch">☀️ Lunch</option><option value="dinner">🌙 Dinner</option></select>
+    <button class="btn btn-gold btn-sm" onclick="openReservationModal()">+ New</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportReservationsCSV()">📥 CSV</button>
+  </div></div><div class="table-wrap" id="resTableBody"></div></div>`;
   filterReservations();
 }
 
-function filterReservations() {
-  const from = document.getElementById('resFilterFrom')?.value;
-  const to = document.getElementById('resFilterTo')?.value;
-  const status = document.getElementById('resFilterStatus')?.value;
-  const type = document.getElementById('resFilterType')?.value;
-  let data = [...APP.reservations];
-  if (from) data = data.filter(r => r.date >= from);
-  if (to) data = data.filter(r => r.date <= to);
-  if (status) data = data.filter(r => r.status === status);
-  if (type) data = data.filter(r => r.type === type);
-
-  const statusBadge = (s) => {
-    const map = { confirmed: 'badge-success', checked_in: 'badge-info', cancelled: 'badge-danger', no_show: 'badge-warning', pending: 'badge-purple' };
-    return `<span class="badge ${map[s] || 'badge-info'}">${s}</span>`;
-  };
-
-  document.getElementById('resTableBody').innerHTML = `
-    <table>
-      <thead><tr><th>ID</th><th>Guest</th><th>Phone</th><th>Date</th><th>Time</th><th>Guests</th><th>Table</th><th>Type</th><th>Status</th><th>Deposit</th><th>Actions</th></tr></thead>
-      <tbody>
-        ${data.map(r => `<tr>
-          <td title="${r.id}">${r.id ? r.id.substring(0,12) : ''}...</td>
-          <td>${r.guest_name}</td>
-          <td>${r.guest_phone || ''}</td>
-          <td>${r.date}</td>
-          <td>${r.time}</td>
-          <td>${r.guests}</td>
-          <td>${r.table_id || '-'}</td>
-          <td><span class="badge ${r.type==='walkin'?'badge-warning':'badge-info'}">${r.type||'reservation'}</span></td>
-          <td>${statusBadge(r.status)}</td>
-          <td><span class="badge ${r.deposit_status==='paid'?'badge-success':'badge-danger'}">${r.deposit_status||'unpaid'}</span></td>
-          <td>
-            <button class="btn btn-ghost btn-sm" onclick="editReservation('${r.id}')">✏️</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteReservation('${r.id}')">🗑️</button>
-            <button class="btn btn-ghost btn-sm" onclick="sendReminderFor('${r.id}')">📲</button>
-          </td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-  `;
+function filterReservations(){
+  const f=document.getElementById('resFilterFrom')?.value,t=document.getElementById('resFilterTo')?.value,s=document.getElementById('resFilterStatus')?.value,cat=document.getElementById('resFilterCat')?.value;
+  let d=[...APP.reservations];if(f)d=d.filter(r=>r.date>=f);if(t)d=d.filter(r=>r.date<=t);if(s)d=d.filter(r=>r.status===s);if(cat)d=d.filter(r=>r.category===cat);
+  const sb=s=>({confirmed:'badge-success',checked_in:'badge-info',cancelled:'badge-danger',no_show:'badge-warning',pending:'badge-gold'}[s]||'badge-info');
+  document.getElementById('resTableBody').innerHTML=`<table><thead><tr><th>Guest</th><th>Phone</th><th>Date</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+  ${d.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${r.date}</td><td>${r.time}</td><td><span class="badge ${r.category==='dinner'?'badge-gold':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}">${r.status}</span></td><td style="white-space:nowrap;">
+    <button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button>
+    <button class="btn btn-ghost btn-sm" onclick="editReservation('${r.id}')">✏️</button>
+    <button class="btn btn-danger btn-sm" onclick="deleteReservation('${r.id}')">🗑</button>
+  </td></tr>`).join('')}</tbody></table>`;
 }
 
-function openReservationModal(editData) {
-  document.getElementById('resModalTitle').textContent = editData ? 'Edit Reservation' : 'New Reservation';
-  document.getElementById('resEditId').value = editData?.id || '';
-  document.getElementById('resGuestName').value = editData?.guest_name || '';
-  document.getElementById('resGuestPhone').value = editData?.guest_phone || '';
-  document.getElementById('resGuestEmail').value = editData?.guest_email || '';
-  document.getElementById('resGuests').value = editData?.guests || 2;
-  document.getElementById('resDate').value = editData?.date || new Date().toISOString().split('T')[0];
-  document.getElementById('resTime').value = editData?.time || '19:00';
-  document.getElementById('resType').value = editData?.type || 'reservation';
-  document.getElementById('resDeposit').value = editData?.deposit_amount || 0;
-  document.getElementById('resDepositStatus').value = editData?.deposit_status || 'unpaid';
-  document.getElementById('resNotes').value = editData?.notes || '';
-  document.getElementById('resOccasion').value = editData?.occasion || '';
-  if (editData?.table_id) document.getElementById('resTable').value = editData.table_id;
-  if (editData?.menu_package) document.getElementById('resMenu').value = editData.menu_package;
-  openModal('reservationModal');
+// ── Reservation Form Steps ──
+function resNextStep(step){
+  document.getElementById('resStep1').style.display=step===1?'block':'none';
+  document.getElementById('resStep2').style.display=step===2?'block':'none';
+  document.getElementById('resStep3').style.display=step===3?'block':'none';
+  document.querySelectorAll('#resSteps .step-dot').forEach((d,i)=>{d.className='step-dot';if(i<step-1)d.classList.add('done');if(i===step-1)d.classList.add('active');});
 }
 
-function editReservation(id) {
-  const r = APP.reservations.find(x => x.id === id);
-  if (r) openReservationModal(r);
+function openReservationModal(editData){
+  document.getElementById('resModalTitle').textContent=editData?'✏️ Edit Reservation':'🔐 New Reservation';
+  document.getElementById('resEditId').value=editData?.id||'';
+  document.getElementById('resGuestPhone').value=editData?.guest_phone||'';
+  document.getElementById('resGuestName').value=editData?.guest_name||'';
+  document.getElementById('resGuestEmail').value=editData?.guest_email||'';
+  document.getElementById('resDate').value=editData?.date||new Date().toISOString().split('T')[0];
+  document.getElementById('resTime').value=editData?.time||'19:00';
+  document.getElementById('resCategory').value=editData?.category||'dinner';
+  document.getElementById('resAdults').value=editData?.adults||editData?.guests||2;
+  document.getElementById('resBabies').value=editData?.babies||0;
+  document.getElementById('resType').value=editData?.type||'reservation';
+  document.getElementById('resDeposit').value=editData?.deposit_amount||0;
+  document.getElementById('resDepositStatus').value=editData?.deposit_status||'unpaid';
+  document.getElementById('resNotes').value=editData?.notes||'';
+  document.getElementById('resOccasion').value=editData?.occasion||'';
+  if(editData?.table_id)document.getElementById('resTable').value=editData.table_id;
+  // Multiple menus
+  if(editData?.menu_packages){try{APP.selectedMenus=JSON.parse(editData.menu_packages)}catch(e){APP.selectedMenus=editData.menu_packages?[editData.menu_packages]:[]}}
+  else APP.selectedMenus=[];
+  renderMenuChips();
+  resNextStep(1);openModal('reservationModal');
+}
+function editReservation(id){const r=APP.reservations.find(x=>x.id===id);if(r)openReservationModal(r);}
+
+// ── Auto Suggest Guest by Phone ──
+function autoSuggestGuest(){
+  const phone=document.getElementById('resGuestPhone').value.trim();
+  const box=document.getElementById('suggestBox');
+  if(phone.length<3){box.style.display='none';return}
+  const matches=APP.guestPrefs.filter(g=>g.guest_phone&&g.guest_phone.includes(phone));
+  const resMatches=APP.reservations.filter(r=>r.guest_phone&&r.guest_phone.includes(phone));
+  const allMatches=[...matches,...resMatches].reduce((acc,m)=>{acc[m.guest_phone]=m;return acc;},{});
+  const unique=Object.values(allMatches);
+  if(unique.length===0){box.style.display='none';return}
+  box.style.display='block';
+  box.innerHTML=unique.map(m=>`<div class="suggestion-item" onclick="selectGuest('${m.guest_name||''}','${m.guest_phone||''}','${m.guest_email||''}')"><span class="s-name">${m.guest_name||'Unknown'}</span><span class="s-phone">${m.guest_phone}</span></div>`).join('');
+}
+function selectGuest(name,phone,email){
+  document.getElementById('resGuestName').value=name;
+  document.getElementById('resGuestPhone').value=phone;
+  document.getElementById('resGuestEmail').value=email||'';
+  document.getElementById('suggestBox').style.display='none';
 }
 
-async function saveReservation() {
-  const id = document.getElementById('resEditId').value;
-  const data = {
-    guest_name: document.getElementById('resGuestName').value,
-    guest_phone: document.getElementById('resGuestPhone').value,
-    guest_email: document.getElementById('resGuestEmail').value,
-    date: document.getElementById('resDate').value,
-    time: document.getElementById('resTime').value,
-    guests: parseInt(document.getElementById('resGuests').value),
-    table_id: document.getElementById('resTable').value,
-    type: document.getElementById('resType').value,
-    menu_package: document.getElementById('resMenu').value,
-    deposit_amount: parseFloat(document.getElementById('resDeposit').value),
-    deposit_status: document.getElementById('resDepositStatus').value,
-    notes: document.getElementById('resNotes').value,
-    occasion: document.getElementById('resOccasion').value,
-    status: 'confirmed',
-    created_by: APP.user?.username || '',
-  };
-  if (!data.guest_name || !data.guest_phone || !data.date || !data.time) {
-    toast('Please fill required fields', 'error'); return;
-  }
-  let result;
-  if (id) {
-    data.id = id;
-    result = await gasPost('updatereservation', data);
-  } else {
-    result = await gasPost('addreservation', data);
-  }
-  if (result.success) {
-    toast(id ? 'Reservation updated!' : 'Reservation created!', 'success');
-    closeModal('reservationModal');
-    renderReservations();
-  } else {
-    toast(result.error || 'Failed', 'error');
-  }
+// ── Multiple Menu Selection ──
+function addMenuToReservation(){
+  const sel=document.getElementById('resMenuSelect');const name=sel.value;if(!name)return;
+  if(!APP.selectedMenus.includes(name))APP.selectedMenus.push(name);
+  renderMenuChips();
+}
+function removeMenuFromReservation(name){APP.selectedMenus=APP.selectedMenus.filter(m=>m!==name);renderMenuChips();}
+function renderMenuChips(){
+  document.getElementById('resMenuChips').innerHTML=APP.selectedMenus.map(m=>`<span class="menu-chip">🍽️ ${m}<span class="remove-menu" onclick="removeMenuFromReservation('${m}')">✕</span></span>`).join('');
 }
 
-async function deleteReservation(id) {
-  if (!confirm('Delete this reservation?')) return;
-  const result = await gasPost('deletereservation', { id });
-  if (result.success) { toast('Deleted!', 'success'); renderReservations(); }
-  else toast(result.error || 'Failed', 'error');
+async function saveReservation(){
+  const id=document.getElementById('resEditId').value;
+  const data={guest_name:document.getElementById('resGuestName').value,guest_phone:document.getElementById('resGuestPhone').value,guest_email:document.getElementById('resGuestEmail').value,date:document.getElementById('resDate').value,time:document.getElementById('resTime').value,category:document.getElementById('resCategory').value,adults:parseInt(document.getElementById('resAdults').value),babies:parseInt(document.getElementById('resBabies').value),guests:parseInt(document.getElementById('resAdults').value)+parseInt(document.getElementById('resBabies').value),table_id:document.getElementById('resTable').value,type:document.getElementById('resType').value,menu_packages:JSON.stringify(APP.selectedMenus),deposit_amount:parseFloat(document.getElementById('resDeposit').value),deposit_status:document.getElementById('resDepositStatus').value,notes:document.getElementById('resNotes').value,occasion:document.getElementById('resOccasion').value,status:'confirmed',created_by:APP.user?.username||''};
+  if(!data.guest_phone||!data.guest_name||!data.date||!data.time){toast('Fill required fields','error');return}
+  let result;if(id){data.id=id;result=await gasPost('updatereservation',data)}else{result=await gasPost('addreservation',data)}
+  if(result.success){toast(id?'Updated!':'Created!','success');closeModal('reservationModal');renderReservations()}else toast(result.error||'Failed','error');
 }
-
-function exportReservationsCSV() {
-  let csv = 'ID,Guest,Phone,Email,Date,Time,Guests,Table,Type,Status,Deposit,Notes\n';
-  APP.reservations.forEach(r => {
-    csv += `"${r.id}","${r.guest_name}","${r.guest_phone}","${r.guest_email}","${r.date}","${r.time}",${r.guests},"${r.table_id}","${r.type}","${r.status}","${r.deposit_status}","${(r.notes||'').replace(/"/g,'""')}"\n`;
-  });
-  downloadFile(csv, 'reservations.csv', 'text/csv');
-}
+async function deleteReservation(id){if(!confirm('Delete?'))return;const r=await gasPost('deletereservation',{id});if(r.success){toast('Deleted','success');renderReservations()}else toast(r.error,'error')}
 
 // ══════════════════════════════════════════════════════════
-//  2. FLOOR PLAN / LIVE TABLE STATUS
+//  RESERVATION VIEW — Full Details + PDF + JPG
 // ══════════════════════════════════════════════════════════
-async function renderFloorPlan() {
-  await loadTables();
-  await loadReservations();
-  const today = new Date().toISOString().split('T')[0];
-  const todayRes = APP.reservations.filter(r => r.date === today && (r.status === 'confirmed' || r.status === 'checked_in'));
+function viewReservation(id){
+  const r=APP.reservations.find(x=>x.id===id);if(!r){toast('Not found','error');return}
+  let menus=[];try{menus=JSON.parse(r.menu_packages||'[]')}catch(e){if(r.menu_packages)menus=[r.menu_packages]}
+  const menuItems=menus.map(m=>{const pkg=APP.menuPackages.find(p=>p.name===m);return{name:m,price:pkg?pkg.price:0,items:pkg?pkg.items:''}});
+  const totalMenuPrice=menuItems.reduce((s,m)=>s+parseFloat(m.price),0);
+  const logoHtml=APP.logo?`<img src="${APP.logo}" class="vc-logo" alt="Logo">`:'';
+  const qrUrl=`https://chart.googleapis.com/chart?cht=qr&chs=80x80&chl=${encodeURIComponent(r.id)}&choe=UTF-8`;
 
-  const c = document.getElementById('contentArea');
-  const locations = [...new Set(APP.tables.map(t => t.location))];
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Live Table Status</h3>
-        <div class="filter-bar">
-          <button class="btn btn-ghost btn-sm" onclick="loadTables().then(()=>renderFloorPlan())">🔄 Refresh</button>
-          <span class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Available</span>
-          <span class="legend-item"><span class="legend-dot" style="background:var(--warning)"></span>Reserved</span>
-          <span class="legend-item"><span class="legend-dot" style="background:var(--danger)"></span>Occupied</span>
-        </div>
-      </div>
-      ${locations.map(loc => `
-        <h4 style="margin:16px 0 8px;color:var(--text2);">${loc}</h4>
-        <div class="floor-plan">
-          ${APP.tables.filter(t => t.location === loc).map(t => {
-            const resInfo = todayRes.find(r => r.table_id === t.id);
-            const statusClass = t.status || 'available';
-            return `<div class="table-unit ${statusClass}" onclick="tableAction('${t.id}','${t.status}')">
-              <div class="t-num">T${t.table_number}</div>
-              <div class="t-cap">${t.capacity} seats</div>
-              <div class="t-loc">${resInfo ? resInfo.guest_name + ' @ ' + resInfo.time : statusClass}</div>
-            </div>`;
-          }).join('')}
-        </div>
-      `).join('')}
+  document.getElementById('viewCardContainer').innerHTML=`
+  <div class="view-card" id="viewCardPrint">
+    <div class="vc-header">
+      ${logoHtml}
+      <h1>VAULT RESERVATION</h1>
+      <p>Reservation Confirmation</p>
     </div>
-  `;
-}
+    <div class="vc-body">
+      <div class="vc-row"><span class="vc-label">Reservation ID</span><span class="vc-value">${r.id}</span></div>
+      <div class="vc-row"><span class="vc-label">Status</span><span class="vc-value" style="color:${r.status==='confirmed'?'#16a34a':r.status==='cancelled'?'#dc2626':'#2563eb'};font-weight:700;">${(r.status||'confirmed').toUpperCase()}</span></div>
+      <div class="vc-row"><span class="vc-label">Category</span><span class="vc-value">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></div>
 
-async function tableAction(tableId, currentStatus) {
-  const nextStatus = currentStatus === 'available' ? 'reserved' : currentStatus === 'reserved' ? 'occupied' : 'available';
-  await gasPost('updatetable', { id: tableId, status: nextStatus });
-  toast(`Table status → ${nextStatus}`, 'success');
-  renderFloorPlan();
-}
+      <div class="vc-section"><h4>👤 Guest Information</h4></div>
+      <div class="vc-row"><span class="vc-label">Guest Name</span><span class="vc-value">${r.guest_name}</span></div>
+      <div class="vc-row"><span class="vc-label">Phone</span><span class="vc-value">${r.guest_phone||'-'}</span></div>
+      <div class="vc-row"><span class="vc-label">Email</span><span class="vc-value">${r.guest_email||'-'}</span></div>
 
-// ══════════════════════════════════════════════════════════
-//  3. WAITLIST MANAGEMENT
-// ══════════════════════════════════════════════════════════
-async function renderWaitlist() {
-  await loadWaitlist();
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Waitlist</h3>
-        <button class="btn btn-primary btn-sm" onclick="addWaitlistEntry()">+ Add to Waitlist</button>
-      </div>
-      ${APP.waitlist.length === 0 ? '<p style="color:var(--text3);padding:20px;">No one on the waitlist</p>' : ''}
-      ${APP.waitlist.map(w => `
-        <div class="waitlist-item">
-          <div class="wl-info">
-            <div class="wl-name">${w.guest_name}</div>
-            <div class="wl-meta">📞 ${w.guest_phone} | 👥 ${w.guests} guests | ⏱ ${w.estimated_wait} | 🕐 ${new Date(w.created_at).toLocaleTimeString()}</div>
-          </div>
-          <div style="display:flex;gap:6px;">
-            <button class="btn btn-success btn-sm" onclick="seatWaitlist('${w.id}')">Seat</button>
-            <button class="btn btn-danger btn-sm" onclick="removeWaitlist('${w.id}')">Remove</button>
-          </div>
-        </div>
-      `).join('')}
+      <div class="vc-section"><h4>📅 Reservation Details</h4></div>
+      <div class="vc-row"><span class="vc-label">Date</span><span class="vc-value">${r.date}</span></div>
+      <div class="vc-row"><span class="vc-label">Time</span><span class="vc-value">${r.time}</span></div>
+      <div class="vc-row"><span class="vc-label">Adults</span><span class="vc-value">${r.adults||r.guests||'-'}</span></div>
+      <div class="vc-row"><span class="vc-label">Babies/Kids</span><span class="vc-value">${r.babies||0}</span></div>
+      <div class="vc-row"><span class="vc-label">Total Guests</span><span class="vc-value" style="font-weight:700;">${(parseInt(r.adults)||parseInt(r.guests)||0)+(parseInt(r.babies)||0)}</span></div>
+      <div class="vc-row"><span class="vc-label">Table</span><span class="vc-value">${r.table_id||'Auto-assign'}</span></div>
+      <div class="vc-row"><span class="vc-label">Type</span><span class="vc-value">${r.type==='walkin'?'Walk-in':'Reservation'}</span></div>
+      ${r.occasion?`<div class="vc-row"><span class="vc-label">Occasion</span><span class="vc-value">${r.occasion}</span></div>`:''}
+
+      ${menuItems.length?`<div class="vc-section"><h4>🍽️ Menu Packages</h4>${menuItems.map(m=>`<div class="vc-menu-item"><span>${m.name}${m.items?'<br><small style="color:#6b7280">'+m.items+'</small>':''}</span><span style="font-weight:700;">৳${m.price}</span></div>`).join('')}<div class="vc-row" style="font-weight:800;font-size:14px;border-top:2px solid #0d4f2b;padding-top:8px;"><span class="vc-label">Menu Total</span><span class="vc-value" style="color:#0d4f2b;">৳${totalMenuPrice}</span></div>`:''}
+
+      <div class="vc-section"><h4>💰 Payment</h4></div>
+      <div class="vc-row"><span class="vc-label">Deposit</span><span class="vc-value">৳${r.deposit_amount||0}</span></div>
+      <div class="vc-row"><span class="vc-label">Deposit Status</span><span class="vc-value" style="color:${r.deposit_status==='paid'?'#16a34a':'#dc2626'};font-weight:700;">${(r.deposit_status||'unpaid').toUpperCase()}</span></div>
+
+      ${r.notes?`<div class="vc-section"><h4>📝 Notes</h4><p style="font-size:12px;color:#374151;">${r.notes}</p></div>`:''}
+
+      <div class="vc-qr"><img src="${qrUrl}" alt="QR" style="border-radius:6px;"><p style="font-size:9px;color:#9ca3af;margin-top:4px;">Scan to check in</p></div>
     </div>
-  `;
+    <div class="vc-footer">VAULT RESERVATION | ${new Date().toLocaleDateString()} | Created by: ${r.created_by||'System'}</div>
+  </div>`;
+  openModal('viewModal');
 }
 
-async function addWaitlistEntry() {
-  const name = prompt('Guest Name:');
-  if (!name) return;
-  const phone = prompt('Phone:');
-  const guests = prompt('Number of guests:', '2');
-  const wait = prompt('Estimated wait:', '15 min');
-  const result = await gasPost('addwaitlist', { guest_name: name, guest_phone: phone || '', guests: parseInt(guests)||2, estimated_wait: wait||'15 min' });
-  if (result.success) { toast('Added to waitlist!', 'success'); renderWaitlist(); }
-  else toast(result.error, 'error');
+async function exportViewPDF(){
+  const el=document.getElementById('viewCardPrint');if(!el)return;
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>VAULT Reservation</title><style>body{margin:0;display:flex;justify-content:center;padding:20px;}'+document.querySelector('style').innerHTML+'</style></head><body>');
+  w.document.write(el.outerHTML);
+  w.document.write('</body></html>');w.document.close();
+  setTimeout(()=>{w.print();},500);
 }
 
-async function seatWaitlist(id) {
-  const result = await gasPost('updatewaitlist', { id, status: 'seated' });
-  if (result.success) { toast('Guest seated!', 'success'); renderWaitlist(); }
+async function exportViewJPG(){
+  const el=document.getElementById('viewCardPrint');if(!el)return;
+  try{
+    const canvas=await html2canvas(el,{backgroundColor:'#ffffff',scale:2,useCORS:true});
+    const link=document.createElement('a');link.download='vault-reservation.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();
+    toast('JPG exported! Share via WhatsApp','success');
+  }catch(e){toast('JPG export failed: '+e.message,'error')}
 }
 
-async function removeWaitlist(id) {
-  const result = await gasPost('updatewaitlist', { id, status: 'cancelled' });
-  if (result.success) { toast('Removed from waitlist', 'success'); renderWaitlist(); }
-}
+// ═══ FLOOR PLAN ═══
+async function renderFloorPlan(){await loadTables();await loadReservations();const today=new Date().toISOString().split('T')[0];const todayRes=APP.reservations.filter(r=>r.date===today&&(r.status==='confirmed'||r.status==='checked_in'));const c=document.getElementById('contentArea');const locs=[...new Set(APP.tables.map(t=>t.location))];c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Live Table Status</h3><div class="filter-bar"><button class="btn btn-ghost btn-sm" onclick="loadTables().then(()=>renderFloorPlan())">🔄</button><span class="legend-item"><span class="legend-dot" style="background:var(--green5)"></span>Free</span><span class="legend-item"><span class="legend-dot" style="background:var(--gold2)"></span>Reserved</span><span class="legend-item"><span class="legend-dot" style="background:var(--danger)"></span>Occupied</span></div></div>${locs.map(loc=>`<h4 style="margin:12px 0 6px;color:var(--text2);">${loc}</h4><div class="floor-plan">${APP.tables.filter(t=>t.location===loc).map(t=>{const ri=todayRes.find(r=>r.table_id===t.id);const sc=t.status||'available';return`<div class="table-unit ${sc}" onclick="tableAction('${t.id}','${t.status}')"><div class="t-num">T${t.table_number}</div><div class="t-cap">${t.capacity}p</div><div class="t-loc">${ri?ri.guest_name+'@'+ri.time:sc}</div></div>`}).join('')}</div>`).join('')}</div>`;}
+async function tableAction(id,s){const n=s==='available'?'reserved':s==='reserved'?'occupied':'available';await gasPost('updatetable',{id,status:n});toast('→ '+n,'success');renderFloorPlan();}
 
-// ══════════════════════════════════════════════════════════
-//  4. QR CODE CHECK-IN
-// ══════════════════════════════════════════════════════════
-async function renderCheckin() {
-  await loadReservations();
-  const today = new Date().toISOString().split('T')[0];
-  const todayRes = APP.reservations.filter(r => r.date === today && r.status === 'confirmed');
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header"><h3>QR Code Check-In</h3></div>
-      <p style="color:var(--text2);margin-bottom:16px;">Select a reservation to generate QR code, or scan/enter ID manually.</p>
-      <div class="form-group">
-        <label>Select Reservation</label>
-        <select id="checkinSelect" onchange="generateQR()">
-          <option value="">-- Select --</option>
-          ${todayRes.map(r => `<option value="${r.id}">${r.guest_name} - ${r.time} (${r.guests}p)</option>`).join('')}
-        </select>
-      </div>
-      <div id="qrArea" style="text-align:center;padding:20px;"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><h3>Today's Check-Ins</h3></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Guest</th><th>Time</th><th>Table</th><th>Status</th><th>Action</th></tr></thead>
-          <tbody>
-            ${todayRes.map(r => `<tr>
-              <td>${r.guest_name}</td><td>${r.time}</td><td>${r.table_id||'-'}</td>
-              <td><span class="badge ${r.checked_in?'badge-success':'badge-warning'}">${r.checked_in?'Checked In':'Pending'}</span></td>
-              <td>${!r.checked_in ? `<button class="btn btn-success btn-sm" onclick="doCheckin('${r.id}')">Check In</button>` : '✅'}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
+// ═══ WAITLIST ═══
+async function renderWaitlist(){await loadWaitlist();const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Waitlist</h3><button class="btn btn-gold btn-sm" onclick="addWaitlistEntry()">+ Add</button></div>${APP.waitlist.length===0?'<p style="color:var(--text3);padding:12px;">Empty waitlist</p>':''}${APP.waitlist.map(w=>`<div class="waitlist-item"><div class="wl-info"><div class="wl-name">${w.guest_name}</div><div class="wl-meta">📞 ${w.guest_phone} | 👥 ${w.guests} | ⏱ ${w.estimated_wait}</div></div><div style="display:flex;gap:4px;"><button class="btn btn-green btn-sm" onclick="seatWaitlist('${w.id}')">Seat</button><button class="btn btn-danger btn-sm" onclick="removeWaitlist('${w.id}')">✕</button></div></div>`).join('')}</div>`;}
+async function addWaitlistEntry(){const n=prompt('Guest Name:');if(!n)return;const p=prompt('Phone:');const g=prompt('Guests:','2');const w=prompt('Wait:','15 min');const r=await gasPost('addwaitlist',{guest_name:n,guest_phone:p||'',guests:parseInt(g)||2,estimated_wait:w||'15 min'});if(r.success){toast('Added!','success');renderWaitlist()}else toast(r.error,'error')}
+async function seatWaitlist(id){const r=await gasPost('updatewaitlist',{id,status:'seated'});if(r.success){toast('Seated!','success');renderWaitlist()}}
+async function removeWaitlist(id){const r=await gasPost('updatewaitlist',{id,status:'cancelled'});if(r.success){toast('Removed','success');renderWaitlist()}}
 
-function generateQR() {
-  const resId = document.getElementById('checkinSelect').value;
-  if (!resId) { document.getElementById('qrArea').innerHTML = ''; return; }
-  // Simple QR using Google Chart API (free, no library needed)
-  const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=${encodeURIComponent(resId)}&choe=UTF-8`;
-  document.getElementById('qrArea').innerHTML = `
-    <img src="${qrUrl}" alt="QR Code" style="border-radius:8px;border:4px solid var(--bg3);">
-    <p style="margin-top:10px;color:var(--text2);font-size:12px;">Reservation ID: ${resId}</p>
-    <button class="btn btn-success btn-sm" onclick="doCheckin('${resId}')" style="margin-top:8px;">✅ Check In This Guest</button>
-  `;
-}
+// ═══ CHECK-IN ═══
+async function renderCheckin(){await loadReservations();const today=new Date().toISOString().split('T')[0];const tr=APP.reservations.filter(r=>r.date===today&&r.status==='confirmed');const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>QR Code Check-In</h3></div><div class="fg"><label>Select Reservation</label><select id="checkinSelect" onchange="generateQR()"><option value="">-- Select --</option>${tr.map(r=>`<option value="${r.id}">${r.guest_name} - ${r.time} (${r.adults||r.guests}A+${r.babies||0}B)</option>`).join('')}</select></div><div id="qrArea" style="text-align:center;padding:12px;"></div></div><div class="panel"><div class="panel-header"><h3>Today's Check-Ins</h3></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Time</th><th>Category</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>${tr.map(r=>`<tr><td>${r.guest_name}</td><td>${r.time}</td><td>${r.category==='dinner'?'🌙':'☀️'}</td><td>${r.table_id||'-'}</td><td><span class="badge ${r.checked_in?'badge-success':'badge-warning'}">${r.checked_in?'✅ In':'⏳'}</span></td><td>${!r.checked_in?`<button class="btn btn-green btn-sm" onclick="doCheckin('${r.id}')">Check In</button>`:''}</td></tr>`).join('')}</tbody></table></div></div>`;}
+function generateQR(){const id=document.getElementById('checkinSelect').value;if(!id){document.getElementById('qrArea').innerHTML='';return}document.getElementById('qrArea').innerHTML=`<img src="https://chart.googleapis.com/chart?cht=qr&chs=180x180&chl=${encodeURIComponent(id)}" alt="QR" style="border-radius:8px;border:3px solid var(--green3);"><p style="margin-top:6px;color:var(--text3);font-size:11px;">ID: ${id}</p><button class="btn btn-green btn-sm" onclick="doCheckin('${id}')" style="margin-top:6px;">✅ Check In</button>`;}
+async function doCheckin(id){const r=await gasPost('checkin',{reservation_id:id,method:'qr',verified_by:APP.user?.username||''});if(r.success){toast('Checked in!','success');renderCheckin()}else toast(r.error,'error')}
 
-async function doCheckin(resId) {
-  const result = await gasPost('checkin', { reservation_id: resId, method: 'qr', verified_by: APP.user?.username || '' });
-  if (result.success) { toast('Guest checked in!', 'success'); renderCheckin(); }
-  else toast(result.error, 'error');
-}
+// ═══ RECURRING ═══
+async function renderRecurring(){await loadRecurring();await loadTables();populateTableSelect('recTable');const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Recurring Reservations</h3><button class="btn btn-gold btn-sm" onclick="openModal('recurringModal')">+ New</button></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Frequency</th><th>Day</th><th>Time</th><th>Guests</th><th>Active</th><th>Actions</th></tr></thead><tbody>${APP.recurring.map(r=>`<tr><td>${r.guest_name}</td><td><span class="badge badge-gold">${r.frequency}</span></td><td>${r.day_of_week}</td><td>${r.time}</td><td>${r.guests}</td><td><span class="badge ${r.active?'badge-success':'badge-danger'}">${r.active?'Active':'Off'}</span></td><td><button class="btn btn-ghost btn-sm" onclick="toggleRecurring('${r.id}',${!r.active})">${r.active?'⏸':'▶'}</button><button class="btn btn-danger btn-sm" onclick="deleteRecurringItem('${r.id}')">🗑</button></td></tr>`).join('')}</tbody></table></div></div>`;}
+async function saveRecurring(){const d={guest_name:document.getElementById('recGuestName').value,guest_phone:document.getElementById('recGuestPhone').value,frequency:document.getElementById('recFrequency').value,day_of_week:document.getElementById('recDay').value,time:document.getElementById('recTime').value,guests:parseInt(document.getElementById('recGuests').value),table_id:document.getElementById('recTable').value};if(!d.guest_name||!d.time){toast('Fill required','error');return}const r=await gasPost('addrecurring',d);if(r.success){toast('Created!','success');closeModal('recurringModal');renderRecurring()}else toast(r.error,'error')}
+async function toggleRecurring(id,a){await gasPost('updaterecurring',{id,active:a});toast(a?'Resumed':'Paused','success');renderRecurring()}
+async function deleteRecurringItem(id){if(!confirm('Delete?'))return;await gasPost('deleterecurring',{id});toast('Deleted','success');renderRecurring()}
 
-function manualCheckin() {
-  const resId = document.getElementById('qrResId').value.trim();
-  if (!resId) { toast('Enter reservation ID', 'error'); return; }
-  doCheckin(resId);
-}
+// ═══ OCCASIONS ═══
+async function renderOccasions(){await loadOccasions();const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Occasion Reminders</h3><button class="btn btn-gold btn-sm" onclick="openModal('occasionModal')">+ Add</button></div>${APP.occasions.map(o=>`<div class="occasion-card"><div style="display:flex;justify-content:space-between;align-items:center;"><div><span class="occ-type">${o.occasion_type}</span> — ${o.guest_name}<div class="occ-date">📅 ${o.occasion_date} | 📞 ${o.guest_phone} | ${o.reminder_days}d before</div>${o.notes?`<div style="font-size:11px;color:var(--text3);margin-top:2px;">${o.notes}</div>`:''}</div><button class="btn btn-danger btn-sm" onclick="deleteOccasionItem('${o.id}')">🗑</button></div></div>`).join('')}${APP.occasions.length===0?'<p style="color:var(--text3);padding:12px;">No occasions yet</p>':''}</div>`;}
+async function saveOccasion(){const d={guest_name:document.getElementById('occGuestName').value,guest_phone:document.getElementById('occGuestPhone').value,occasion_type:document.getElementById('occType').value,occasion_date:document.getElementById('occDate').value,reminder_days:parseInt(document.getElementById('occReminderDays').value),notes:document.getElementById('occNotes').value};if(!d.guest_name||!d.occasion_date){toast('Fill required','error');return}const eid=document.getElementById('occEditId').value;let r;if(eid){d.id=eid;r=await gasPost('updateoccasion',d)}else r=await gasPost('addoccasion',d);if(r.success){toast('Saved!','success');closeModal('occasionModal');renderOccasions()}else toast(r.error,'error')}
+async function deleteOccasionItem(id){if(!confirm('Delete?'))return;await gasPost('deleteoccasion',{id});toast('Deleted','success');renderOccasions()}
 
-// ══════════════════════════════════════════════════════════
-//  5. RECURRING RESERVATIONS
-// ══════════════════════════════════════════════════════════
-async function renderRecurring() {
-  await loadRecurring();
-  await loadTables();
-  populateTableSelect('recTable');
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Recurring Reservations</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('recurringModal')">+ New Recurring</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Guest</th><th>Phone</th><th>Frequency</th><th>Day</th><th>Time</th><th>Guests</th><th>Active</th><th>Actions</th></tr></thead>
-          <tbody>
-            ${APP.recurring.map(r => `<tr>
-              <td>${r.guest_name}</td><td>${r.guest_phone}</td>
-              <td><span class="badge badge-purple">${r.frequency}</span></td>
-              <td>${r.day_of_week}</td><td>${r.time}</td><td>${r.guests}</td>
-              <td><span class="badge ${r.active?'badge-success':'badge-danger'}">${r.active?'Active':'Inactive'}</span></td>
-              <td>
-                <button class="btn btn-ghost btn-sm" onclick="toggleRecurring('${r.id}',${!r.active})">${r.active?'⏸ Pause':'▶ Resume'}</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteRecurringItem('${r.id}')">🗑️</button>
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
+// ═══ MENU PACKAGES ═══
+async function renderMenuPackages(){await loadMenuPackages();const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Menu Packages</h3><button class="btn btn-gold btn-sm" onclick="openMenuModal()">+ Add</button></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">${APP.menuPackages.map(m=>`<div style="background:var(--bg);border-radius:var(--radius);padding:14px;border:1px solid var(--bg4);"><div style="display:flex;justify-content:space-between;"><h4 style="color:var(--gold3);">${m.name}</h4><span style="font-size:18px;font-weight:800;color:var(--gold2);">৳${m.price}</span></div><span class="badge badge-gold">${m.category}</span><p style="font-size:11px;color:var(--text3);margin:4px 0;">${m.description||''}</p><p style="font-size:10px;color:var(--text2);">📋 ${m.items||''}</p><div style="margin-top:6px;display:flex;gap:4px;"><button class="btn btn-ghost btn-sm" onclick="editMenuPackage('${m.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteMenuPkg('${m.id}')">🗑</button></div></div>`).join('')}</div></div>`;}
+function openMenuModal(d){document.getElementById('menuModalTitle').textContent=d?'Edit Package':'Add Package';document.getElementById('menuEditId').value=d?.id||'';document.getElementById('menuName').value=d?.name||'';document.getElementById('menuPrice').value=d?.price||0;document.getElementById('menuCategory').value=d?.category||'standard';document.getElementById('menuItems').value=d?.items||'';document.getElementById('menuDesc').value=d?.description||'';openModal('menuModal')}
+async function editMenuPackage(id){const m=APP.menuPackages.find(x=>x.id===id);if(m)openMenuModal(m)}
+async function saveMenuPackage(){const id=document.getElementById('menuEditId').value;const d={name:document.getElementById('menuName').value,price:parseFloat(document.getElementById('menuPrice').value),category:document.getElementById('menuCategory').value,items:document.getElementById('menuItems').value,description:document.getElementById('menuDesc').value,active:true};if(!d.name){toast('Name required','error');return}let r;if(id){d.id=id;r=await gasPost('updatemenupackage',d)}else r=await gasPost('addmenupackage',d);if(r.success){toast('Saved!','success');closeModal('menuModal');renderMenuPackages()}else toast(r.error,'error')}
+async function deleteMenuPkg(id){if(!confirm('Delete?'))return;await gasPost('deletemenupackage',{id});toast('Deleted','success');renderMenuPackages()}
 
-async function saveRecurring() {
-  const data = {
-    guest_name: document.getElementById('recGuestName').value,
-    guest_phone: document.getElementById('recGuestPhone').value,
-    frequency: document.getElementById('recFrequency').value,
-    day_of_week: document.getElementById('recDay').value,
-    time: document.getElementById('recTime').value,
-    guests: parseInt(document.getElementById('recGuests').value),
-    table_id: document.getElementById('recTable').value,
-  };
-  if (!data.guest_name || !data.time) { toast('Fill required fields', 'error'); return; }
-  const result = await gasPost('addrecurring', data);
-  if (result.success) { toast('Recurring created!', 'success'); closeModal('recurringModal'); renderRecurring(); }
-  else toast(result.error, 'error');
-}
+// ═══ PAYMENTS ═══
+async function renderPayments(){await loadPayments();const total=APP.payments.reduce((s,p)=>s+(parseFloat(p.amount)||0),0);const c=document.getElementById('contentArea');c.innerHTML=`<div class="stats-grid"><div class="stat-card grad-green"><div class="label">Total Payments</div><div class="value">৳${total.toLocaleString()}</div></div><div class="stat-card grad-gold"><div class="label">Transactions</div><div class="value">${APP.payments.length}</div></div></div><div class="panel"><div class="panel-header"><h3>Payment Records</h3><button class="btn btn-gold btn-sm" onclick="openModal('paymentModal')">+ Record</button></div><div class="table-wrap"><table><thead><tr><th>Reservation</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody>${APP.payments.map(p=>`<tr><td>${p.reservation_id}</td><td style="font-weight:700;">৳${p.amount}</td><td><span class="badge badge-info">${p.method}</span></td><td><span class="badge badge-success">${p.status}</span></td><td>${p.paid_at?new Date(p.paid_at).toLocaleString():''}</td></tr>`).join('')}</tbody></table></div></div>`;}
+async function savePayment(){const d={reservation_id:document.getElementById('payResId').value,amount:parseFloat(document.getElementById('payAmount').value),method:document.getElementById('payMethod').value,status:'paid',recorded_by:APP.user?.username||''};if(!d.reservation_id||!d.amount){toast('Fill required','error');return}const r=await gasPost('addpayment',d);if(r.success){toast('Recorded!','success');closeModal('paymentModal');renderPayments()}else toast(r.error,'error')}
 
-async function toggleRecurring(id, active) {
-  await gasPost('updaterecurring', { id, active });
-  toast(active ? 'Resumed' : 'Paused', 'success');
-  renderRecurring();
-}
+// ═══ REMINDERS ═══
+async function renderReminders(){await loadReminders();const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Send Reminders</h3><button class="btn btn-gold btn-sm" onclick="openModal('reminderModal')">+ Send</button></div></div><div class="panel"><div class="panel-header"><h3>History</h3></div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Reservation</th><th>Status</th><th>Sent</th></tr></thead><tbody>${APP.reminders.map(r=>`<tr><td><span class="badge ${r.type==='email'?'badge-info':r.type==='whatsapp'?'badge-success':'badge-gold'}">${r.type}</span></td><td>${r.reservation_id||'-'}</td><td><span class="badge ${r.status.includes('sent')?'badge-success':'badge-warning'}">${r.status}</span></td><td>${r.sent_at?new Date(r.sent_at).toLocaleString():''}</td></tr>`).join('')}</tbody></table></div></div>`;}
+function sendReminderFor(id){const r=APP.reservations.find(x=>x.id===id);if(r){document.getElementById('remResId').value=r.id;document.getElementById('remPhone').value=r.guest_phone||'';document.getElementById('remEmail').value=r.guest_email||''}openModal('reminderModal')}
+async function sendReminder(){const t=document.getElementById('remType').value;const d={reservation_id:document.getElementById('remResId').value,type:t,phone:document.getElementById('remPhone').value,email:document.getElementById('remEmail').value,message:document.getElementById('remMessage').value};const r=await gasPost('sendreminder',d);if(r.success){toast('Sent!','success');if(t==='whatsapp'&&d.phone){const m=encodeURIComponent(r.message||'');const p=d.phone.replace(/[^0-9]/g,'');window.open(`https://wa.me/${p}?text=${m}`,'_blank')}closeModal('reminderModal');renderReminders()}else toast(r.error,'error')}
 
-async function deleteRecurringItem(id) {
-  if (!confirm('Delete this recurring reservation?')) return;
-  await gasPost('deleterecurring', { id });
-  toast('Deleted', 'success');
-  renderRecurring();
-}
+// ═══ REPORTS (22) ═══
+const REPORT_LIST=[{id:'top_guests',name:'1. Top Guests',type:'bar'},{id:'loyalty_levels',name:'2. Loyalty Levels',type:'bar'},{id:'guest_frequency',name:'3. Guest Frequency',type:'bar'},{id:'avg_party_size',name:'4. Avg Party Size',type:'bar'},{id:'new_vs_returning',name:'5. New vs Returning',type:'bar'},{id:'session_distribution',name:'6. Session Distribution',type:'bar'},{id:'table_preference',name:'7. Table Preference',type:'bar'},{id:'peak_hours',name:'8. Peak Hours',type:'line'},{id:'day_of_week',name:'9. Day of Week',type:'bar'},{id:'monthly_trend',name:'10. Monthly Trend',type:'line'},{id:'cancellation_rate',name:'11. Cancellation Rate',type:'stat'},{id:'no_show_rate',name:'12. No-Show Rate',type:'stat'},{id:'avg_lead_time',name:'13. Avg Lead Time',type:'stat'},{id:'status_distribution',name:'14. Status Distribution',type:'bar'},{id:'revenue_report',name:'15. Revenue Report',type:'line'},{id:'deposit_status',name:'16. Deposit Status',type:'bar'},{id:'walkin_vs_reservation',name:'17. Walk-in vs Reservation',type:'bar'},{id:'occasion_summary',name:'18. Occasion Summary',type:'table'},{id:'menu_popularity',name:'19. Menu Popularity',type:'bar'},{id:'checkin_analytics',name:'20. Check-In Analytics',type:'bar'},{id:'staff_performance',name:'21. Staff Performance',type:'bar'},{id:'guest_source',name:'22. Guest Source',type:'bar'}];
+async function renderReports(){const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Analytics & Reports</h3><div class="filter-bar"><input type="date" id="reportFrom"><input type="date" id="reportTo"><button class="btn btn-ghost btn-sm" onclick="exportAllReportsPDF()">📥 PDF</button></div></div><div id="reportsContainer"></div></div>`;for(const rpt of REPORT_LIST)await renderSingleReport(rpt);}
+async function renderSingleReport(rpt){const container=document.getElementById('reportsContainer');const from=document.getElementById('reportFrom')?.value;const to=document.getElementById('reportTo')?.value;const result=await gasGet('getreport',{type:rpt.id,date_from:from,date_to:to});const div=document.createElement('div');div.className='panel';div.innerHTML=`<div class="panel-header"><h3>${rpt.name}</h3></div><div id="chart_${rpt.id}" class="chart-container"></div>`;container.appendChild(div);if(result.error){document.getElementById(`chart_${rpt.id}`).innerHTML=`<p style="color:var(--text3)">Error: ${result.error}</p>`;return}if(rpt.type==='bar')renderBarChart(`chart_${rpt.id}`,result);else if(rpt.type==='line')renderLineChart(`chart_${rpt.id}`,result);else if(rpt.type==='stat')renderStatCard(`chart_${rpt.id}`,result);else renderTableData(`chart_${rpt.id}`,result);}
+function renderBarChart(cid,data){const c=document.getElementById(cid);if(!c)return;let e=[];if(Array.isArray(data)){if(data.length>0&&typeof data[0]==='object'){const k=Object.keys(data[0]),nk=k.find(k=>typeof data[0][k]==='string')||k[0],vk=k.find(k=>typeof data[0][k]==='number')||k[1];e=data.map(d=>({label:String(d[nk]).substring(0,12),value:Number(d[vk])||0}))}}else if(typeof data==='object'){if(data.distribution)e=Object.entries(data.distribution).map(([k,v])=>({label:k,value:v}));else if(data.daily)e=Object.entries(data.daily).map(([k,v])=>({label:k.substring(5),value:v}));else e=Object.entries(data).map(([k,v])=>({label:k,value:typeof v==='number'?v:0}))}if(!e.length){c.innerHTML='<p style="color:var(--text3)">No data</p>';return}const mx=Math.max(...e.map(x=>x.value),1);c.innerHTML=`<div class="bar-chart">${e.map((x,i)=>`<div class="bar-col"><div class="bar-value">${x.value}</div><div class="bar" style="height:${(x.value/mx)*150}px;background:${COLORS[i%COLORS.length]};"></div><div class="bar-label">${x.label}</div></div>`).join('')}</div>`;}
+function renderLineChart(cid,data){const c=document.getElementById(cid);if(!c)return;let e=[];if(data?.daily)e=Object.entries(data.daily).map(([k,v])=>({label:k.substring(5),value:v}));else if(typeof data==='object')e=Object.entries(data).map(([k,v])=>({label:k.substring(0,10),value:typeof v==='number'?v:0}));if(!e.length){c.innerHTML='<p style="color:var(--text3)">No data</p>';return}const mx=Math.max(...e.map(x=>x.value),1),w=Math.max(e.length*35,350),h=180,px=35,py=15,cw=w-px*2,ch=h-py*2;const pts=e.map((x,i)=>({x:px+(i/Math.max(e.length-1,1))*cw,y:py+ch-(x.value/mx)*ch}));const lp=pts.map((p,i)=>`${i?'L':'M'}${p.x},${p.y}`).join(' ');const ap=lp+` L${pts[pts.length-1].x},${py+ch} L${pts[0].x},${py+ch} Z`;c.innerHTML=`<svg class="line-chart-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--gold2)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--gold2)" stop-opacity="0"/></linearGradient></defs>${[0,.25,.5,.75,1].map(p=>`<line class="grid-line" x1="${px}" y1="${py+ch*p}" x2="${px+cw}" y2="${py+ch*p}"/>`).join('')}<path class="data-area" d="${ap}"/><path class="data-line" d="${lp}"/>${pts.map((p,i)=>`<circle class="data-dot" cx="${p.x}" cy="${p.y}" r="3"><title>${e[i].label}: ${e[i].value}</title></circle>`).join('')}</svg>`;}
+function renderStatCard(cid,data){const c=document.getElementById(cid);if(!c)return;c.innerHTML=`<div style="display:flex;gap:12px;flex-wrap:wrap;">${Object.entries(data).map(([k,v])=>`<div style="background:var(--bg);padding:10px 16px;border-radius:var(--radius);text-align:center;"><div style="font-size:22px;font-weight:800;color:var(--gold3);">${v}</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-top:2px;">${k.replace(/_/g,' ')}</div></div>`).join('')}</div>`;}
+function renderTableData(cid,data){const c=document.getElementById(cid);if(!c||!Array.isArray(data)||!data.length){c.innerHTML='<p style="color:var(--text3)">No data</p>';return}const h=Object.keys(data[0]);c.innerHTML=`<div class="table-wrap"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${data.map(r=>`<tr>${h.map(x=>`<td>${r[x]||''}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;}
+function exportAllReportsPDF(){window.print()}
 
-// ══════════════════════════════════════════════════════════
-//  6. OCCASION REMINDERS
-// ══════════════════════════════════════════════════════════
-async function renderOccasions() {
-  await loadOccasions();
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Occasion Reminders</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('occasionModal')">+ Add Occasion</button>
-      </div>
-      ${APP.occasions.map(o => `
-        <div class="occasion-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <span class="occ-type">${o.occasion_type}</span> — ${o.guest_name}
-              <div class="occ-date">📅 ${o.occasion_date} | 📞 ${o.guest_phone} | Remind ${o.reminder_days} days before</div>
-              ${o.notes ? `<div style="font-size:12px;color:var(--text3);margin-top:4px;">${o.notes}</div>` : ''}
-            </div>
-            <div style="display:flex;gap:6px;">
-              <button class="btn btn-danger btn-sm" onclick="deleteOccasionItem('${o.id}')">🗑️</button>
-            </div>
-          </div>
-        </div>
-      `).join('')}
-      ${APP.occasions.length === 0 ? '<p style="color:var(--text3);padding:20px;">No occasions added yet</p>' : ''}
-    </div>
-  `;
-}
+// ═══ REVENUE ═══
+async function renderRevenue(){const r=await gasGet('getreport',{type:'revenue_report'});const d=r.error?{}:r;const c=document.getElementById('contentArea');c.innerHTML=`<div class="stats-grid"><div class="stat-card grad-green"><div class="label">Total Revenue</div><div class="value">৳${(d.total||0).toLocaleString()}</div></div><div class="stat-card grad-gold"><div class="label">Transactions</div><div class="value">${d.transaction_count||0}</div></div></div><div class="panel"><div class="panel-header"><h3>Daily Revenue</h3></div><div id="revenueChart" class="chart-container"></div></div>`;renderLineChart('revenueChart',d.daily||{})}
 
-async function saveOccasion() {
-  const data = {
-    guest_name: document.getElementById('occGuestName').value,
-    guest_phone: document.getElementById('occGuestPhone').value,
-    occasion_type: document.getElementById('occType').value,
-    occasion_date: document.getElementById('occDate').value,
-    reminder_days: parseInt(document.getElementById('occReminderDays').value),
-    notes: document.getElementById('occNotes').value,
-  };
-  if (!data.guest_name || !data.occasion_date) { toast('Fill required fields', 'error'); return; }
-  const editId = document.getElementById('occEditId').value;
-  let result;
-  if (editId) {
-    data.id = editId;
-    result = await gasPost('updateoccasion', data);
-  } else {
-    result = await gasPost('addoccasion', data);
-  }
-  if (result.success) { toast('Occasion saved!', 'success'); closeModal('occasionModal'); renderOccasions(); }
-  else toast(result.error, 'error');
-}
+// ═══ FORECAST ═══
+async function renderForecast(){const r=await gasGet('getforecast',{days:14});const f=r.error?{}:r;const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>14-Day Forecast</h3><span style="color:var(--text3);font-size:11px;">Avg: ${f.average_daily||0}/day</span></div><div class="forecast-grid">${(f.forecast||[]).map(x=>`<div class="forecast-card"><div><div style="font-weight:700;font-size:13px;">${x.date}</div><div style="font-size:11px;color:var(--text3);">${x.day}</div></div><div style="text-align:right;"><div style="font-weight:800;font-size:20px;color:var(--gold3);">${x.predicted}</div><div style="font-size:9px;color:var(--text3);">${x.confidence}%</div></div></div>`).join('')}</div></div><div class="panel"><div class="panel-header"><h3>Trend</h3></div><div id="forecastChart" class="chart-container"></div></div>`;if(f.forecast){const cd={};f.forecast.forEach(x=>cd[x.date]=x.predicted);renderLineChart('forecastChart',cd)}}
 
-async function deleteOccasionItem(id) {
-  if (!confirm('Delete?')) return;
-  await gasPost('deleteoccasion', { id });
-  toast('Deleted', 'success');
-  renderOccasions();
-}
+// ═══ GUEST PREFERENCES ═══
+async function renderPreferences(){await loadGuestPrefs();const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>AI Guest Preferences</h3><span style="color:var(--text3);font-size:11px;">Auto-learned</span></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Phone</th><th>Table</th><th>Time</th><th>Visits</th><th>Avg Guests</th><th>Menu</th><th>Last Visit</th></tr></thead><tbody>${APP.guestPrefs.map(g=>`<tr><td style="font-weight:600;">${g.guest_name}</td><td>${g.guest_phone}</td><td>${g.preferred_table||'-'}</td><td>${g.preferred_time||'-'}</td><td><span class="badge badge-gold">${g.visit_count}</span></td><td>${g.avg_guests}</td><td>${g.favorite_menu||'-'}</td><td>${g.last_visit?new Date(g.last_visit).toLocaleDateString():'-'}</td></tr>`).join('')}</tbody></table></div></div>`}
 
-// ══════════════════════════════════════════════════════════
-//  7. MENU / PACKAGE SELECTION
-// ══════════════════════════════════════════════════════════
-async function renderMenuPackages() {
-  await loadMenuPackages();
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Menu Packages</h3>
-        <button class="btn btn-primary btn-sm" onclick="openMenuModal()">+ Add Package</button>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;">
-        ${APP.menuPackages.map(m => `
-          <div style="background:var(--bg);border-radius:var(--radius);padding:16px;border:1px solid var(--bg3);">
-            <div style="display:flex;justify-content:space-between;align-items:start;">
-              <div>
-                <h4 style="color:var(--primary-light);">${m.name}</h4>
-                <span class="badge badge-purple">${m.category}</span>
-              </div>
-              <span style="font-size:20px;font-weight:800;color:var(--accent);">৳${m.price}</span>
-            </div>
-            <p style="font-size:12px;color:var(--text3);margin:8px 0;">${m.description || ''}</p>
-            <p style="font-size:11px;color:var(--text2);">📋 ${m.items || 'No items listed'}</p>
-            <div style="margin-top:10px;display:flex;gap:6px;">
-              <button class="btn btn-ghost btn-sm" onclick="editMenuPackage('${m.id}')">✏️</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteMenuPkg('${m.id}')">🗑️</button>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-}
+// ═══ USERS ═══
+async function renderUsers(){if(APP.user?.role!=='admin'){document.getElementById('contentArea').innerHTML='<p style="color:var(--danger)">Admin only</p>';return}await loadUsers();const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>User Management</h3><button class="btn btn-gold btn-sm" onclick="openUserModal()">+ Add</button></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Active</th><th>Actions</th></tr></thead><tbody>${APP.users.map(u=>`<tr><td style="font-weight:600;">${u.full_name}</td><td>${u.username}</td><td><span class="badge ${u.role==='admin'?'badge-gold':'badge-info'}">${u.role}</span></td><td><span class="badge ${u.active?'badge-success':'badge-danger'}">${u.active?'Active':'Off'}</span></td><td><button class="btn btn-ghost btn-sm" onclick="editUser('${u.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteUserItem('${u.id}')">🗑</button></td></tr>`).join('')}</tbody></table></div></div>`;}
+function openUserModal(d){document.getElementById('userModalTitle').textContent=d?'Edit User':'Add User';document.getElementById('userEditId').value=d?.id||'';document.getElementById('userFullName').value=d?.full_name||'';document.getElementById('userUsername').value=d?.username||'';document.getElementById('userPassword').value='';document.getElementById('userRole').value=d?.role||'staff';document.getElementById('userEmail').value=d?.email||'';document.getElementById('userPhone').value=d?.phone||'';openModal('userModal')}
+async function editUser(id){const u=APP.users.find(x=>x.id===id);if(u)openUserModal(u)}
+async function saveUser(){const id=document.getElementById('userEditId').value;const d={full_name:document.getElementById('userFullName').value,username:document.getElementById('userUsername').value,role:document.getElementById('userRole').value,email:document.getElementById('userEmail').value,phone:document.getElementById('userPhone').value};const pw=document.getElementById('userPassword').value;if(pw)d.password=pw;if(!d.full_name||!d.username){toast('Fill required','error');return}let r;if(id){d.id=id;r=await gasPost('updateuser',d)}else{if(!pw){toast('Password required','error');return}d.password=pw;r=await gasPost('adduser',d)}if(r.success){toast('Saved!','success');closeModal('userModal');renderUsers()}else toast(r.error,'error')}
+async function deleteUserItem(id){if(!confirm('Delete?'))return;await gasPost('deleteuser',{id});toast('Deleted','success');renderUsers()}
 
-function openMenuModal(editData) {
-  document.getElementById('menuModalTitle').textContent = editData ? 'Edit Package' : 'Add Package';
-  document.getElementById('menuEditId').value = editData?.id || '';
-  document.getElementById('menuName').value = editData?.name || '';
-  document.getElementById('menuPrice').value = editData?.price || 0;
-  document.getElementById('menuCategory').value = editData?.category || 'standard';
-  document.getElementById('menuItems').value = editData?.items || '';
-  document.getElementById('menuDesc').value = editData?.description || '';
-  openModal('menuModal');
-}
+// ═══ TABLES ═══
+async function renderTables(){await loadTables();const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Table Management</h3><button class="btn btn-gold btn-sm" onclick="openTableModal()">+ Add</button></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Number</th><th>Capacity</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead><tbody>${APP.tables.map(t=>`<tr><td>${t.id}</td><td>T${t.table_number}</td><td>${t.capacity}p</td><td>${t.location}</td><td><span class="badge ${t.status==='available'?'badge-success':t.status==='reserved'?'badge-gold':'badge-danger'}">${t.status}</span></td><td><button class="btn btn-ghost btn-sm" onclick="editTable('${t.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteTableItem('${t.id}')">🗑</button></td></tr>`).join('')}</tbody></table></div></div>`;}
+function openTableModal(d){document.getElementById('tableModalTitle').textContent=d?'Edit Table':'Add Table';document.getElementById('tableEditId').value=d?.id||'';document.getElementById('tableNumber').value=d?.table_number||'';document.getElementById('tableCapacity').value=d?.capacity||4;document.getElementById('tableLocation').value=d?.location||'Indoor';document.getElementById('tableStatus').value=d?.status||'available';openModal('tableModal')}
+async function editTable(id){const t=APP.tables.find(x=>x.id===id);if(t)openTableModal(t)}
+async function saveTable(){const id=document.getElementById('tableEditId').value;const d={table_number:document.getElementById('tableNumber').value,capacity:parseInt(document.getElementById('tableCapacity').value),location:document.getElementById('tableLocation').value,status:document.getElementById('tableStatus').value};if(!d.table_number){toast('Number required','error');return}let r;if(id){d.id=id;r=await gasPost('updatetable',d)}else{d.id='T'+d.table_number.padStart(2,'0');r=await gasPost('addtable',d)}if(r.success){toast('Saved!','success');closeModal('tableModal');renderTables()}else toast(r.error,'error')}
+async function deleteTableItem(id){if(!confirm('Delete?'))return;await gasPost('deletetable',{id});toast('Deleted','success');renderTables()}
 
-async function editMenuPackage(id) {
-  const m = APP.menuPackages.find(x => x.id === id);
-  if (m) openMenuModal(m);
-}
+// ═══ SETTINGS ═══
+async function renderSettings(){const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Backend Connection</h3></div><div class="fg"><label>GAS Web App URL</label><input type="url" id="settingsGasUrl" value="${APP.gasUrl}" style="max-width:500px;"></div><div style="display:flex;gap:6px;"><button class="btn btn-gold" onclick="saveSettingsGasUrl()">Save</button><button class="btn btn-ghost" onclick="testSettingsConnection()">Test</button><button class="btn btn-green" onclick="initSheets()">Init Sheets</button></div><div id="settingsStatus" style="margin-top:8px;font-size:12px;"></div></div><div class="panel"><div class="panel-header"><h3>Company Logo</h3></div><div class="fg"><label>Upload Logo (shown in reservation PDF/JPG)</label><input type="file" accept="image/*" onchange="uploadLogo(event)" style="padding:6px;"></div>${APP.logo?`<div style="margin-top:8px;"><img src="${APP.logo}" style="max-height:60px;border-radius:8px;border:2px solid var(--gold2);"></div>`:''}</div><div class="panel"><div class="panel-header"><h3>Change Password</h3></div><div class="fg" style="max-width:250px;"><label>Current Password</label><input type="password" id="settingsOldPass"></div><div class="fg" style="max-width:250px;"><label>New Password</label><input type="password" id="settingsNewPass"></div><button class="btn btn-gold" onclick="changePassword()">Change</button></div><div class="panel"><div class="panel-header"><h3>System Info</h3></div><table><tr><td>Version</td><td>2.0.0</td></tr><tr><td>Sheet ID</td><td>1Vugxij9X6kqZRdapRgg927Opoi8gbPaM7ajLI-3jXrw</td></tr><tr><td>Logged In</td><td>${APP.user?.username||'N/A'} (${APP.user?.role||'N/A'})</td></tr></table></div>`;}
+function saveSettingsGasUrl(){const u=document.getElementById('settingsGasUrl').value.trim();if(!u){toast('Enter URL','error');return}APP.gasUrl=u;localStorage.setItem('VAULT_GAS_URL',u);toast('Saved!','success')}
+async function testSettingsConnection(){APP.gasUrl=document.getElementById('settingsGasUrl').value.trim();const s=document.getElementById('settingsStatus');s.innerHTML='Testing...';const r=await gasGet('init');if(r.error)s.innerHTML='<span style="color:var(--danger)">❌ '+r.error+'</span>';else{s.innerHTML='<span style="color:var(--success)">✅ Connected!</span>';localStorage.setItem('VAULT_GAS_URL',APP.gasUrl)}}
+async function initSheets(){const r=await gasGet('init');if(r.error)toast('Failed: '+r.error,'error');else toast('Sheets initialized!','success')}
+async function changePassword(){const o=document.getElementById('settingsOldPass').value,n=document.getElementById('settingsNewPass').value;if(!o||!n){toast('Fill both','error');return}const r=await gasPost('changepassword',{user_id:APP.user.id,old_password:o,new_password:n});if(r.success)toast('Changed!','success');else toast(r.error||'Failed','error')}
+function uploadLogo(e){const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=function(ev){APP.logo=ev.target.result;localStorage.setItem('VAULT_LOGO',APP.logo);toast('Logo uploaded!','success');renderSettings()};reader.readAsDataURL(f)}
 
-async function saveMenuPackage() {
-  const id = document.getElementById('menuEditId').value;
-  const data = {
-    name: document.getElementById('menuName').value,
-    price: parseFloat(document.getElementById('menuPrice').value),
-    category: document.getElementById('menuCategory').value,
-    items: document.getElementById('menuItems').value,
-    description: document.getElementById('menuDesc').value,
-    active: true,
-  };
-  if (!data.name) { toast('Name required', 'error'); return; }
-  let result;
-  if (id) { data.id = id; result = await gasPost('updatemenupackage', data); }
-  else { result = await gasPost('addmenupackage', data); }
-  if (result.success) { toast('Saved!', 'success'); closeModal('menuModal'); renderMenuPackages(); }
-  else toast(result.error, 'error');
-}
+// ═══ UTILITY ═══
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+function toast(msg,type='info'){const c=document.getElementById('toastContainer');const d=document.createElement('div');d.className=`toast toast-${type}`;d.textContent=msg;c.appendChild(d);setTimeout(()=>d.remove(),3500);}
+function downloadFile(content,filename,mime){const b=new Blob([content],{type:mime});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
+function exportReservationsCSV(){let csv='ID,Guest,Phone,Date,Time,Category,Adults,Babies,Table,Status,Deposit,Menus,Notes\n';APP.reservations.forEach(r=>{csv+=`"${r.id}","${r.guest_name}","${r.guest_phone}","${r.date}","${r.time}","${r.category||''}",${r.adults||r.guests},${r.babies||0},"${r.table_id}","${r.status}","${r.deposit_status}","${(r.menu_packages||'').replace(/"/g,'""')}","${(r.notes||'').replace(/"/g,'""')}"\n`});downloadFile(csv,'reservations.csv','text/csv');}
+function populateTableSelect(sid){const s=document.getElementById(sid);if(!s)return;const v=s.value;s.innerHTML='<option value="">Auto-assign</option>';APP.tables.forEach(t=>{s.innerHTML+=`<option value="${t.id}">T${t.table_number} (${t.capacity}p-${t.location})</option>`});s.value=v;}
+function populateMenuSelect(sid){const s=document.getElementById(sid);if(!s)return;const v=s.value;s.innerHTML='<option value="">+ Add menu package</option>';APP.menuPackages.forEach(m=>{s.innerHTML+=`<option value="${m.name}">${m.name} - ৳${m.price}</option>`});s.value=v;}
 
-async function deleteMenuPkg(id) {
-  if (!confirm('Delete?')) return;
-  await gasPost('deletemenupackage', { id });
-  toast('Deleted', 'success');
-  renderMenuPackages();
-}
-
-// ══════════════════════════════════════════════════════════
-//  8. PAYMENTS & DEPOSITS
-// ══════════════════════════════════════════════════════════
-async function renderPayments() {
-  await loadPayments();
-  const c = document.getElementById('contentArea');
-  const totalPayments = APP.payments.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
-  c.innerHTML = `
-    <div class="stats-grid">
-      <div class="stat-card grad-green">
-        <div class="label">Total Payments</div>
-        <div class="value">৳${totalPayments.toLocaleString()}</div>
-      </div>
-      <div class="stat-card grad-purple">
-        <div class="label">Transactions</div>
-        <div class="value">${APP.payments.length}</div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Payment Records</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('paymentModal')">+ Record Payment</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>ID</th><th>Reservation</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Recorded By</th></tr></thead>
-          <tbody>
-            ${APP.payments.map(p => `<tr>
-              <td>${(p.id||'').substring(0,12)}...</td>
-              <td>${p.reservation_id}</td>
-              <td style="font-weight:700;">৳${p.amount}</td>
-              <td><span class="badge badge-info">${p.method}</span></td>
-              <td><span class="badge badge-success">${p.status}</span></td>
-              <td>${p.paid_at ? new Date(p.paid_at).toLocaleString() : ''}</td>
-              <td>${p.recorded_by || ''}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-async function savePayment() {
-  const data = {
-    reservation_id: document.getElementById('payResId').value,
-    amount: parseFloat(document.getElementById('payAmount').value),
-    method: document.getElementById('payMethod').value,
-    status: 'paid',
-    recorded_by: APP.user?.username || '',
-  };
-  if (!data.reservation_id || !data.amount) { toast('Fill required fields', 'error'); return; }
-  const result = await gasPost('addpayment', data);
-  if (result.success) { toast('Payment recorded!', 'success'); closeModal('paymentModal'); renderPayments(); }
-  else toast(result.error, 'error');
-}
-
-// ══════════════════════════════════════════════════════════
-//  9. SMS / WHATSAPP / EMAIL REMINDERS
-// ══════════════════════════════════════════════════════════
-async function renderReminders() {
-  await loadReminders();
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Send Reminders</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('reminderModal')">+ Send Reminder</button>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><h3>Reminder History</h3></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Type</th><th>Reservation</th><th>Status</th><th>Sent At</th><th>Message</th></tr></thead>
-          <tbody>
-            ${APP.reminders.map(r => `<tr>
-              <td><span class="badge ${r.type==='email'?'badge-info':r.type==='whatsapp'?'badge-success':'badge-purple'}">${r.type}</span></td>
-              <td>${r.reservation_id || '-'}</td>
-              <td><span class="badge badge-${r.status.includes('sent')?'success':r.status.includes('failed')?'danger':'warning'}">${r.status}</span></td>
-              <td>${r.sent_at ? new Date(r.sent_at).toLocaleString() : ''}</td>
-              <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;">${r.message || ''}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-function sendReminderFor(resId) {
-  const r = APP.reservations.find(x => x.id === resId);
-  if (r) {
-    document.getElementById('remResId').value = r.id;
-    document.getElementById('remPhone').value = r.guest_phone || '';
-    document.getElementById('remEmail').value = r.guest_email || '';
-  }
-  openModal('reminderModal');
-}
-
-async function sendReminder() {
-  const type = document.getElementById('remType').value;
-  const data = {
-    reservation_id: document.getElementById('remResId').value,
-    type,
-    phone: document.getElementById('remPhone').value,
-    email: document.getElementById('remEmail').value,
-    message: document.getElementById('remMessage').value,
-  };
-  const result = await gasPost('sendreminder', data);
-  if (result.success) {
-    toast('Reminder sent!', 'success');
-    // If WhatsApp, open WhatsApp link
-    if (type === 'whatsapp' && data.phone) {
-      const msg = encodeURIComponent(result.message || '');
-      const phone = data.phone.replace(/[^0-9]/g, '');
-      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-    }
-    closeModal('reminderModal');
-    renderReminders();
-  } else toast(result.error, 'error');
-}
-
-// ══════════════════════════════════════════════════════════
-//  10. ANALYTICS & REPORTS (22 Reports)
-// ══════════════════════════════════════════════════════════
-const REPORT_LIST = [
-  { id: 'top_guests', name: '1. Top Guests by Visits', type: 'bar' },
-  { id: 'loyalty_levels', name: '2. Loyalty Level Distribution', type: 'bar' },
-  { id: 'guest_frequency', name: '3. Guest Visit Frequency', type: 'bar' },
-  { id: 'avg_party_size', name: '4. Average Party Size', type: 'bar' },
-  { id: 'new_vs_returning', name: '5. New vs Returning Guests', type: 'bar' },
-  { id: 'session_distribution', name: '6. Session Distribution', type: 'bar' },
-  { id: 'table_preference', name: '7. Table Preference', type: 'bar' },
-  { id: 'peak_hours', name: '8. Peak Hours', type: 'line' },
-  { id: 'day_of_week', name: '9. Day of Week Analysis', type: 'bar' },
-  { id: 'monthly_trend', name: '10. Monthly Trend', type: 'line' },
-  { id: 'cancellation_rate', name: '11. Cancellation Rate', type: 'stat' },
-  { id: 'no_show_rate', name: '12. No-Show Rate', type: 'stat' },
-  { id: 'avg_lead_time', name: '13. Average Lead Time', type: 'stat' },
-  { id: 'status_distribution', name: '14. Status Distribution', type: 'bar' },
-  { id: 'revenue_report', name: '15. Revenue Report', type: 'line' },
-  { id: 'deposit_status', name: '16. Deposit Status', type: 'bar' },
-  { id: 'walkin_vs_reservation', name: '17. Walk-in vs Reservation', type: 'bar' },
-  { id: 'occasion_summary', name: '18. Occasion Summary', type: 'table' },
-  { id: 'menu_popularity', name: '19. Menu Popularity', type: 'bar' },
-  { id: 'checkin_analytics', name: '20. Check-In Analytics', type: 'bar' },
-  { id: 'staff_performance', name: '21. Staff Performance', type: 'bar' },
-  { id: 'guest_source', name: '22. Guest Source', type: 'bar' },
-];
-
-async function renderReports() {
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Analytics & Reports</h3>
-        <div class="filter-bar">
-          <input type="date" id="reportFrom">
-          <input type="date" id="reportTo">
-          <button class="btn btn-ghost btn-sm" onclick="exportAllReportsPDF()">📥 Export PDF</button>
-        </div>
-      </div>
-      <div id="reportsContainer"></div>
-    </div>
-  `;
-  // Render all reports
-  for (const rpt of REPORT_LIST) {
-    await renderSingleReport(rpt);
-  }
-}
-
-async function renderSingleReport(rpt) {
-  const container = document.getElementById('reportsContainer');
-  const from = document.getElementById('reportFrom')?.value;
-  const to = document.getElementById('reportTo')?.value;
-  const result = await gasGet('getreport', { type: rpt.id, date_from: from, date_to: to });
-
-  const div = document.createElement('div');
-  div.className = 'panel';
-  div.innerHTML = `<div class="panel-header"><h3>${rpt.name}</h3></div><div id="chart_${rpt.id}" class="chart-container"></div>`;
-  container.appendChild(div);
-
-  if (result.error) {
-    document.getElementById(`chart_${rpt.id}`).innerHTML = `<p style="color:var(--text3)">Error: ${result.error}</p>`;
-    return;
-  }
-
-  if (rpt.type === 'bar') renderBarChart(`chart_${rpt.id}`, result);
-  else if (rpt.type === 'line') renderLineChart(`chart_${rpt.id}`, result);
-  else if (rpt.type === 'stat') renderStatCard(`chart_${rpt.id}`, result);
-  else if (rpt.type === 'table') renderTableData(`chart_${rpt.id}`, result);
-}
-
-function renderBarChart(containerId, data) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  // Handle different data formats
-  let entries = [];
-  if (Array.isArray(data)) {
-    if (data.length > 0 && typeof data[0] === 'object') {
-      // Array of objects - use first numeric field
-      const keys = Object.keys(data[0]);
-      const nameKey = keys.find(k => typeof data[0][k] === 'string') || keys[0];
-      const valKey = keys.find(k => typeof data[0][k] === 'number') || keys[1];
-      entries = data.map(d => ({ label: String(d[nameKey]).substring(0,15), value: Number(d[valKey]) || 0 }));
-    }
-  } else if (typeof data === 'object') {
-    // Handle special cases
-    if (data.distribution) {
-      entries = Object.entries(data.distribution).map(([k,v]) => ({ label: k, value: v }));
-    } else if (data.daily) {
-      entries = Object.entries(data.daily).map(([k,v]) => ({ label: k.substring(5), value: v }));
-    } else {
-      entries = Object.entries(data).map(([k,v]) => ({ label: k, value: typeof v === 'number' ? v : 0 }));
-    }
-  }
-  if (entries.length === 0) { container.innerHTML = '<p style="color:var(--text3)">No data</p>'; return; }
-
-  const maxVal = Math.max(...entries.map(e => e.value), 1);
-  container.innerHTML = `
-    <div class="bar-chart">
-      ${entries.map((e, i) => `
-        <div class="bar-col">
-          <div class="bar-value">${e.value}</div>
-          <div class="bar" style="height:${(e.value/maxVal)*180}px;background:${COLORS[i%COLORS.length]};"></div>
-          <div class="bar-label">${e.label}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderLineChart(containerId, data) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  let entries = [];
-  if (typeof data === 'object' && data !== null) {
-    if (data.daily) {
-      entries = Object.entries(data.daily).map(([k,v]) => ({ label: k.substring(5), value: v }));
-    } else {
-      entries = Object.entries(data).map(([k,v]) => ({ label: k.substring(0,10), value: typeof v === 'number' ? v : 0 }));
-    }
-  }
-  if (entries.length === 0) { container.innerHTML = '<p style="color:var(--text3)">No data</p>'; return; }
-
-  const maxVal = Math.max(...entries.map(e => e.value), 1);
-  const w = Math.max(entries.length * 40, 400);
-  const h = 200;
-  const padX = 40, padY = 20;
-  const chartW = w - padX * 2, chartH = h - padY * 2;
-  const points = entries.map((e, i) => ({
-    x: padX + (i / Math.max(entries.length - 1, 1)) * chartW,
-    y: padY + chartH - (e.value / maxVal) * chartH
-  }));
-  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
-  const areaPath = linePath + ` L${points[points.length-1].x},${padY+chartH} L${points[0].x},${padY+chartH} Z`;
-
-  container.innerHTML = `
-    <svg class="line-chart-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">
-      <defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--primary-light)" stop-opacity="0.4"/><stop offset="100%" stop-color="var(--primary-light)" stop-opacity="0"/></linearGradient></defs>
-      ${[0,0.25,0.5,0.75,1].map(pct => `<line class="grid-line" x1="${padX}" y1="${padY+chartH*pct}" x2="${padX+chartW}" y2="${padY+chartH*pct}"/>`).join('')}
-      <path class="data-area" d="${areaPath}"/>
-      <path class="data-line" d="${linePath}"/>
-      ${points.map((p,i) => `<circle class="data-dot" cx="${p.x}" cy="${p.y}" r="3"><title>${entries[i].label}: ${entries[i].value}</title></circle>`).join('')}
-      ${entries.filter((_,i) => i % Math.max(1, Math.floor(entries.length/8)) === 0).map((e,i) => {
-        const x = padX + (entries.indexOf(e) / Math.max(entries.length-1,1)) * chartW;
-        return `<text x="${x}" y="${h-2}" text-anchor="middle">${e.label}</text>`;
-      }).join('')}
-    </svg>
-  `;
-}
-
-function renderStatCard(containerId, data) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = `
-    <div style="display:flex;gap:16px;flex-wrap:wrap;">
-      ${Object.entries(data).map(([k,v]) => `
-        <div style="background:var(--bg);padding:12px 20px;border-radius:var(--radius);text-align:center;">
-          <div style="font-size:24px;font-weight:800;color:var(--primary-light);">${v}</div>
-          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;margin-top:4px;">${k.replace(/_/g,' ')}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderTableData(containerId, data) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  if (!Array.isArray(data) || data.length === 0) { container.innerHTML = '<p style="color:var(--text3)">No data</p>'; return; }
-  const headers = Object.keys(data[0]);
-  container.innerHTML = `
-    <div class="table-wrap"><table>
-      <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-      <tbody>${data.map(row => `<tr>${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}</tr>`).join('')}</tbody>
-    </table></div>
-  `;
-}
-
-function exportAllReportsPDF() {
-  window.print();
-}
-
-// ══════════════════════════════════════════════════════════
-//  11. REVENUE TRACKING
-// ══════════════════════════════════════════════════════════
-async function renderRevenue() {
-  const result = await gasGet('getreport', { type: 'revenue_report' });
-  const c = document.getElementById('contentArea');
-  const revData = result.error ? {} : result;
-  c.innerHTML = `
-    <div class="stats-grid">
-      <div class="stat-card grad-green">
-        <div class="label">Total Revenue</div>
-        <div class="value">৳${(revData.total || 0).toLocaleString()}</div>
-      </div>
-      <div class="stat-card grad-blue">
-        <div class="label">Transactions</div>
-        <div class="value">${revData.transaction_count || 0}</div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><h3>Daily Revenue Trend</h3></div>
-      <div id="revenueChart" class="chart-container"></div>
-    </div>
-  `;
-  renderLineChart('revenueChart', revData.daily || {});
-}
-
-// ══════════════════════════════════════════════════════════
-//  12. FORECASTING
-// ══════════════════════════════════════════════════════════
-async function renderForecast() {
-  const result = await gasGet('getforecast', { days: 14 });
-  const c = document.getElementById('contentArea');
-  const fc = result.error ? {} : result;
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Demand Forecasting (14 Days)</h3>
-        <div style="color:var(--text3);font-size:12px;">Method: ${fc.method || 'N/A'} | Avg daily: ${fc.average_daily || 0}</div>
-      </div>
-      <div class="forecast-grid">
-        ${(fc.forecast || []).map(f => `
-          <div class="forecast-card">
-            <div>
-              <div style="font-weight:700;font-size:14px;">${f.date}</div>
-              <div style="font-size:12px;color:var(--text3);">${f.day}</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-weight:800;font-size:22px;color:var(--primary-light);">${f.predicted}</div>
-              <div style="font-size:10px;color:var(--text3);">${f.confidence}% confidence</div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><h3>Forecast Trend</h3></div>
-      <div id="forecastChart" class="chart-container"></div>
-    </div>
-  `;
-  if (fc.forecast) {
-    const chartData = {};
-    fc.forecast.forEach(f => chartData[f.date] = f.predicted);
-    renderLineChart('forecastChart', chartData);
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-//  13. AI GUEST PREFERENCES
-// ══════════════════════════════════════════════════════════
-async function renderPreferences() {
-  await loadGuestPrefs();
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>AI Guest Preferences</h3>
-        <span style="color:var(--text3);font-size:12px;">Auto-learned from reservation patterns</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Guest</th><th>Phone</th><th>Preferred Table</th><th>Preferred Time</th><th>Visits</th><th>Avg Guests</th><th>Favorite Menu</th><th>Last Visit</th></tr></thead>
-          <tbody>
-            ${APP.guestPrefs.map(g => `<tr>
-              <td style="font-weight:600;">${g.guest_name}</td>
-              <td>${g.guest_phone}</td>
-              <td>${g.preferred_table || '-'}</td>
-              <td>${g.preferred_time || '-'}</td>
-              <td><span class="badge badge-purple">${g.visit_count}</span></td>
-              <td>${g.avg_guests}</td>
-              <td>${g.favorite_menu || '-'}</td>
-              <td>${g.last_visit ? new Date(g.last_visit).toLocaleDateString() : '-'}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-// ══════════════════════════════════════════════════════════
-//  14. USER MANAGEMENT
-// ══════════════════════════════════════════════════════════
-async function renderUsers() {
-  if (APP.user?.role !== 'admin') {
-    document.getElementById('contentArea').innerHTML = '<p style="color:var(--danger);">Admin only</p>';
-    return;
-  }
-  await loadUsers();
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>User Management</h3>
-        <button class="btn btn-primary btn-sm" onclick="openUserModal()">+ Add User</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Email</th><th>Phone</th><th>Active</th><th>Actions</th></tr></thead>
-          <tbody>
-            ${APP.users.map(u => `<tr>
-              <td style="font-weight:600;">${u.full_name}</td>
-              <td>${u.username}</td>
-              <td><span class="badge ${u.role==='admin'?'badge-danger':'badge-info'}">${u.role}</span></td>
-              <td>${u.email || '-'}</td>
-              <td>${u.phone || '-'}</td>
-              <td><span class="badge ${u.active?'badge-success':'badge-danger'}">${u.active?'Active':'Inactive'}</span></td>
-              <td>
-                <button class="btn btn-ghost btn-sm" onclick="editUser('${u.id}')">✏️</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteUserItem('${u.id}')">🗑️</button>
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-function openUserModal(editData) {
-  document.getElementById('userModalTitle').textContent = editData ? 'Edit User' : 'Add User';
-  document.getElementById('userEditId').value = editData?.id || '';
-  document.getElementById('userFullName').value = editData?.full_name || '';
-  document.getElementById('userUsername').value = editData?.username || '';
-  document.getElementById('userPassword').value = '';
-  document.getElementById('userRole').value = editData?.role || 'staff';
-  document.getElementById('userEmail').value = editData?.email || '';
-  document.getElementById('userPhone').value = editData?.phone || '';
-  openModal('userModal');
-}
-
-async function editUser(id) {
-  const u = APP.users.find(x => x.id === id);
-  if (u) openUserModal(u);
-}
-
-async function saveUser() {
-  const id = document.getElementById('userEditId').value;
-  const data = {
-    full_name: document.getElementById('userFullName').value,
-    username: document.getElementById('userUsername').value,
-    role: document.getElementById('userRole').value,
-    email: document.getElementById('userEmail').value,
-    phone: document.getElementById('userPhone').value,
-  };
-  const password = document.getElementById('userPassword').value;
-  if (password) data.password = password;
-  if (!data.full_name || !data.username) { toast('Fill required fields', 'error'); return; }
-  let result;
-  if (id) { data.id = id; result = await gasPost('updateuser', data); }
-  else {
-    if (!password) { toast('Password required for new user', 'error'); return; }
-    data.password = password;
-    result = await gasPost('adduser', data);
-  }
-  if (result.success) { toast('Saved!', 'success'); closeModal('userModal'); renderUsers(); }
-  else toast(result.error, 'error');
-}
-
-async function deleteUserItem(id) {
-  if (!confirm('Delete this user?')) return;
-  await gasPost('deleteuser', { id });
-  toast('Deleted', 'success');
-  renderUsers();
-}
-
-// ══════════════════════════════════════════════════════════
-//  15. TABLE MANAGEMENT
-// ══════════════════════════════════════════════════════════
-async function renderTables() {
-  await loadTables();
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header">
-        <h3>Table Management</h3>
-        <button class="btn btn-primary btn-sm" onclick="openTableModal()">+ Add Table</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>ID</th><th>Number</th><th>Capacity</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            ${APP.tables.map(t => `<tr>
-              <td>${t.id}</td><td>T${t.table_number}</td><td>${t.capacity}</td>
-              <td>${t.location}</td>
-              <td><span class="badge ${t.status==='available'?'badge-success':t.status==='reserved'?'badge-warning':'badge-danger'}">${t.status}</span></td>
-              <td>
-                <button class="btn btn-ghost btn-sm" onclick="editTable('${t.id}')">✏️</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteTableItem('${t.id}')">🗑️</button>
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-function openTableModal(editData) {
-  document.getElementById('tableModalTitle').textContent = editData ? 'Edit Table' : 'Add Table';
-  document.getElementById('tableEditId').value = editData?.id || '';
-  document.getElementById('tableNumber').value = editData?.table_number || '';
-  document.getElementById('tableCapacity').value = editData?.capacity || 4;
-  document.getElementById('tableLocation').value = editData?.location || 'Indoor';
-  document.getElementById('tableStatus').value = editData?.status || 'available';
-  openModal('tableModal');
-}
-
-async function editTable(id) {
-  const t = APP.tables.find(x => x.id === id);
-  if (t) openTableModal(t);
-}
-
-async function saveTable() {
-  const id = document.getElementById('tableEditId').value;
-  const data = {
-    table_number: document.getElementById('tableNumber').value,
-    capacity: parseInt(document.getElementById('tableCapacity').value),
-    location: document.getElementById('tableLocation').value,
-    status: document.getElementById('tableStatus').value,
-  };
-  if (!data.table_number) { toast('Table number required', 'error'); return; }
-  let result;
-  if (id) { data.id = id; result = await gasPost('updatetable', data); }
-  else { data.id = 'T' + data.table_number.padStart(2, '0'); result = await gasPost('addtable', data); }
-  if (result.success) { toast('Saved!', 'success'); closeModal('tableModal'); renderTables(); }
-  else toast(result.error, 'error');
-}
-
-async function deleteTableItem(id) {
-  if (!confirm('Delete this table?')) return;
-  await gasPost('deletetable', { id });
-  toast('Deleted', 'success');
-  renderTables();
-}
-
-// ══════════════════════════════════════════════════════════
-//  16. SETTINGS
-// ══════════════════════════════════════════════════════════
-async function renderSettings() {
-  const c = document.getElementById('contentArea');
-  c.innerHTML = `
-    <div class="panel">
-      <div class="panel-header"><h3>Backend Connection</h3></div>
-      <div class="form-group">
-        <label>Google Apps Script Web App URL</label>
-        <input type="url" id="settingsGasUrl" value="${APP.gasUrl}" placeholder="https://script.google.com/macros/s/XXXXX/exec" style="max-width:600px;">
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-primary" onclick="saveSettingsGasUrl()">Save URL</button>
-        <button class="btn btn-ghost" onclick="testSettingsConnection()">Test Connection</button>
-        <button class="btn btn-success" onclick="initSheets()">Initialize Sheets</button>
-      </div>
-      <div id="settingsStatus" style="margin-top:10px;font-size:13px;"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><h3>Change Password</h3></div>
-      <div class="form-group" style="max-width:300px;">
-        <label>Current Password</label>
-        <input type="password" id="settingsOldPass">
-      </div>
-      <div class="form-group" style="max-width:300px;">
-        <label>New Password</label>
-        <input type="password" id="settingsNewPass">
-      </div>
-      <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><h3>System Info</h3></div>
-      <table>
-        <tr><td>Version</td><td>1.0.0</td></tr>
-        <tr><td>Sheet ID</td><td>1Vugxij9X6kqZRdapRgg927Opoi8gbPaM7ajLI-3jXrw</td></tr>
-        <tr><td>Logged In As</td><td>${APP.user?.username || 'N/A'} (${APP.user?.role || 'N/A'})</td></tr>
-        <tr><td>Language</td><td>${APP.lang === 'en' ? 'English' : 'বাংলা'}</td></tr>
-      </table>
-    </div>
-  `;
-}
-
-function saveSettingsGasUrl() {
-  const url = document.getElementById('settingsGasUrl').value.trim();
-  if (!url) { toast('Enter a valid URL', 'error'); return; }
-  APP.gasUrl = url;
-  localStorage.setItem('VAULT_GAS_URL', url);
-  toast('GAS URL saved!', 'success');
-}
-
-async function testSettingsConnection() {
-  const url = document.getElementById('settingsGasUrl').value.trim();
-  APP.gasUrl = url;
-  const statusEl = document.getElementById('settingsStatus');
-  statusEl.innerHTML = 'Testing...';
-  const result = await gasGet('init');
-  if (result.error) {
-    statusEl.innerHTML = `<span style="color:var(--danger);">❌ Failed: ${result.error}</span>`;
-  } else {
-    statusEl.innerHTML = '<span style="color:var(--success);">✅ Connected successfully!</span>';
-    localStorage.setItem('VAULT_GAS_URL', url);
-  }
-}
-
-async function initSheets() {
-  const result = await gasGet('init');
-  if (result.error) toast('Failed: ' + result.error, 'error');
-  else toast('Sheets initialized! Default admin (admin/admin123) and tables created.', 'success');
-}
-
-async function changePassword() {
-  const oldPass = document.getElementById('settingsOldPass').value;
-  const newPass = document.getElementById('settingsNewPass').value;
-  if (!oldPass || !newPass) { toast('Fill both fields', 'error'); return; }
-  const result = await gasPost('changepassword', { user_id: APP.user.id, old_password: oldPass, new_password: newPass });
-  if (result.success) toast('Password changed!', 'success');
-  else toast(result.error || 'Failed', 'error');
-}
-
-// ══════════════════════════════════════════════════════════
-//  UTILITY FUNCTIONS
-// ══════════════════════════════════════════════════════════
-function openModal(id) { document.getElementById(id).classList.add('show'); }
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-
-function toast(msg, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const div = document.createElement('div');
-  div.className = `toast toast-${type}`;
-  div.textContent = msg;
-  container.appendChild(div);
-  setTimeout(() => div.remove(), 4000);
-}
-
-function downloadFile(content, filename, mimeType) {
-  const blob = new Blob([content], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-
-function populateTableSelect(selectId) {
-  const sel = document.getElementById(selectId);
-  if (!sel) return;
-  const current = sel.value;
-  sel.innerHTML = '<option value="">Auto-assign</option>';
-  APP.tables.forEach(t => {
-    sel.innerHTML += `<option value="${t.id}">T${t.table_number} (${t.capacity}p - ${t.location}) ${t.status !== 'available' ? '⚠️' : ''}</option>`;
-  });
-  sel.value = current;
-}
-
-function populateMenuSelect(selectId) {
-  const sel = document.getElementById(selectId);
-  if (!sel) return;
-  const current = sel.value;
-  sel.innerHTML = '<option value="">None</option>';
-  APP.menuPackages.forEach(m => {
-    sel.innerHTML += `<option value="${m.name}">${m.name} - ৳${m.price}</option>`;
-  });
-  sel.value = current;
-}
-
-// ══════════════════════════════════════════════════════════
-//  APP STARTUP
-// ══════════════════════════════════════════════════════════
-(function init() {
-  // Load saved GAS URL into login form
-  if (APP.gasUrl) {
-    document.getElementById('gasUrlInput').value = APP.gasUrl;
-  }
-  // Set language
-  setLang(APP.lang);
-  // Auto-login if session exists
-  if (APP.user && APP.gasUrl) {
-    showApp();
-  }
-})();
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.remove('show');
-  });
-});
-
-// PWA Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
+// ═══ STARTUP ═══
+(function init(){if(APP.gasUrl)document.getElementById('gasUrlInput').value=APP.gasUrl;setLang(APP.lang);if(APP.user&&APP.gasUrl)showApp();})();
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')})});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
