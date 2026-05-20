@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>VAULT RESERVATION</title>
+<meta name="description" content="VAULT RESERVATION — Guest Reservation Analytics & Management System">
+<meta name="theme-color" content="#4F46E5">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --indigo:#4F46E5;--indigo-l:#818CF8;--indigo-d:#3730A3;
+  --pink:#EC4899;--pink-l:#F472B6;--pink-d:#BE185D;
+  --emerald:#10B981;--emerald-l:#34D399;--emerald-d:#047857;
+  --amber:#F59E0B;--amber-l:#FBBF24;--amber-d:#B45309;
+  --rose:#EF4444;--rose-l:#F87171;
+  --s50:#F8FAFC;--s100:#F1F5F9;--s200:#E2E8F0;--s300:#CBD5E1;--s400:#94A3B8;--s500:#64748B;--s600:#475569;--s700:#334155;--s800:#1E293B;--s900:#0F172A;
+  --sidebar-w:260px;--hdr-h:54px;--flt-h:48px;
+  --radius:10px;--shadow:0 1px 3px rgba(0,0,0,.1);
+}
+html{font-size:13px;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--s100);color:var(--s800);overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--s300);border-radius:3px}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font:inherit}
+input,select,textarea{font:inherit}
+
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,var(--s900),var(--s800));color:#fff;z-index:1000;display:flex;flex-direction:column;transition:transform .25s ease;overflow:hidden}
+.sidebar-hdr{padding:16px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.sidebar-hdr h1{font-size:1.05rem;font-weight:800;letter-spacing:.02em;display:flex;align-items:center;gap:6px}
+.sidebar-hdr h1 span{color:var(--indigo-l)}
+.sidebar-hdr p{font-size:.68rem;color:var(--s400);margin-top:2px}
+.sidebar-user{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sidebar-user .avatar{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--indigo),var(--pink));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0}
+.sidebar-user .uinfo{flex:1;min-width:0}
+.sidebar-user .uname{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-user .urole{font-size:.65rem;color:var(--s400);text-transform:capitalize}
+.sidebar-nav{flex:1;overflow-y:auto;padding:6px 0}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12)}
+.nav-sec{padding:12px 16px 4px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--s500)}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:.78rem;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.nav-item.active{background:rgba(79,70,229,.2);color:#fff;border-left-color:var(--indigo-l);font-weight:600}
+.nav-serial{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;font-size:.62rem;font-weight:700;background:rgba(255,255,255,.08);flex-shrink:0}
+.nav-item.active .nav-serial{background:var(--indigo);color:#fff}
+.sidebar-ft{padding:10px 16px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.lang-btn{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;font-size:.72rem;font-weight:600;background:rgba(255,255,255,.08);color:var(--s300);width:100%;transition:all .15s}
+.lang-btn:hover{background:rgba(255,255,255,.14)}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999}
+.overlay.show{display:block}
+
+/* MAIN */
+.main{flex:1;margin-left:var(--sidebar-w);display:flex;flex-direction:column;min-height:100vh}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;height:var(--hdr-h);background:#fff;border-bottom:1px solid var(--s200);display:flex;align-items:center;padding:0 16px;gap:12px;box-shadow:var(--shadow)}
+.hamburger{display:none;width:34px;height:34px;border-radius:7px;align-items:center;justify-content:center;background:var(--s100);color:var(--s700);font-size:1.1rem}
+.topbar-title{font-size:.95rem;font-weight:700;color:var(--s800)}
+.topbar-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.status-pill{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:16px;font-size:.68rem;font-weight:600;background:#D1FAE5;color:#065F46}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--s100);color:var(--s600);transition:all .15s;font-size:.95rem}
+.btn-icon:hover{background:var(--indigo);color:#fff}
+
+/* FILTER */
+.filter-bar{position:sticky;top:var(--hdr-h);z-index:99;height:var(--flt-h);background:#fff;border-bottom:1px solid var(--s200);display:flex;align-items:center;padding:0 16px;gap:8px}
+.filter-bar label{font-size:.72rem;font-weight:600;color:var(--s600)}
+.filter-bar input[type="date"]{padding:5px 8px;border:1px solid var(--s300);border-radius:6px;font-size:.78rem;color:var(--s700);outline:none}
+.filter-bar input[type="date"]:focus{border-color:var(--indigo);box-shadow:0 0 0 2px rgba(79,70,229,.15)}
+.btn-flt{padding:5px 14px;border-radius:6px;font-size:.78rem;font-weight:600;background:var(--indigo);color:#fff;transition:all .15s}
+.btn-flt:hover{background:var(--indigo-d)}
+.btn-clr{padding:5px 12px;border-radius:6px;font-size:.78rem;font-weight:500;background:var(--s100);color:var(--s500)}
+.btn-clr:hover{background:var(--s200)}
+
+/* CONTENT */
+.content{flex:1;padding:16px}
+
+/* CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{border-radius:var(--radius);padding:18px;color:#fff;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.1)}
+.stat-card.blue{background:linear-gradient(135deg,var(--indigo),var(--indigo-l))}
+.stat-card.pink{background:linear-gradient(135deg,var(--pink-d),var(--pink))}
+.stat-card.green{background:linear-gradient(135deg,var(--emerald-d),var(--emerald))}
+.stat-card.orange{background:linear-gradient(135deg,var(--amber-d),var(--amber))}
+.stat-card .s-icon{font-size:1.6rem;margin-bottom:6px;opacity:.8}
+.stat-card .s-val{font-size:1.7rem;font-weight:800;line-height:1}
+.stat-card .s-lbl{font-size:.75rem;opacity:.85;margin-top:4px;font-weight:500}
+.stat-card .s-sub{font-size:.65rem;opacity:.6;margin-top:2px}
+
+/* PANELS */
+.panel{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--s200);flex-wrap:wrap;gap:8px}
+.panel-hdr h3{font-size:.9rem;font-weight:700;color:var(--s800)}
+.panel-actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn-exp{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:5px;font-size:.7rem;font-weight:600;transition:all .15s}
+.btn-exp.csv{background:var(--emerald);color:#fff}
+.btn-exp.csv:hover{background:var(--emerald-d)}
+.btn-exp.pdf{background:var(--pink);color:#fff}
+.btn-exp.pdf:hover{background:var(--pink-d)}
+.panel-body{padding:0}
+.panel-body.padded{padding:16px}
+
+/* TABLES */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+thead{background:var(--s50)}
+th{padding:8px 10px;text-align:left;font-weight:700;color:var(--s500);white-space:nowrap;border-bottom:2px solid var(--s200);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 10px;border-bottom:1px solid var(--s100);color:var(--s600);white-space:nowrap}
+tbody tr:hover{background:var(--s50)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.badge-gold{background:#FEF3C7;color:#92400E}
+.badge-silver{background:#E5E7EB;color:#374151}
+.badge-bronze{background:#FED7AA;color:#9A3412}
+.badge-new{background:#DBEAFE;color:#1E40AF}
+.badge-repeat{background:#D1FAE5;color:#065F46}
+.badge-inactive{background:#FEE2E2;color:#991B1B}
+.badge-active{background:#D1FAE5;color:#065F46}
+.badge-waiting{background:#FEF3C7;color:#92400E}
+.badge-seated{background:#D1FAE5;color:#065F46}
+.badge-confirmed{background:#DBEAFE;color:#1E40AF}
+.badge-cancelled{background:#FEE2E2;color:#991B1B}
+.badge-checkedin{background:#E0E7FF;color:#3730A3}
+.badge-noshow{background:#FED7AA;color:#9A3412}
+.badge-completed{background:#D1FAE5;color:#065F46}
+.badge-walkin{background:#E0E7FF;color:#3730A3}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.form-group{display:flex;flex-direction:column;gap:3px}
+.form-group label{font-size:.68rem;font-weight:600;color:var(--s500)}
+.form-group input,.form-group select,.form-group textarea{padding:7px 10px;border:1px solid var(--s300);border-radius:6px;font-size:.8rem;outline:none;transition:border .15s}
+.form-group input:focus,.form-group select:focus{border-color:var(--indigo);box-shadow:0 0 0 2px rgba(79,70,229,.12)}
+.form-group textarea{resize:vertical;min-height:36px}
+.btn-primary{padding:7px 18px;border-radius:6px;font-size:.8rem;font-weight:600;background:var(--indigo);color:#fff;transition:all .15s}
+.btn-primary:hover{background:var(--indigo-d)}
+.btn-secondary{padding:7px 14px;border-radius:6px;font-size:.8rem;font-weight:500;background:var(--s100);color:var(--s600);transition:all .15s}
+.btn-secondary:hover{background:var(--s200)}
+.btn-danger{padding:7px 14px;border-radius:6px;font-size:.8rem;font-weight:600;background:var(--rose);color:#fff;transition:all .15s}
+.btn-danger:hover{background:#DC2626}
+.btn-sm{padding:4px 10px;font-size:.72rem}
+.btn-success{padding:7px 14px;border-radius:6px;font-size:.8rem;font-weight:600;background:var(--emerald);color:#fff}
+
+/* CHARTS */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:180px;padding:8px 0}
+.bar-chart .bg{display:flex;flex-direction:column;align-items:center;flex:1;min-width:20px;max-width:50px}
+.bar-chart .bar{width:100%;border-radius:3px 3px 0 0;transition:height .5s ease;min-height:2px;position:relative}
+.bar-chart .bar:hover{filter:brightness(1.12)}
+.bar-chart .bv{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:.6rem;font-weight:700;color:var(--s700);white-space:nowrap}
+.bar-chart .bl{margin-top:4px;font-size:.6rem;color:var(--s400);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar{display:flex;flex-direction:column;gap:5px;padding:12px 16px}
+.hbar-row{display:flex;align-items:center;gap:8px}
+.hbar-lbl{width:80px;font-size:.7rem;color:var(--s500);text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar-track{flex:1;height:20px;background:var(--s100);border-radius:5px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:5px;transition:width .5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px}
+.hbar-fill span{font-size:.6rem;font-weight:700;color:#fff}
+.hbar-val{width:40px;font-size:.68rem;font-weight:700;color:var(--s600);flex-shrink:0}
+.legend{display:flex;flex-wrap:wrap;gap:10px;padding:8px 16px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--s500)}
+.legend-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px}
+.donut{position:relative;width:150px;height:150px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.donut-inner{width:80px;height:80px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1;box-shadow:inset 0 0 8px rgba(0,0,0,.06)}
+.donut-inner .dv{font-size:1.2rem;font-weight:800;color:var(--s800)}
+.donut-inner .dl{font-size:.6rem;color:var(--s400)}
+
+/* SVG LINE */
+.svg-chart{padding:12px}
+.svg-chart svg{width:100%;height:auto}
+
+/* METRIC CARDS */
+.metrics{display:flex;flex-wrap:wrap;gap:10px;padding:12px 16px}
+.metric{padding:12px 14px;border-radius:7px;background:var(--s50);border:1px solid var(--s200);min-width:120px}
+.metric .mv{font-size:1.2rem;font-weight:800;color:var(--s800)}
+.metric .ml{font-size:.65rem;color:var(--s400);margin-top:1px}
+
+/* FLOOR PLAN */
+.floor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;padding:16px}
+.table-cell{border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all .15s;border:2px solid transparent;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.table-cell:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.1)}
+.table-cell.available{background:#D1FAE5;border-color:#6EE7B7;color:#065F46}
+.table-cell.occupied{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B}
+.table-cell.reserved{background:#FEF3C7;border-color:#FCD34D;color:#92400E}
+.table-cell.maintenance{background:#E2E8F0;border-color:#CBD5E1;color:#475569}
+.table-cell .tc-no{font-size:1rem;font-weight:800}
+.table-cell .tc-cap{font-size:.6rem;opacity:.7}
+
+/* QR */
+.qr-box{display:inline-flex;flex-direction:column;align-items:center;gap:6px;padding:10px;background:#fff;border:1px solid var(--s200);border-radius:8px}
+.qr-box svg{width:80px;height:80px}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:var(--radius);max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-hdr{padding:14px 16px;border-bottom:1px solid var(--s200);display:flex;align-items:center;justify-content:space-between}
+.modal-hdr h3{font-size:.95rem;font-weight:700}
+.modal-body{padding:16px}
+.modal-ft{padding:12px 16px;border-top:1px solid var(--s200);display:flex;justify-content:flex-end;gap:8px}
+
+/* TOAST */
+.toast{position:fixed;top:70px;right:16px;z-index:3000;padding:10px 18px;border-radius:8px;font-size:.8rem;font-weight:600;color:#fff;transform:translateX(120%);transition:transform .3s ease;max-width:360px}
+.toast.show{transform:translateX(0)}
+.toast.success{background:var(--emerald-d)}
+.toast.error{background:var(--rose)}
+.toast.info{background:var(--indigo-d)}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 16px;color:var(--s400);text-align:center}
+.empty .ei{font-size:2.5rem;margin-bottom:8px;opacity:.5}
+.empty p{font-size:.82rem}
+
+/* OCCASION TAGS */
+.occ-tag{display:inline-block;padding:2px 7px;border-radius:4px;margin:1px;font-size:.65rem;font-weight:600}
+.occ-birthday{background:#FEF3C7;color:#92400E}
+.occ-anniversary{background:#FCE7F3;color:#9D174D}
+.occ-celebration{background:#DBEAFE;color:#1E40AF}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.chart-row{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .filter-bar{flex-wrap:wrap;height:auto;padding:10px 12px;gap:6px}
+  .content{padding:12px}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .panel-hdr{flex-direction:column;align-items:flex-start}
+  .floor-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
+}
+@media(max-width:480px){.stat-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+
+@media print{
+  .sidebar,.overlay,.topbar,.filter-bar,.panel-actions,.hamburger,.modal-bg{display:none!important}
+  .main{margin-left:0!important}.content{padding:8px!important}
+  .panel{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
+  .stat-card{color:#000!important;background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-hdr">
+      <h1>🔐 <span>VAULT</span> RESERVATION</h1>
+      <p>Guest Intelligence System</p>
+    </div>
+    <div class="sidebar-user" id="sidebarUser"></div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+    <div class="sidebar-ft">
+      <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 English</button>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <span class="topbar-title" id="topTitle">Dashboard</span>
+      <div class="topbar-r">
+        <span class="status-pill" id="statusPill"><span class="status-dot"></span> <span data-t="common.loading">Loading</span></span>
+        <button class="btn-icon" onclick="fetchData()" title="Refresh">↻</button>
+        <button class="btn-icon" onclick="logout()" title="Logout">⏻</button>
+      </div>
+    </header>
+    <div class="filter-bar" id="filterBar">
+      <label data-t="filter.startDate">Start</label>
+      <input type="date" id="fltStart">
+      <label data-t="filter.endDate">End</label>
+      <input type="date" id="fltEnd">
+      <button class="btn-flt" onclick="applyFilter()" data-t="filter.apply">Filter</button>
+      <button class="btn-clr" onclick="clearFilter()" data-t="filter.clear">Clear</button>
+    </div>
+    <div class="content" id="contentArea">
+      <div class="empty"><div class="ei">🔐</div><p data-t="auth.login">Sign in to continue</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+   CONFIG
+   ================================================================ */
+const API_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+/* ================================================================
+   i18n
+   ================================================================ */
+const TR = {
+  en: {
+    'auth.login':'Sign In','auth.setup':'Initial Setup','auth.setupDesc':'Create the first admin account','auth.email':'Email','auth.password':'Password','auth.name':'Name','auth.createAdmin':'Create Admin','auth.signIn':'Sign In','auth.welcome':'Welcome back',
+    'nav.overview':'Overview','nav.reservations':'Reservations','nav.guestIntel':'Guest Intelligence','nav.occasions':'Occasions & Notes','nav.business':'Business Analytics','nav.advanced':'Advanced Reports','nav.operations':'Operations','nav.communication':'Communication','nav.financial':'Financial','nav.intelligence':'Intelligence','nav.admin':'Admin',
+    'dash.title':'Dashboard Overview','dash.totalBookings':'Total Bookings','dash.totalPax':'Total Pax','dash.uniqueGuests':'Unique Guests','dash.todayCount':"Today's Count",'dash.allRes':'All reservations','dash.guestsServed':'Total guests served','dash.distinct':'Distinct contacts','dash.sessionDist':'Session Distribution','dash.dayOfWeek':'Day of Week',
+    'res.new':'New Reservation','res.edit':'Edit Reservation','res.date':'Date','res.guestName':'Guest Name','res.contact':'Contact','res.pax':'Pax','res.session':'Session','res.tableNo':'Table No','res.notes':'Notes','res.status':'Status','res.source':'Source','res.create':'Create','res.update':'Update','res.cancel':'Cancel','res.search':'Search name/contact/notes','res.delete':'Delete Reservation','res.deleteConfirm':'Are you sure? This cannot be undone.','res.amount':'Advance Amount','res.menuPkg':'Menu Package','res.checkin':'Check In',
+    'rpt.topGuests':'Top Guests by Visits','rpt.loyalty':'Loyalty Levels','rpt.repeatNew':'Repeat vs New Guests','rpt.inactive':'Inactive Guests','rpt.guestDetail':'Guest Detail Lookup','rpt.occasions':'Special Occasions','rpt.notesKw':'Notes Keywords','rpt.sessionDist':'Session Distribution','rpt.tablePref':'Table Preference','rpt.peakHours':'Peak Hours Analysis','rpt.dailyTrends':'Daily Trends','rpt.dayOfWeek':'Day of Week Analysis','rpt.monthlyTrends':'Monthly Trends','rpt.avgPax':'Avg Pax per Booking','rpt.bookingFreq':'Booking Frequency','rpt.guestGrowth':'Guest Growth Over Time','rpt.paxDist':'Pax Size Distribution','rpt.retention':'Guest Retention Rate','rpt.status':'Reservation Status','rpt.source':'Booking Source Analysis','rpt.topNotes':'Top Notes / Requests',
+    'feat.floorPlan':'Live Table Status','feat.waitlist':'Waitlist Management','feat.smsReminder':'SMS/WhatsApp Reminder','feat.recurring':'Recurring Reservations','feat.occasionRemind':'Occasion Reminders','feat.payment':'Advance Payment','feat.qrCheckin':'QR Check-in','feat.menuPkg':'Menu / Packages','feat.revenue':'Revenue Tracking','feat.aiPref':'AI Guest Preferences','feat.emailConfirm':'Email Confirmation','feat.walkinVsRes':'Walk-in vs Reservation','feat.forecast':'Booking Forecast',
+    'feat.users':'User Management','feat.auditLog':'Audit Log',
+    'filter.startDate':'Start','filter.endDate':'End','filter.apply':'Filter','filter.clear':'Clear',
+    'common.export':'Export','common.csv':'CSV','common.pdf':'PDF','common.refresh':'Refresh','common.logout':'Logout','common.save':'Save','common.delete':'Delete','common.edit':'Edit','common.add':'Add','common.close':'Close','common.noData':'No data available','common.loading':'Loading...','common.search':'Search','common.total':'Total','common.active':'Active','common.inactive':'Inactive','common.confirmed':'Confirmed','common.cancelled':'Cancelled','common.completed':'Completed','common.walkin':'Walk-in','common.noshow':'No Show','common.checkedin':'Checked In'
+  },
+  bn: {
+    'auth.login':'সাইন ইন','auth.setup':'প্রাথমিক সেটআপ','auth.setupDesc':'প্রথম অ্যাডমিন অ্যাকাউন্ট তৈরি করুন','auth.email':'ইমেইল','auth.password':'পাসওয়ার্ড','auth.name':'নাম','auth.createAdmin':'অ্যাডমিন তৈরি করুন','auth.signIn':'সাইন ইন','auth.welcome':'ফিরে আসার জন্য স্বাগতম',
+    'nav.overview':'ওভারভিউ','nav.reservations':'রিজার্ভেশন','nav.guestIntel':'গেস্ট ইন্টেলিজেন্স','nav.occasions':'অকেশন ও নোটস','nav.business':'বিজনেস অ্যানালিটিক্স','nav.advanced':'অ্যাডভান্সড রিপোর্ট','nav.operations':'অপারেশন','nav.communication':'যোগাযোগ','nav.financial':'ফিন্যান্সিয়াল','nav.intelligence':'ইন্টেলিজেন্স','nav.admin':'অ্যাডমিন',
+    'dash.title':'ড্যাশবোর্ড ওভারভিউ','dash.totalBookings':'মোট বুকিং','dash.totalPax':'মোট প্যাক্স','dash.uniqueGuests':'ইউনিক গেস্ট','dash.todayCount':'আজকের গণনা','dash.allRes':'সব রিজার্ভেশন','dash.guestsServed':'মোট গেস্ট সার্ভড','dash.distinct':'আলাদা কন্টাক্ট','dash.sessionDist':'সেশন বিতরণ','dash.dayOfWeek':'সপ্তাহের দিন',
+    'res.new':'নতুন রিজার্ভেশন','res.edit':'রিজার্ভেশন সম্পাদনা','res.date':'তারিখ','res.guestName':'গেস্টের নাম','res.contact':'কন্টাক্ট','res.pax':'প্যাক্স','res.session':'সেশন','res.tableNo':'টেবিল নং','res.notes':'নোটস','res.status':'স্ট্যাটাস','res.source':'সোর্স','res.create':'তৈরি করুন','res.update':'আপডেট','res.cancel':'বাতিল','res.search':'নাম/কন্টাক্ট/নোটস খুঁজুন','res.delete':'রিজার্ভেশন মুছুন','res.deleteConfirm':'আপনি কি নিশ্চিত? এটি পূর্বাবস্থায় ফেরানো যাবে না।','res.amount':'অগ্রিম পেমেন্ট','res.menuPkg':'মেনু প্যাকেজ','res.checkin':'চেক ইন',
+    'rpt.topGuests':'ভিজিট অনুযায়ী শীর্ষ গেস্ট','rpt.loyalty':'লয়্যালটি লেভেল','rpt.repeatNew':'রিপিট vs নতুন গেস্ট','rpt.inactive':'নিষ্ক্রিয় গেস্ট','rpt.guestDetail':'গেস্ট বিস্তারিত','rpt.occasions':'বিশেষ অনুষ্ঠান','rpt.notesKw':'নোটস কীওয়ার্ড','rpt.sessionDist':'সেশন বিতরণ','rpt.tablePref':'টেবিল পছন্দ','rpt.peakHours':'পিক আওয়ার','rpt.dailyTrends':'দৈনিক ট্রেন্ড','rpt.dayOfWeek':'সপ্তাহের দিন','rpt.monthlyTrends':'মাসিক ট্রেন্ড','rpt.avgPax':'গড় প্যাক্স','rpt.bookingFreq':'বুকিং ফ্রিকোয়েন্সি','rpt.guestGrowth':'গেস্ট গ্রোথ','rpt.paxDist':'প্যাক্স বিতরণ','rpt.retention':'রিটেনশন রেট','rpt.status':'স্ট্যাটাস বিশ্লেষণ','rpt.source':'বুকিং সোর্স','rpt.topNotes':'শীর্ষ নোটস',
+    'feat.floorPlan':'লাইভ টেবিল স্ট্যাটাস','feat.waitlist':'ওয়েটলিস্ট','feat.smsReminder':'SMS/হোয়াটসঅ্যাপ রিমাইন্ডার','feat.recurring':'পুনরাবৃত্তি রিজার্ভেশন','feat.occasionRemind':'অকেশন রিমাইন্ডার','feat.payment':'অগ্রিম পেমেন্ট','feat.qrCheckin':'QR চেক-ইন','feat.menuPkg':'মেনু/প্যাকেজ','feat.revenue':'রেভিনিউ ট্র্যাকিং','feat.aiPref':'AI গেস্ট পছন্দ','feat.emailConfirm':'ইমেইল কনফার্মেশন','feat.walkinVsRes':'ওয়াক-ইন vs রিজার্ভেশন','feat.forecast':'বুকিং ফোরকাস্ট',
+    'feat.users':'ইউজার ম্যানেজমেন্ট','feat.auditLog':'অডিট লগ',
+    'filter.startDate':'শুরু','filter.endDate':'শেষ','filter.apply':'ফিল্টার','filter.clear':'মুছুন',
+    'common.export':'এক্সপোর্ট','common.csv':'CSV','common.pdf':'PDF','common.refresh':'রিফ্রেশ','common.logout':'লগআউট','common.save':'সেভ','common.delete':'মুছুন','common.edit':'সম্পাদনা','common.add':'যোগ','common.close':'বন্ধ','common.noData':'কোনো ডেটা নেই','common.loading':'লোড হচ্ছে...','common.search':'খুঁজুন','common.total':'মোট','common.active':'সক্রিয়','common.inactive':'নিষ্ক্রিয়','common.confirmed':'কনফার্মড','common.cancelled':'বাতিল','common.completed':'সম্পন্ন','common.walkin':'ওয়াক-ইন','common.noshow':'নো শো','common.checkedin':'চেকড ইন'
+  }
+};
+let lang = localStorage.getItem('vault_lang') || 'bn';
+function t(k) { return TR[lang]?.[k] || TR.en[k] || k; }
+function toggleLang() { lang = lang === 'en' ? 'bn' : 'en'; localStorage.setItem('vault_lang', lang); document.getElementById('langBtn').textContent = lang === 'en' ? '🌐 English' : '🌐 বাংলা'; applyTranslations(); renderReport(); }
+function applyTranslations() { document.querySelectorAll('[data-t]').forEach(el => { const k = el.getAttribute('data-t'); if (TR[lang]?.[k] || TR.en[k]) el.textContent = t(k); }); }
+
+/* ================================================================
+   STATE
+   ================================================================ */
+let rawData = [], currentReport = 'dashboard', user = null, reportFilters = {};
+let tables = [], waitlistData = [], recurringData = [], menuPkgs = [], notifications = [], reminders = [], auditData = [], revenueData = null, forecastData = null;
+let editId = null, resSearch = '', resPage = 1;
+const SESSION_OPTS = ['Lunch','Dinner','Breakfast','Brunch','Late Night'];
+const STATUS_OPTS = [{v:'confirmed',l:'Confirmed',c:'badge-confirmed'},{v:'walkin',l:'Walk-in',c:'badge-walkin'},{v:'completed',l:'Completed',c:'badge-completed'},{v:'cancelled',l:'Cancelled',c:'badge-cancelled'},{v:'noshow',l:'No Show',c:'badge-noshow'},{v:'checkedin',l:'Checked In',c:'badge-checkedin'}];
+const SOURCE_OPTS = ['phone','online','walkin','app','other'];
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+/* ================================================================
+   REPORTS REGISTRY
+   ================================================================ */
+const REPORTS = [
+  { section:'nav.overview', items:[{id:'dashboard',name:'dash.title',icon:'📊'}] },
+  { section:'nav.reservations', items:[{id:'reservations',name:'res.new',icon:'📝'}] },
+  { section:'nav.guestIntel', items:[
+    {id:'topGuests',name:'rpt.topGuests',icon:'🏆'},{id:'loyalty',name:'rpt.loyalty',icon:'🏅'},
+    {id:'repeatNew',name:'rpt.repeatNew',icon:'🔄'},{id:'inactiveGuests',name:'rpt.inactive',icon:'💤'},
+    {id:'guestDetails',name:'rpt.guestDetail',icon:'🔍'}
+  ]},
+  { section:'nav.occasions', items:[{id:'specialOccasions',name:'rpt.occasions',icon:'🎂'},{id:'notesAnalysis',name:'rpt.notesKw',icon:'📝'}] },
+  { section:'nav.business', items:[
+    {id:'sessionDist',name:'rpt.sessionDist',icon:'🌅'},{id:'tablePref',name:'rpt.tablePref',icon:'🪑'},
+    {id:'peakHours',name:'rpt.peakHours',icon:'⏰'},{id:'dailyTrends',name:'rpt.dailyTrends',icon:'📈'},
+    {id:'dayOfWeek',name:'rpt.dayOfWeek',icon:'📅'},{id:'monthlyTrends',name:'rpt.monthlyTrends',icon:'📆'}
+  ]},
+  { section:'nav.advanced', items:[
+    {id:'avgPax',name:'rpt.avgPax',icon:'👥'},{id:'bookingFreq',name:'rpt.bookingFreq',icon:'📊'},
+    {id:'guestGrowth',name:'rpt.guestGrowth',icon:'🌱'},{id:'paxDistribution',name:'rpt.paxDist',icon:'📏'},
+    {id:'retentionRate',name:'rpt.retention',icon:'🔁'},{id:'statusAnalysis',name:'rpt.status',icon:'✅'},
+    {id:'sourceAnalysis',name:'rpt.source',icon:'📱'},{id:'topNotes',name:'rpt.topNotes',icon:'📋'}
+  ]},
+  { section:'nav.operations', items:[
+    {id:'floorPlan',name:'feat.floorPlan',icon:'🏠'},{id:'waitlist',name:'feat.waitlist',icon:'📋'},
+    {id:'recurring',name:'feat.recurring',icon:'🔁'},{id:'menuPkg',name:'feat.menuPkg',icon:'🍽️'}
+  ]},
+  { section:'nav.communication', items:[
+    {id:'smsReminder',name:'feat.smsReminder',icon:'💬'},{id:'emailConfirm',name:'feat.emailConfirm',icon:'📧'},
+    {id:'occasionRemind',name:'feat.occasionRemind',icon:'🔔'}
+  ]},
+  { section:'nav.financial', items:[{id:'revenue',name:'feat.revenue',icon:'💰'},{id:'payment',name:'feat.payment',icon:'💳'}] },
+  { section:'nav.intelligence', items:[
+    {id:'aiPref',name:'feat.aiPref',icon:'🧠'},{id:'forecast',name:'feat.forecast',icon:'✨'},
+    {id:'walkinVsRes',name:'feat.walkinVsRes',icon:'⚖️'},{id:'qrCheckin',name:'feat.qrCheckin',icon:'📲'}
+  ]},
+  { section:'nav.admin', items:[{id:'users',name:'feat.users',icon:'👤'},{id:'auditLog',name:'feat.auditLog',icon:'📜'}] },
+];
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+const fmtD = d => d ? new Date(d).toISOString().slice(0,10) : '';
+const today = () => fmtD(new Date());
+const daysAgo = n => { const d=new Date(); d.setDate(d.getDate()-n); return fmtD(d); };
+const num = v => parseFloat(v)||0;
+const pct = (v,t) => t>0?((v/t)*100).toFixed(1):'0.0';
+const esc = s => { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; };
+
+async function api(action, params={}) {
+  const hasWrite = ['create','update','delete','login','setup','send','generate','log','checkin'].some(w => action.includes(w));
+  if (hasWrite) {
+    const res = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action,...params}) });
+    const json = await res.json();
+    if (json.status==='error') throw new Error(json.message||json.data?.error||'Error');
+    return json.data;
+  } else {
+    const qs = new URLSearchParams(params).toString();
+    const res = await fetch(API_URL + '?action=' + action + (qs?'&'+qs:''));
+    const json = await res.json();
+    if (json.status==='error') throw new Error(json.message||'Error');
+    return json.data;
+  }
+}
+
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast ' + type + ' show';
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function showModal(html) { document.getElementById('modalBox').innerHTML = html; document.getElementById('modalBg').classList.add('show'); }
+function closeModal() { document.getElementById('modalBg').classList.remove('show'); }
+
+function exportCSV(tableId, filename) {
+  const tbl = document.getElementById(tableId);
+  if (!tbl) return;
+  let csv = [];
+  tbl.querySelectorAll('tr').forEach(row => {
+    const cols = row.querySelectorAll('th, td');
+    csv.push(Array.from(cols).map(c => '"'+c.textContent.replace(/"/g,'""').trim()+'"').join(','));
+  });
+  const blob = new Blob([csv.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename+'.csv'; a.click();
+}
+function exportPDF() { window.print(); }
+function expBtns(tid, fn) { return `<div class="panel-actions"><button class="btn-exp csv" onclick="exportCSV('${tid}','${fn}')">⬇ CSV</button><button class="btn-exp pdf" onclick="exportPDF()">🖨 PDF</button></div>`; }
+
+/* ================================================================
+   CHART BUILDERS
+   ================================================================ */
+function barChart(data, maxH=180, colorFn) {
+  if (!data.length) return '<div class="empty"><p>'+t('common.noData')+'</p></div>';
+  const mx = Math.max(...data.map(d=>d.value))||1;
+  let html='<div class="bar-chart">';
+  data.forEach((d,i) => {
+    const h = ((d.value/mx)*(maxH-24)).toFixed(1);
+    const c = d.color || (colorFn?colorFn(d,i):'var(--indigo)');
+    html+=`<div class="bg"><div class="bar" style="height:${h}px;background:${c}"><span class="bv">${d.value}</span></div><div class="bl" title="${esc(d.label)}">${esc(d.label)}</div></div>`;
+  });
+  return html+'</div>';
+}
+
+function hBar(data, color='var(--indigo)') {
+  if (!data.length) return '';
+  const mx = Math.max(...data.map(d=>d.value))||1;
+  let html='<div class="hbar">';
+  data.forEach(d => {
+    const w = pct(d.value,mx);
+    html+=`<div class="hbar-row"><div class="hbar-lbl" title="${esc(d.label)}">${esc(d.label)}</div><div class="hbar-track"><div class="hbar-fill" style="width:${w}%;background:${d.color||color}"><span>${d.value}</span></div></div><div class="hbar-val">${d.value}</div></div>`;
+  });
+  return html+'</div>';
+}
+
+function donutChart(data) {
+  const total = data.reduce((s,d)=>s+d.value,0);
+  if (!total) return '<div class="empty"><p>'+t('common.noData')+'</p></div>';
+  let segs = data.reduce((acc,d,i) => { const prev = i===0?0:acc[i-1].end; const end = prev+(d.value/total)*360; acc.push({...d,start:prev,end}); return acc; }, []);
+  const conic = segs.map(s=>`${s.color} ${s.start}deg ${s.end}deg`).join(', ');
+  let legend = data.map(d=>`<div class="legend-item"><div class="legend-dot" style="background:${d.color}"></div>${esc(d.label)}: ${d.value} (${pct(d.value,total)}%)</div>`).join('');
+  return `<div class="donut-wrap"><div class="donut" style="background:conic-gradient(${conic})"><div class="donut-inner"><div class="dv">${total}</div><div class="dl">${t('common.total')}</div></div></div><div class="legend">${legend}</div></div>`;
+}
+
+function svgLine(data, W=650, H=250, color='#4F46E5') {
+  if (data.length<2) return '<div class="empty"><p>'+t('common.noData')+'</p></div>';
+  const pad={t:15,r:15,b:35,l:42}, cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const vals=data.map(d=>d.value), minV=Math.min(...vals), maxV=Math.max(...vals,1), range=maxV-minV||1;
+  const pts=data.map((d,i)=>({x:pad.l+(i/(data.length-1))*cw, y:pad.t+ch-((d.value-minV)/range)*ch, ...d}));
+  const line=pts.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const area=line+` L${pts[pts.length-1].x.toFixed(1)},${(pad.t+ch).toFixed(1)} L${pts[0].x.toFixed(1)},${(pad.t+ch).toFixed(1)} Z`;
+  let grid='', yTicks=4;
+  for(let i=0;i<=yTicks;i++){const y=pad.t+(ch/yTicks)*i; const v=maxV-(range/yTicks)*i; grid+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#E2E8F0" stroke-dasharray="3,3"/><text x="${pad.l-6}" y="${y+3}" text-anchor="end" fill="#94A3B8" font-size="9">${Math.round(v+minV*(i===0?0:0))}</text>`;}
+  const step=Math.max(1,Math.floor(data.length/10));
+  let xLbl=pts.filter((_,i)=>i%step===0||i===pts.length-1).map(p=>`<text x="${p.x}" y="${H-6}" text-anchor="middle" fill="#94A3B8" font-size="8" transform="rotate(-35 ${p.x} ${H-8})">${p.label}</text>`).join('');
+  let dots=pts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="white" stroke="${color}" stroke-width="1.5"/>`).join('');
+  return `<div class="svg-chart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.25"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/></linearGradient></defs>${grid}<path d="${area}" fill="url(#ag)"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${xLbl}</svg></div>`;
+}
+
+function metrics(items) { return '<div class="metrics">'+items.map(m=>`<div class="metric"><div class="mv">${m.value}</div><div class="ml">${esc(m.label)}</div></div>`).join('')+'</div>'; }
+function panel(title, body, tid, fn) { return `<div class="panel"><div class="panel-hdr"><h3>${esc(title)}</h3>${tid?expBtns(tid,fn):''}</div><div class="panel-body">${body}</div></div>`; }
+
+/* ================================================================
+   GROUPING
+   ================================================================ */
+function groupByContact(data) {
+  const m={};
+  data.forEach(r=>{
+    const k=r.contact||'';
+    if(!k)return;
+    if(!m[k]) m[k]={contact:k,name:r.name||'',visits:0,pax:0,dates:[],notes:[],tables:[],sessions:[]};
+    m[k].visits++; m[k].pax+=num(r.pax);
+    if(r.date) m[k].dates.push(r.date);
+    if(r.notes) m[k].notes.push(r.notes);
+    if(r.tableNo) m[k].tables.push(r.tableNo);
+    if(r.session) m[k].sessions.push(r.session);
+  });
+  Object.values(m).forEach(g=>{g.dates.sort();g.lastVisit=g.dates.length?g.dates[g.dates.length-1]:'N/A';g.firstVisit=g.dates.length?g.dates[0]:'N/A';});
+  return m;
+}
+
+/* ================================================================
+   FILTER
+   ================================================================ */
+function initFilters() {
+  document.getElementById('fltStart').value = daysAgo(90);
+  document.getElementById('fltEnd').value = today();
+  REPORTS.forEach(s=>s.items.forEach(i=>{ reportFilters[i.id]={start:daysAgo(90),end:today()}; }));
+}
+function loadFilter(id) { const f=reportFilters[id]; if(f){document.getElementById('fltStart').value=f.start;document.getElementById('fltEnd').value=f.end;} }
+function applyFilter() { reportFilters[currentReport]={start:document.getElementById('fltStart').value,end:document.getElementById('fltEnd').value}; renderReport(); }
+function clearFilter() { document.getElementById('fltStart').value=daysAgo(365); document.getElementById('fltEnd').value=today(); reportFilters[currentReport]={start:daysAgo(365),end:today()}; renderReport(); }
+function getFiltered() {
+  const f=reportFilters[currentReport]||{};
+  if(!f.start&&!f.end) return rawData;
+  const s=f.start?new Date(f.start):null, e=f.end?new Date(f.end+'T23:59:59'):null;
+  return rawData.filter(r=>{ const d=new Date(r.date); if(isNaN(d))return false; if(s&&d<s)return false; if(e&&d>e)return false; return true; });
+}
+
+/* ================================================================
+   SIDEBAR
+   ================================================================ */
+function buildSidebar() {
+  const nav=document.getElementById('sidebarNav');
+  let serial=0;
+  nav.innerHTML='';
+  const isAdmin = user?.role==='admin';
+  REPORTS.forEach(sec=>{
+    const filtered = sec.items.filter(it => {
+      if((it.id==='users'||it.id==='auditLog')&&!isAdmin) return false;
+      return true;
+    });
+    if(!filtered.length) return;
+    nav.innerHTML+=`<div class="nav-sec">${t(sec.section)}</div>`;
+    filtered.forEach(item=>{
+      serial++;
+      const active = currentReport===item.id?'active':'';
+      nav.innerHTML+=`<div class="nav-item ${active}" onclick="switchReport('${item.id}');closeSidebar()"><span class="nav-serial">#${serial}</span><span>${item.icon} ${t(item.name)}</span></div>`;
+    });
+  });
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+
+function switchReport(id) {
+  currentReport=id; loadFilter(id); buildSidebar();
+  const found=REPORTS.flatMap(s=>s.items).find(i=>i.id===id);
+  document.getElementById('topTitle').textContent = found ? t(found.name) : '';
+  renderReport();
+}
+
+/* ================================================================
+   AUTH
+   ================================================================ */
+function showLogin() {
+  const area=document.getElementById('contentArea');
+  area.innerHTML = `
+  <div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:16px">
+    <div class="panel" style="max-width:380px;width:100%">
+      <div class="panel-hdr" style="justify-content:center"><h3>🔐 VAULT RESERVATION</h3></div>
+      <div class="panel-body padded">
+        <div style="text-align:center;margin-bottom:16px"><div style="font-size:2.5rem">🔐</div><p style="color:var(--s400);font-size:.8rem;margin-top:4px">${t('auth.login')}</p></div>
+        <div class="form-grid" style="grid-template-columns:1fr">
+          <div class="form-group"><label>${t('auth.email')}</label><input id="loginEmail" type="email" required></div>
+          <div class="form-group"><label>${t('auth.password')}</label><input id="loginPwd" type="password" required></div>
+          <button class="btn-primary" onclick="handleLogin()" style="width:100%">${t('auth.signIn')}</button>
+        </div>
+        <p style="text-align:center;margin-top:12px;font-size:.72rem;color:var(--s400)">${t('auth.setupDesc')} — <a href="#" onclick="showSetup();return false" style="color:var(--indigo)">${t('auth.createAdmin')}</a></p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function showSetup() {
+  const area=document.getElementById('contentArea');
+  area.innerHTML = `
+  <div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:16px">
+    <div class="panel" style="max-width:380px;width:100%">
+      <div class="panel-hdr" style="justify-content:center"><h3>🔐 ${t('auth.setup')}</h3></div>
+      <div class="panel-body padded">
+        <div class="form-grid" style="grid-template-columns:1fr">
+          <div class="form-group"><label>${t('auth.name')}</label><input id="setupName" required></div>
+          <div class="form-group"><label>${t('auth.email')}</label><input id="setupEmail" type="email" required></div>
+          <div class="form-group"><label>${t('auth.password')}</label><input id="setupPwd" type="password" required minlength="4"></div>
+          <button class="btn-primary" onclick="handleSetup()" style="width:100%">${t('auth.createAdmin')}</button>
+          <a href="#" onclick="showLogin();return false" style="text-align:center;font-size:.72rem;color:var(--indigo)">← ${t('auth.signIn')}</a>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function handleLogin() {
+  try {
+    const res = await api('login',{email:document.getElementById('loginEmail').value,password:document.getElementById('loginPwd').value});
+    if(res.error) throw new Error(res.error);
+    user=res; localStorage.setItem('vault_user',JSON.stringify(user));
+    document.getElementById('sidebarUser').innerHTML=`<div class="avatar">${(user.name||'?')[0]}</div><div class="uinfo"><div class="uname">${esc(user.name)}</div><div class="urole">${user.role}</div></div>`;
+    await fetchData();
+    switchReport('dashboard');
+    toast(t('auth.welcome')+', '+user.name+'!');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function handleSetup() {
+  try {
+    const res = await api('setup',{name:document.getElementById('setupName').value,email:document.getElementById('setupEmail').value,password:document.getElementById('setupPwd').value});
+    if(res.error) throw new Error(res.error);
+    user=res; localStorage.setItem('vault_user',JSON.stringify(user));
+    document.getElementById('sidebarUser').innerHTML=`<div class="avatar">${(user.name||'?')[0]}</div><div class="uinfo"><div class="uname">${esc(user.name)}</div><div class="urole">${user.role}</div></div>`;
+    await fetchData();
+    switchReport('dashboard');
+    toast(t('auth.createAdmin')+' ✓');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function logout() { user=null; localStorage.removeItem('vault_user'); showLogin(); toast(t('common.logout')); }
+
+/* ================================================================
+   DATA FETCHING
+   ================================================================ */
+async function fetchData() {
+  try {
+    const f = reportFilters[currentReport]||{};
+    const params = {};
+    if(f.start) params.startDate=f.start;
+    if(f.end) params.endDate=f.end;
+    params.limit='2000';
+    const res = await api('read',params);
+    rawData = res.records||[];
+    document.getElementById('statusPill').innerHTML='<span class="status-dot"></span> Live';
+  } catch(e) {
+    document.getElementById('statusPill').innerHTML='⚠ Offline';
+    rawData=[];
+  }
+}
+
+async function fetchAux() {
+  try { tables = await api('tables')||[]; } catch{}
+  try { waitlistData = await api('waitlist')||[]; } catch{}
+  try { recurringData = await api('recurring')||[]; } catch{}
+  try { menuPkgs = await api('menuPackages')||[]; } catch{}
+  try { notifications = await api('notifications')||[]; } catch{}
+  try { reminders = await api('reminders')||[]; } catch{}
+  try { auditData = await api('audit',{limit:'200'})||[]; } catch{}
+  try { revenueData = await api('revenue',reportFilters[currentReport]||{}); } catch{}
+  try { forecastData = await api('forecast'); } catch{}
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  initFilters();
+  document.getElementById('langBtn').textContent = lang==='en'?'🌐 English':'🌐 বাংলা';
+  const saved = localStorage.getItem('vault_user');
+  if(saved) { user=JSON.parse(saved); showApp(); } else { showLogin(); }
+});
+
+async function showApp() {
+  document.getElementById('sidebarUser').innerHTML=`<div class="avatar">${(user.name||'?')[0]}</div><div class="uinfo"><div class="uname">${esc(user.name)}</div><div class="urole">${user.role}</div></div>`;
+  buildSidebar();
+  await fetchData();
+  switchReport('dashboard');
+  // Register SW
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+/* ================================================================
+   RENDER ROUTER
+   ================================================================ */
+function renderReport() {
+  const area=document.getElementById('contentArea');
+  const data=getFiltered();
+  let html='';
+  switch(currentReport) {
+    case 'dashboard': html=R_dashboard(data); break;
+    case 'reservations': html=R_reservations(data); break;
+    case 'topGuests': html=R_topGuests(data); break;
+    case 'loyalty': html=R_loyalty(data); break;
+    case 'repeatNew': html=R_repeatNew(data); break;
+    case 'inactiveGuests': html=R_inactive(data); break;
+    case 'guestDetails': html=R_guestDetail(data); break;
+    case 'specialOccasions': html=R_occasions(data); break;
+    case 'notesAnalysis': html=R_notesKw(data); break;
+    case 'sessionDist': html=R_sessionDist(data); break;
+    case 'tablePref': html=R_tablePref(data); break;
+    case 'peakHours': html=R_peakHours(data); break;
+    case 'dailyTrends': html=R_dailyTrends(data); break;
+    case 'dayOfWeek': html=R_dayOfWeek(data); break;
+    case 'monthlyTrends': html=R_monthlyTrends(data); break;
+    case 'avgPax': html=R_avgPax(data); break;
+    case 'bookingFreq': html=R_bookingFreq(data); break;
+    case 'guestGrowth': html=R_guestGrowth(data); break;
+    case 'paxDistribution': html=R_paxDist(data); break;
+    case 'retentionRate': html=R_retention(data); break;
+    case 'statusAnalysis': html=R_status(data); break;
+    case 'sourceAnalysis': html=R_source(data); break;
+    case 'topNotes': html=R_topNotes(data); break;
+    case 'floorPlan': html=R_floorPlan(); break;
+    case 'waitlist': html=R_waitlist(); break;
+    case 'recurring': html=R_recurring(); break;
+    case 'menuPkg': html=R_menuPkg(); break;
+    case 'smsReminder': html=R_smsReminder(data); break;
+    case 'emailConfirm': html=R_emailConfirm(data); break;
+    case 'occasionRemind': html=R_occasionRemind(); break;
+    case 'revenue': html=R_revenue(); break;
+    case 'payment': html=R_payment(data); break;
+    case 'aiPref': html=R_aiPref(data); break;
+    case 'forecast': html=R_forecast(); break;
+    case 'walkinVsRes': html=R_walkinVsRes(data); break;
+    case 'qrCheckin': html=R_qrCheckin(data); break;
+    case 'users': html=R_users(); break;
+    case 'auditLog': html=R_auditLog(); break;
+    default: html='<div class="empty"><p>'+t('common.noData')+'</p></div>';
+  }
+  area.innerHTML = html;
+  applyTranslations();
+}
+
+/* ================================================================
+   REPORT: DASHBOARD
+   ================================================================ */
+function R_dashboard(data) {
+  const total=data.length, totalPax=data.reduce((s,r)=>s+num(r.pax),0), unique=Object.keys(groupByContact(data)).length, todayCnt=data.filter(r=>r.date===today()).length;
+  const sess={}, dow={};
+  data.forEach(r=>{sess[r.session||'N/A']=(sess[r.session||'N/A']||0)+1; const d=new Date(r.date+'T00:00:00').getDay(); dow[DAY_NAMES[d]]=(dow[DAY_NAMES[d]]||0)+1;});
+  const sessData=Object.entries(sess).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({label:l,value:v}));
+  const dowData=DAY_NAMES.map(d=>({label:d.slice(0,3),value:dow[d]||0}));
+  return `
+  <div class="stat-grid">
+    <div class="stat-card blue"><div class="s-icon">📊</div><div class="s-val">${total.toLocaleString()}</div><div class="s-lbl">${t('dash.totalBookings')}</div><div class="s-sub">${t('dash.allRes')}</div></div>
+    <div class="stat-card pink"><div class="s-icon">👥</div><div class="s-val">${totalPax.toLocaleString()}</div><div class="s-lbl">${t('dash.totalPax')}</div><div class="s-sub">${t('dash.guestsServed')}</div></div>
+    <div class="stat-card green"><div class="s-icon">⭐</div><div class="s-val">${unique.toLocaleString()}</div><div class="s-lbl">${t('dash.uniqueGuests')}</div><div class="s-sub">${t('dash.distinct')}</div></div>
+    <div class="stat-card orange"><div class="s-icon">📅</div><div class="s-val">${todayCnt}</div><div class="s-lbl">${t('dash.todayCount')}</div><div class="s-sub">${today()}</div></div>
+  </div>
+  <div class="chart-row">
+    ${panel(t('dash.sessionDist'),barChart(sessData,null,(d,i)=>['var(--indigo)','var(--pink)','var(--emerald)','var(--amber)','#8B5CF6','#EF4444'][i%6]),'dashSess','sessions')}
+    ${panel(t('dash.dayOfWeek'),barChart(dowData,null,(d)=>d.label==='Sat'||d.label==='Sun'?'var(--pink)':'var(--indigo)'),'dashDow','dow')}
+  </div>`;
+}
+
+/* ================================================================
+   REPORT: RESERVATIONS (CRUD)
+   ================================================================ */
+function R_reservations(data) {
+  const perPage=15, pages=Math.ceil(data.length/perPage), pageData=data.slice((resPage-1)*perPage,resPage*perPage);
+  const statusOpts=STATUS_OPTS.map(s=>`<option value="${s.v}">${s.l}</option>`).join('');
+  const srcOpts=SOURCE_OPTS.map(s=>`<option value="${s}">${s}</option>`).join('');
+  const sessOpts=SESSION_OPTS.map(s=>`<option value="${s}">${s}</option>`).join('');
+  const pkgOpts=menuPkgs.map(p=>`<option value="${p.id}">${esc(p.name)} (${p.price||0})</option>`).join('');
+
+  let rows=pageData.map(r=>{
+    const st=STATUS_OPTS.find(s=>s.v===r.status);
+    return `<tr><td>${esc(r.date)}</td><td style="font-weight:600">${esc(r.name)}</td><td>${esc(r.contact)}</td><td>${r.pax||1}</td><td>${esc(r.session||'-')}</td><td>${esc(r.tableNo||'-')}</td><td><span class="badge ${st?.c||''}">${st?.l||r.status}</span></td><td>${esc(r.source||'-')}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis">${esc(r.notes||'-')}</td><td style="font-weight:600">${r.amount||0}</td><td><button class="btn-secondary btn-sm" onclick="editRes('${r.id}')">✏</button> <button class="btn-danger btn-sm" onclick="confirmDelRes('${r.id}')">✕</button>${r.status==='confirmed'?` <button class="btn-success btn-sm" onclick="checkinRes('${r.id}')">✓</button>`:''}</td></tr>`;
+  }).join('');
+
+  return `
+  <div class="panel"><div class="panel-hdr"><h3>${editId?t('res.edit'):t('res.new')}</h3></div><div class="panel-body padded">
+    <form id="resForm" class="form-grid" onsubmit="submitRes(event)">
+      <div class="form-group"><label>${t('res.date')}</label><input id="rf_date" type="date" value="${editId?'':today()}" required></div>
+      <div class="form-group"><label>${t('res.guestName')}</label><input id="rf_name" required></div>
+      <div class="form-group"><label>${t('res.contact')}</label><input id="rf_contact" required></div>
+      <div class="form-group"><label>${t('res.pax')}</label><input id="rf_pax" type="number" min="1" value="1"></div>
+      <div class="form-group"><label>${t('res.session')}</label><select id="rf_session"><option value="">--</option>${sessOpts}</select></div>
+      <div class="form-group"><label>${t('res.tableNo')}</label><input id="rf_tableNo"></div>
+      <div class="form-group"><label>${t('res.notes')}</label><textarea id="rf_notes" rows="1"></textarea></div>
+      <div class="form-group"><label>${t('res.status')}</label><select id="rf_status">${statusOpts}</select></div>
+      <div class="form-group"><label>${t('res.source')}</label><select id="rf_source">${srcOpts}</select></div>
+      <div class="form-group"><label>${t('res.menuPkg')}</label><select id="rf_menuPkgId"><option value="">--</option>${pkgOpts}</select></div>
+      <div class="form-group"><label>${t('res.amount')}</label><input id="rf_amount" type="number" min="0" value="0"></div>
+      <div class="form-group" style="justify-content:flex-end"><button type="submit" class="btn-primary">${editId?t('res.update'):t('res.create')}</button> ${editId?`<button type="button" class="btn-secondary" onclick="cancelEdit()">${t('res.cancel')}</button>`:''}</div>
+    </form>
+  </div></div>
+  <div class="panel"><div class="panel-hdr"><h3>${t('nav.reservations')} (${data.length})</h3><input placeholder="${t('res.search')}" value="${esc(resSearch)}" oninput="resSearch=this.value;resPage=1;renderReport()" style="padding:5px 10px;border:1px solid var(--s300);border-radius:6px;font-size:.78rem;width:200px"></div>
+  <div class="panel-body"><div class="table-wrap"><table id="resTbl"><thead><tr><th>${t('res.date')}</th><th>${t('res.guestName')}</th><th>${t('res.contact')}</th><th>${t('res.pax')}</th><th>${t('res.session')}</th><th>${t('res.tableNo')}</th><th>${t('res.status')}</th><th>${t('res.source')}</th><th>${t('res.notes')}</th><th>${t('res.amount')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--s400)">${t('common.noData')}</td></tr>`}</tbody></table></div>
+  ${pages>1?`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;font-size:.78rem"><span>Page ${resPage}/${pages}</span><div style="display:flex;gap:6px"><button class="btn-secondary btn-sm" ${resPage<=1?'disabled':''} onclick="resPage--;renderReport()">←</button><button class="btn-secondary btn-sm" ${resPage>=pages?'disabled':''} onclick="resPage++;renderReport()">→</button></div></div>`:''}</div></div>`;
+}
+
+async function submitRes(e) {
+  e.preventDefault();
+  const body = {date:document.getElementById('rf_date').value,name:document.getElementById('rf_name').value,contact:document.getElementById('rf_contact').value,pax:document.getElementById('rf_pax').value||1,session:document.getElementById('rf_session').value,tableNo:document.getElementById('rf_tableNo').value,notes:document.getElementById('rf_notes').value,status:document.getElementById('rf_status').value,source:document.getElementById('rf_source').value,menuPkgId:document.getElementById('rf_menuPkgId').value,amount:document.getElementById('rf_amount').value||0,createdBy:user?.id||''};
+  try {
+    if(editId) { await api('reservation.update',{id:editId,...body}); editId=null; toast(t('res.update')+' ✓'); }
+    else { await api('reservation.create',body); toast(t('res.create')+' ✓'); }
+    await fetchData(); renderReport();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function editRes(id) {
+  const r = rawData.find(x=>x.id===id);
+  if(!r) return;
+  editId=id;
+  renderReport();
+  setTimeout(()=>{
+    document.getElementById('rf_date').value=r.date||'';
+    document.getElementById('rf_name').value=r.name||'';
+    document.getElementById('rf_contact').value=r.contact||'';
+    document.getElementById('rf_pax').value=r.pax||1;
+    document.getElementById('rf_session').value=r.session||'';
+    document.getElementById('rf_tableNo').value=r.tableNo||'';
+    document.getElementById('rf_notes').value=r.notes||'';
+    document.getElementById('rf_status').value=r.status||'confirmed';
+    document.getElementById('rf_source').value=r.source||'phone';
+    document.getElementById('rf_menuPkgId').value=r.menuPkgId||'';
+    document.getElementById('rf_amount').value=r.amount||0;
+  },50);
+}
+
+function cancelEdit() { editId=null; renderReport(); }
+
+function confirmDelRes(id) { showModal(`<div class="modal-hdr"><h3>${t('res.delete')}</h3><button onclick="closeModal()">✕</button></div><div class="modal-body"><p>${t('res.deleteConfirm')}</p></div><div class="modal-ft"><button class="btn-secondary" onclick="closeModal()">${t('res.cancel')}</button><button class="btn-danger" onclick="delRes('${id}')">${t('common.delete')}</button></div>`); }
+
+async function delRes(id) { try { await api('reservation.delete',{id}); closeModal(); toast(t('common.delete')+' ✓'); await fetchData(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+
+async function checkinRes(id) { try { await api('reservation.checkin',{id}); toast(t('res.checkin')+' ✓'); await fetchData(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+
+/* ================================================================
+   GUEST INTELLIGENCE REPORTS
+   ================================================================ */
+function R_topGuests(data) {
+  const groups=Object.values(groupByContact(data)).sort((a,b)=>b.visits-a.visits);
+  const top12=groups.slice(0,12), mx=top12.length?top12[0].visits:1;
+  const chart=top12.map(g=>({label:g.name||g.contact,value:g.visits,color:'var(--indigo)'}));
+  const rows=groups.slice(0,30).map((g,i)=>`<tr><td>${i+1}</td><td style="font-weight:600">${esc(g.name)}</td><td>${esc(g.contact)}</td><td>${g.visits}</td><td>${g.pax}</td><td>${g.lastVisit}</td></tr>`).join('');
+  return metrics([{value:groups.length,label:t('dash.uniqueGuests')}])+panel(t('rpt.topGuests'),barChart(chart),null,'topGuests')+panel(t('rpt.topGuests'),`<div class="table-wrap"><table id="topGTbl"><thead><tr><th>#</th><th>${t('res.guestName')}</th><th>${t('res.contact')}</th><th>Visits</th><th>Pax</th><th>Last Visit</th></tr></thead><tbody>${rows}</tbody></table></div>`,'topGTbl','top_guests');
+}
+
+function R_loyalty(data) {
+  const groups=Object.values(groupByContact(data));
+  const gold=groups.filter(g=>g.visits>=10), silver=groups.filter(g=>g.visits>=5&&g.visits<=9), bronze=groups.filter(g=>g.visits>=2&&g.visits<=4), newG=groups.filter(g=>g.visits===1);
+  const chart=[{label:'Gold (10+)',value:gold.length,color:'#F59E0B'},{label:'Silver (5-9)',value:silver.length,color:'#94A3B8'},{label:'Bronze (2-4)',value:bronze.length,color:'#CD7F32'},{label:'New (1)',value:newG.length,color:'#60A5FA'}];
+  const tierRows=(arr,cls)=>arr.sort((a,b)=>b.visits-a.visits).slice(0,30).map((g,i)=>`<tr><td>${i+1}</td><td>${esc(g.name)}</td><td>${esc(g.contact)}</td><td>${g.visits}</td><td><span class="badge ${cls}">${cls==='badge-gold'?'Gold':cls==='badge-silver'?'Silver':'Bronze'}</span></td></tr>`).join('');
+  return donutChart(chart)+panel('Gold Members',tierRows(gold,'badge-gold')||`<div class="empty"><p>${t('common.noData')}</p></div>`,'goldTbl','gold')+panel('Silver Members',tierRows(silver,'badge-silver')||`<div class="empty"><p>${t('common.noData')}</p></div>`,'silverTbl','silver')+panel('Bronze Members',tierRows(bronze,'badge-bronze')||`<div class="empty"><p>${t('common.noData')}</p></div>`,'bronzeTbl','bronze');
+}
+
+function R_repeatNew(data) {
+  const groups=Object.values(groupByContact(data)); let rep=0,nw=0;
+  groups.forEach(g=>{if(g.visits>1)rep++;else nw++;});
+  const total=rep+nw||1;
+  const chart=[{label:t('common.active')+' ('+rep+')',value:rep,color:'var(--emerald)'},{label:'New ('+nw+')',value:nw,color:'var(--indigo)'}];
+  return metrics([{value:rep,label:'Repeat'},{value:nw,label:'New'},{value:pct(rep,total)+'%',label:'Repeat Rate'}])+donutChart(chart);
+}
+
+function R_inactive(data) {
+  const groups=Object.values(groupByContact(data)), now=new Date();
+  const inactive=groups.filter(g=>{if(!g.dates.length)return false;const last=new Date(g.dates[g.dates.length-1]);return Math.floor((now-last)/86400000)>30;}).sort((a,b)=>{const da=new Date(a.dates[a.dates.length-1]),db=new Date(b.dates[b.dates.length-1]);return da-db;});
+  const rows=inactive.slice(0,50).map((g,i)=>{const days=Math.floor((now-new Date(g.dates[g.dates.length-1]))/86400000);return`<tr><td>${i+1}</td><td>${esc(g.name)}</td><td>${esc(g.contact)}</td><td>${g.visits}</td><td>${g.lastVisit}</td><td><span class="badge badge-inactive">${days}d ago</span></td></tr>`;}).join('');
+  return metrics([{value:inactive.length,label:t('common.inactive')}])+panel(t('rpt.inactive'),`<div class="table-wrap"><table id="inactTbl"><thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Visits</th><th>Last</th><th>Status</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'inactTbl','inactive');
+}
+
+function R_guestDetail(data) {
+  const groups=Object.values(groupByContact(data)).sort((a,b)=>b.visits-a.visits);
+  const opts=groups.map(g=>`<option value="${esc(g.contact)}">${esc(g.name||g.contact)} (${g.visits})</option>`).join('');
+  return `<div class="panel"><div class="panel-hdr"><h3>${t('rpt.guestDetail')}</h3></div><div class="panel-body padded"><select id="guestSel" onchange="showGuestDetail()" style="padding:7px 10px;border:1px solid var(--s300);border-radius:6px;min-width:240px"><option value="">-- Select --</option>${opts}</select><div id="guestArea" style="margin-top:16px"></div></div></div>`;
+}
+
+function showGuestDetail() {
+  const contact=document.getElementById('guestSel').value;
+  const area=document.getElementById('guestArea');
+  if(!contact){area.innerHTML='';return;}
+  const rows=rawData.filter(r=>r.contact===contact);
+  if(!rows.length){area.innerHTML=t('common.noData');return;}
+  const g=groupByContact(rawData)[contact];
+  const loyalty=g.visits>=10?'Gold':g.visits>=5?'Silver':g.visits>=2?'Bronze':'New';
+  const lBadge=g.visits>=10?'badge-gold':g.visits>=5?'badge-silver':g.visits>=2?'badge-bronze':'badge-new';
+  area.innerHTML=metrics([{value:g.visits,label:'Visits'},{value:g.pax,label:'Pax'},{value:g.firstVisit,label:'First'},{value:g.lastVisit,label:'Last'}])
+    +`<div style="margin:8px 0"><span class="badge ${lBadge}">${loyalty} Member</span></div>`
+    +`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Session</th><th>Pax</th><th>Table</th><th>Notes</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.session||'-')}</td><td>${r.pax}</td><td>${esc(r.tableNo||'-')}</td><td>${esc(r.notes||'-')}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+/* ================================================================
+   OCCASIONS & NOTES
+   ================================================================ */
+function R_occasions(data) {
+  const occs=[];
+  const kws={Birthday:['birthday','bday','born','turning'],Anniversary:['anniversary','anniv','wedding'],Celebration:['celebration','congrats','graduation','promotion','farewell','engagement'],Corporate:['corporate','business','meeting','client','team']};
+  data.forEach(r=>{const n=(r.notes||'').toLowerCase();for(const[t,ks]of Object.entries(kws)){if(ks.some(k=>n.includes(k))){occs.push({...r,occType:t});break;}}});
+  const typeCnt={};occs.forEach(o=>typeCnt[o.occType]=(typeCnt[o.occType]||0)+1);
+  const chart=Object.entries(typeCnt).map(([l,v])=>({label:l,value:v,color:l==='Birthday'?'var(--amber)':l==='Anniversary'?'var(--pink)':'var(--indigo)'}));
+  const rows=occs.map((o,i)=>{const cls=o.occType==='Birthday'?'occ-birthday':o.occType==='Anniversary'?'occ-anniversary':'occ-celebration';return`<tr><td>${i+1}</td><td>${esc(o.date)}</td><td>${esc(o.name)}</td><td>${esc(o.contact)}</td><td><span class="occ-tag ${cls}">${o.occType}</span></td><td>${esc(o.notes||'')}</td></tr>`;}).join('');
+  return panel('Occasion Types',barChart(chart),null,'occC')+panel(t('rpt.occasions'),`<div class="table-wrap"><table id="occTbl"><thead><tr><th>#</th><th>Date</th><th>Name</th><th>Contact</th><th>Type</th><th>Notes</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'occTbl','occasions');
+}
+
+function R_notesKw(data) {
+  const wc={};const stop=new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','is','it','this','that','was','are','be','has','had','have','will','no','not','so','if','as','up','out','just','about','from','all','also','been','its','our','we','they','he','she','my','your','his','her','their','me','them','us','i','you','who','what','which','when','where','how','than','then','more','very']);
+  data.forEach(r=>{(r.notes||'').toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).forEach(w=>{if(w.length>2&&!stop.has(w))wc[w]=(wc[w]||0)+1;});});
+  const sorted=Object.entries(wc).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const chart=sorted.map(([l,v])=>({label:l,value:v,color:'var(--indigo)'}));
+  return panel(t('rpt.notesKw'),hBar(chart),null,'notesKw');
+}
+
+/* ================================================================
+   BUSINESS ANALYTICS
+   ================================================================ */
+function R_sessionDist(data) {
+  const sess={};data.forEach(r=>{sess[r.session||'N/A']=(sess[r.session||'N/A']||0)+1;});
+  const sorted=Object.entries(sess).sort((a,b)=>b[1]-a[1]);
+  const chart=sorted.map(([l,v],i)=>({label:l,value:v,color:['var(--indigo)','var(--pink)','var(--emerald)','var(--amber)','#8B5CF6'][i%5]}));
+  const rows=sorted.map(([l,v],i)=>`<tr><td>${i+1}</td><td style="font-weight:600">${esc(l)}</td><td>${v}</td><td>${pct(v,data.length)}%</td></tr>`).join('');
+  return panel(t('rpt.sessionDist'),barChart(chart)+`<div class="legend">${chart.map(c=>`<div class="legend-item"><div class="legend-dot" style="background:${c.color}"></div>${c.label}: ${c.value}</div>`).join('')}</div>`,'sessDist','session')+panel(t('rpt.sessionDist'),`<div class="table-wrap"><table id="sessTbl"><thead><tr><th>#</th><th>Session</th><th>Bookings</th><th>%</th></tr></thead><tbody>${rows}</tbody></table></div>`,'sessTbl','sessions');
+}
+
+function R_tablePref(data) {
+  const tbl={};data.forEach(r=>{if(r.tableNo)tbl[r.tableNo]=(tbl[r.tableNo]||0)+1;});
+  const sorted=Object.entries(tbl).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const chart=sorted.map(([l,v])=>({label:'T'+l,value:v,color:'var(--emerald)'}));
+  return panel(t('rpt.tablePref'),hBar(chart),null,'tblPref');
+}
+
+function R_peakHours(data) {
+  const hrs={};for(let i=0;i<24;i++)hrs[i]=0;
+  data.forEach(r=>{const t=r.session||r.time||'';if(!t)return;const m=String(t).match(/(\d{1,2})/);if(m){const h=parseInt(m[1]);if(h>=0&&h<=23)hrs[h]++;}});
+  const chart=Object.entries(hrs).map(([k,v])=>({label:k.padStart(2,'0')+':00',value:v,color:v>0?'var(--indigo)':'var(--s200)'}));
+  return panel(t('rpt.peakHours'),barChart(chart),null,'peak');
+}
+
+function R_dailyTrends(data) {
+  const daily={};data.forEach(r=>{if(r.date)daily[r.date]=(daily[r.date]||0)+1;});
+  const sorted=Object.entries(daily).sort((a,b)=>a[0].localeCompare(b[0]));
+  const chart=sorted.map(([l,v])=>({label:l,value:v}));
+  return panel(t('rpt.dailyTrends'),svgLine(chart),null,'daily');
+}
+
+function R_dayOfWeek(data) {
+  const dow={};DAY_NAMES.forEach(d=>dow[d]=0);
+  data.forEach(r=>{const d=new Date(r.date+'T00:00:00').getDay();dow[DAY_NAMES[d]]++;});
+  const order=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const chart=order.map(d=>({label:d.slice(0,3),value:dow[d]||0,color:(d==='Saturday'||d==='Sunday')?'var(--pink)':'var(--indigo)'}));
+  return panel(t('rpt.dayOfWeek'),barChart(chart)+`<div class="legend">${chart.map(c=>`<div class="legend-item"><div class="legend-dot" style="background:${c.color}"></div>${c.label}: ${c.value}</div>`).join('')}</div>`,'dow','dow');
+}
+
+function R_monthlyTrends(data) {
+  const monthly={};data.forEach(r=>{const d=new Date(r.date+'T00:00:00');if(!isNaN(d)){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');monthly[k]=(monthly[k]||0)+1;}});
+  const sorted=Object.entries(monthly).sort((a,b)=>a[0].localeCompare(b[0]));
+  const chart=sorted.map(([l,v])=>({label:l,value:v}));
+  return panel(t('rpt.monthlyTrends'),svgLine(chart,700,250,'#10B981'),null,'monthly');
+}
+
+/* ================================================================
+   ADVANCED REPORTS
+   ================================================================ */
+function R_avgPax(data) {
+  const totalPax=data.reduce((s,r)=>s+num(r.pax),0), avg=data.length?(totalPax/data.length).toFixed(1):0;
+  const dist={};data.forEach(r=>{const p=num(r.pax);const b=p<=2?'1-2':p<=4?'3-4':p<=6?'5-6':p<=8?'7-8':p<=10?'9-10':'10+';dist[b]=(dist[b]||0)+1;});
+  const order=['1-2','3-4','5-6','7-8','9-10','10+'];
+  const chart=order.map(k=>({label:k+' pax',value:dist[k]||0,color:'var(--emerald)'}));
+  return metrics([{value:avg,label:'Avg Pax'},{value:totalPax.toLocaleString(),label:'Total Pax'}])+panel(t('rpt.avgPax'),barChart(chart),null,'avgPax');
+}
+
+function R_bookingFreq(data) {
+  const groups=Object.values(groupByContact(data));const freq={};
+  groups.forEach(g=>{freq[g.visits]=(freq[g.visits]||0)+1;});
+  const sorted=Object.entries(freq).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+  const chart=sorted.map(([k,v])=>({label:k+'x',value:v,color:'var(--indigo)'}));
+  return panel(t('rpt.bookingFreq'),barChart(chart),null,'freq');
+}
+
+function R_guestGrowth(data) {
+  const sorted=[...data].sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+  const seen=new Set();const growth=[];
+  sorted.forEach(r=>{if(r.contact&&!seen.has(r.contact)){seen.add(r.contact);growth.push({label:String(r.date||'').substring(0,10),value:seen.size});}});
+  const step=Math.max(1,Math.floor(growth.length/40));
+  const chart=growth.filter((_,i)=>i%step===0||i===growth.length-1);
+  return metrics([{value:seen.size,label:'Total Unique'}])+panel(t('rpt.guestGrowth'),svgLine(chart,700,250,'#10B981'),null,'growth');
+}
+
+function R_paxDist(data) {
+  const dist={};data.forEach(r=>{const p=num(r.pax);if(p>0)dist[p]=(dist[p]||0)+1;});
+  const sorted=Object.entries(dist).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).slice(0,15);
+  const chart=sorted.map(([k,v])=>({label:k+' pax',value:v,color:'var(--amber)'}));
+  return panel(t('rpt.paxDist'),barChart(chart),null,'paxDist');
+}
+
+function R_retention(data) {
+  const groups=Object.values(groupByContact(data));const total=groups.length||1;
+  let returned=0;groups.forEach(g=>{if(g.visits>1)returned++;});
+  return metrics([{value:pct(returned,total)+'%',label:'Retention Rate'},{value:returned,label:'Returning'},{value:groups.length-returned,label:'One-time'}]);
+}
+
+function R_status(data) {
+  const cnt={};data.forEach(r=>{cnt[r.status||'unknown']=(cnt[r.status||'unknown']||0)+1;});
+  const colors={confirmed:'#4F46E5',walkin:'#8B5CF6',completed:'#10B981',cancelled:'#EF4444',noshow:'#F59E0B',checkedin:'#6366F1'};
+  const chart=Object.entries(cnt).map(([l,v])=>({label:l,value:v,color:colors[l]||'#94A3B8'}));
+  return donutChart(chart);
+}
+
+function R_source(data) {
+  const cnt={};data.forEach(r=>{cnt[r.source||'unknown']=(cnt[r.source||'unknown']||0)+1;});
+  const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const colors=['var(--indigo)','var(--pink)','var(--emerald)','var(--amber)','#8B5CF6'];
+  const chart=sorted.map(([l,v],i)=>({label:l,value:v,color:colors[i%5]}));
+  return donutChart(chart);
+}
+
+function R_topNotes(data) {
+  const notes=data.filter(r=>r.notes&&r.notes.trim());
+  const rows=notes.slice(0,50).map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.date)}</td><td>${esc(r.name)}</td><td>${esc(r.notes)}</td></tr>`).join('');
+  return metrics([{value:notes.length,label:'With Notes'},{value:data.length?pct(notes.length,data.length)+'%':'0%',label:'Coverage'}])+panel(t('rpt.topNotes'),`<div class="table-wrap"><table id="notesTbl"><thead><tr><th>#</th><th>Date</th><th>Guest</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table></div>`,'notesTbl','notes');
+}
+
+/* ================================================================
+   FEATURE 1: FLOOR PLAN
+   ================================================================ */
+function R_floorPlan() {
+  if(!tables.length) return `<div class="panel"><div class="panel-body padded" style="text-align:center;padding:40px"><p style="margin-bottom:12px">No tables configured. Generate default tables or add manually.</p><button class="btn-primary" onclick="genTables()">Generate 10 Tables</button></div></div>`;
+  const statusColors={available:'available',occupied:'occupied',reserved:'reserved',maintenance:'maintenance'};
+  const cells=tables.map(t=>`<div class="table-cell ${statusColors[t.status]||'available'}" onclick="updateTableStatus('${t.id}','${t.status}')"><div class="tc-no">${esc(t.tableNo)}</div><div class="tc-cap">Cap: ${t.capacity||4}</div><div style="font-size:.55rem;text-transform:capitalize">${t.status||'available'}</div></div>`).join('');
+  return `<div class="panel"><div class="panel-hdr"><h3>${t('feat.floorPlan')}</h3>${user?.role==='admin'?`<button class="btn-primary btn-sm" onclick="addTableModal()">+ ${t('common.add')} Table</button>`:''}</div><div class="panel-body"><div class="floor-grid">${cells}</div></div></div>`;
+}
+
+async function genTables() {
+  try { await api('table.generate',{count:10}); toast('Tables generated ✓'); tables=await api('tables')||[]; renderReport(); } catch(e) { toast(e.message,'error'); }
+}
+
+function updateTableStatus(id, current) {
+  const next=current==='available'?'reserved':current==='reserved'?'occupied':current==='occupied'?'maintenance':'available';
+  api('table.update',{id,status:next}).then(()=>{tables=api('tables');}).then(()=>fetchAux()).then(()=>renderReport()).then(()=>toast('Table updated ✓')).catch(e=>toast(e.message,'error'));
+}
+
+function addTableModal() {
+  showModal(`<div class="modal-hdr"><h3>Add Table</h3><button onclick="closeModal()">✕</button></div><div class="modal-body"><div class="form-grid" style="grid-template-columns:1fr"><div class="form-group"><label>Table No</label><input id="at_no" required></div><div class="form-group"><label>Capacity</label><input id="at_cap" type="number" value="4"></div><div class="form-group"><label>Section</label><select id="at_sec"><option>main</option><option>outdoor</option><option>vip</option><option>private</option></select></div></div></div><div class="modal-ft"><button class="btn-secondary" onclick="closeModal()">${t('common.close')}</button><button class="btn-primary" onclick="addTableSubmit()">Create</button></div>`);
+}
+
+async function addTableSubmit() {
+  try { await api('table.create',{tableNo:document.getElementById('at_no').value,capacity:document.getElementById('at_cap').value,section:document.getElementById('at_sec').value}); closeModal(); toast('Table created ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); }
+}
+
+/* ================================================================
+   FEATURE 2: WAITLIST
+   ================================================================ */
+function R_waitlist() {
+  const waiting=waitlistData.filter(w=>w.status==='waiting');
+  const rows=waiting.map((w,i)=>`<tr><td>${i+1}</td><td style="font-weight:600">${esc(w.name)}</td><td>${esc(w.contact)}</td><td>${w.pax||1}</td><td>${esc(w.session||'-')}</td><td>~${w.estimatedWait||15}min</td><td><button class="btn-success btn-sm" onclick="seatWaitlist('${w.id}')">Seat</button> <button class="btn-secondary btn-sm" onclick="notifyWaitlist('${w.id}')">Notify</button> <button class="btn-danger btn-sm" onclick="cancelWaitlist('${w.id}')">✕</button></td></tr>`).join('');
+  return `
+  <div class="panel"><div class="panel-hdr"><h3>Add to Waitlist</h3></div><div class="panel-body padded"><form class="form-grid" onsubmit="addWaitlist(event)">
+    <div class="form-group"><label>Name</label><input id="wl_name" required></div>
+    <div class="form-group"><label>Contact</label><input id="wl_contact" required></div>
+    <div class="form-group"><label>Pax</label><input id="wl_pax" type="number" value="1" min="1"></div>
+    <div class="form-group"><label>Session</label><select id="wl_session"><option value="">--</option>${SESSION_OPTS.map(s=>`<option>${s}</option>`).join('')}</select></div>
+    <div class="form-group"><label>Est. Wait (min)</label><input id="wl_wait" type="number" value="15"></div>
+    <div class="form-group"><label>Notes</label><input id="wl_notes"></div>
+    <div class="form-group" style="justify-content:flex-end"><button type="submit" class="btn-primary">Add</button></div>
+  </form></div></div>
+  ${metrics([{value:waiting.length,label:'Waiting'}])}
+  ${panel(t('feat.waitlist'),`<div class="table-wrap"><table id="wlTbl"><thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Pax</th><th>Session</th><th>Wait</th><th>Actions</th></tr></thead><tbody>${rows||`<tr><td colspan="7" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'wlTbl','waitlist')}`;
+}
+
+async function addWaitlist(e) { e.preventDefault(); try { await api('waitlist.create',{name:document.getElementById('wl_name').value,contact:document.getElementById('wl_contact').value,pax:document.getElementById('wl_pax').value,session:document.getElementById('wl_session').value,estimatedWait:document.getElementById('wl_wait').value,notes:document.getElementById('wl_notes').value}); toast('Added to waitlist ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+async function seatWaitlist(id) { try { await api('waitlist.update',{id,status:'seated'}); toast('Seated ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+async function notifyWaitlist(id) { try { await api('waitlist.update',{id,notified:true}); toast('Notified ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+async function cancelWaitlist(id) { try { await api('waitlist.update',{id,status:'cancelled'}); toast('Cancelled ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+
+/* ================================================================
+   FEATURE 3: RECURRING RESERVATIONS
+   ================================================================ */
+function R_recurring() {
+  const rows=recurringData.filter(r=>r.active!==false).map((r,i)=>`<tr><td>${i+1}</td><td style="font-weight:600">${esc(r.name)}</td><td>${esc(r.contact)}</td><td>${r.frequency}</td><td>${esc(r.startDate)}</td><td>${esc(r.endDate||'Forever')}</td><td><button class="btn-secondary btn-sm" onclick="toggleRecurring('${r.id}',${r.active!==false})">${r.active!==false?'Pause':'Resume'}</button> <button class="btn-danger btn-sm" onclick="delRecurring('${r.id}')">✕</button></td></tr>`).join('');
+  return `
+  <div class="panel"><div class="panel-hdr"><h3>New Recurring Reservation</h3></div><div class="panel-body padded"><form class="form-grid" onsubmit="addRecurring(event)">
+    <div class="form-group"><label>Name</label><input id="rc_name" required></div>
+    <div class="form-group"><label>Contact</label><input id="rc_contact" required></div>
+    <div class="form-group"><label>Pax</label><input id="rc_pax" type="number" value="1"></div>
+    <div class="form-group"><label>Frequency</label><select id="rc_freq"><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="daily">Daily</option></select></div>
+    <div class="form-group"><label>Day of Week (0-6)</label><input id="rc_dow" type="number" min="0" max="6" value="1"></div>
+    <div class="form-group"><label>Start Date</label><input id="rc_start" type="date" required></div>
+    <div class="form-group"><label>End Date</label><input id="rc_end" type="date"></div>
+    <div class="form-group" style="justify-content:flex-end"><button type="submit" class="btn-primary">Create</button></div>
+  </form></div></div>
+  ${panel(t('feat.recurring'),`<div class="table-wrap"><table id="rcTbl"><thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Frequency</th><th>Start</th><th>End</th><th>Actions</th></tr></thead><tbody>${rows||`<tr><td colspan="7" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'rcTbl','recurring')}`;
+}
+
+async function addRecurring(e) { e.preventDefault(); try { await api('recurring.create',{name:document.getElementById('rc_name').value,contact:document.getElementById('rc_contact').value,pax:document.getElementById('rc_pax').value,frequency:document.getElementById('rc_freq').value,dayOfWeek:document.getElementById('rc_dow').value,startDate:document.getElementById('rc_start').value,endDate:document.getElementById('rc_end').value}); toast('Recurring created ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+async function toggleRecurring(id,active) { try { await api('recurring.update',{id,active:!active}); toast('Updated ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+async function delRecurring(id) { try { await api('recurring.delete',{id}); toast('Deleted ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+
+/* ================================================================
+   FEATURE 4: MENU PACKAGES
+   ================================================================ */
+function R_menuPkg() {
+  const rows=menuPkgs.filter(p=>p.active!==false).map((p,i)=>`<tr><td>${i+1}</td><td style="font-weight:600">${esc(p.name)}</td><td>${esc(p.description||'')}</td><td>৳${p.price||0}</td><td>${p.paxMin}-${p.paxMax} pax</td><td>${user?.role==='admin'?`<button class="btn-secondary btn-sm" onclick="editMenuPkg('${p.id}')">✏</button> <button class="btn-danger btn-sm" onclick="delMenuPkg('${p.id}')">✕</button>`:''}</td></tr>`).join('');
+  return `
+  ${user?.role==='admin'?`<div class="panel"><div class="panel-hdr"><h3>Add Menu Package</h3></div><div class="panel-body padded"><form class="form-grid" onsubmit="addMenuPkg(event)">
+    <div class="form-group"><label>Name</label><input id="mp_name" required></div>
+    <div class="form-group"><label>Description</label><input id="mp_desc"></div>
+    <div class="form-group"><label>Price</label><input id="mp_price" type="number" value="0"></div>
+    <div class="form-group"><label>Items (comma separated)</label><input id="mp_items"></div>
+    <div class="form-group"><label>Min Pax</label><input id="mp_min" type="number" value="1"></div>
+    <div class="form-group"><label>Max Pax</label><input id="mp_max" type="number" value="10"></div>
+    <div class="form-group" style="justify-content:flex-end"><button type="submit" class="btn-primary">Create</button></div>
+  </form></div></div>`:''}
+  ${panel(t('feat.menuPkg'),`<div class="table-wrap"><table id="mpTbl"><thead><tr><th>#</th><th>Name</th><th>Description</th><th>Price</th><th>Pax Range</th><th>Actions</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'mpTbl','menu')}`;
+}
+
+async function addMenuPkg(e) { e.preventDefault(); try { await api('menuPackage.create',{name:document.getElementById('mp_name').value,description:document.getElementById('mp_desc').value,price:document.getElementById('mp_price').value,items:JSON.stringify(document.getElementById('mp_items').value.split(',')),paxMin:document.getElementById('mp_min').value,paxMax:document.getElementById('mp_max').value}); toast('Package created ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+async function delMenuPkg(id) { try { await api('menuPackage.delete',{id}); toast('Deleted ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+
+/* ================================================================
+   FEATURE 5: SMS/WHATSAPP REMINDER
+   ================================================================ */
+function R_smsReminder(data) {
+  const rows=data.slice(0,20).map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.name)}</td><td>${esc(r.contact)}</td><td>${esc(r.session||'-')}</td><td>${esc(r.tableNo||'-')}</td><td><button class="btn-primary btn-sm" onclick="sendSMS('${r.id}','${esc(r.contact)}','${esc(r.name)}','${r.date}','${esc(r.session||'')}','${esc(r.tableNo||'')}',${r.pax||1},'sms')">SMS</button> <button class="btn-success btn-sm" onclick="sendSMS('${r.id}','${esc(r.contact)}','${esc(r.name)}','${r.date}','${esc(r.session||'')}','${esc(r.tableNo||'')}',${r.pax||1},'whatsapp')">WhatsApp</button></td></tr>`).join('');
+  const histRows=notifications.slice(0,20).map((n,i)=>`<tr><td>${i+1}</td><td>${n.type}</td><td>${esc(n.recipient)}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${esc(n.message)}</td><td><span class="badge badge-active">${n.status}</span></td><td>${fmtD(n.sentAt||n.createdAt)}</td></tr>`).join('');
+  return panel(t('feat.smsReminder'),`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Session</th><th>Table</th><th>Send</th></tr></thead><tbody>${rows}</tbody></table></div>`)+panel('Notification History',`<div class="table-wrap"><table id="notifTbl"><thead><tr><th>#</th><th>Type</th><th>To</th><th>Message</th><th>Status</th><th>Date</th></tr></thead><tbody>${histRows||`<tr><td colspan="6" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'notifTbl','notifications');
+}
+
+async function sendSMS(resId,contact,name,date,session,table,pax,type) {
+  const msg = `Dear ${name}, your reservation at VAULT is confirmed for ${date}${session?' '+session:''}${table?' Table:'+table:''}. Pax: ${pax}. We look forward to serving you!`;
+  try { await api('notification.send',{reservationId:resId,type,recipient:contact,message:msg}); toast(type.toUpperCase()+' sent ✓ (simulated)'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); }
+}
+
+/* ================================================================
+   FEATURE 6: EMAIL CONFIRMATION
+   ================================================================ */
+function R_emailConfirm(data) {
+  const rows=data.slice(0,20).map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.name)}</td><td>${esc(r.contact)}</td><td><button class="btn-primary btn-sm" onclick="sendEmail('${r.id}','${esc(r.contact)}','${esc(r.name)}','${r.date}','${esc(r.session||'')}','${esc(r.tableNo||'')}',${r.pax||1})">📧 Send</button></td></tr>`).join('');
+  return panel(t('feat.emailConfirm'),`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table></div>`);
+}
+
+async function sendEmail(resId,contact,name,date,session,table,pax) {
+  const msg = `Dear ${name},\n\nYour reservation at VAULT is confirmed.\n\nDate: ${date}\nSession: ${session||'TBD'}\nTable: ${table||'TBD'}\nPax: ${pax}\n\nWe look forward to welcoming you!\n\nBest regards,\nVAULT RESERVATION Team`;
+  try { await api('notification.send',{reservationId:resId,type:'email',recipient:contact,message:msg}); toast('Email sent ✓ (simulated)'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); }
+}
+
+/* ================================================================
+   FEATURE 7: OCCASION REMINDERS
+   ================================================================ */
+function R_occasionRemind() {
+  const rows=reminders.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.guestName)}</td><td>${esc(r.contact)}</td><td>${esc(r.occasionType)}</td><td>${esc(r.occasionDate)}</td><td>${esc(r.reminderDate)}</td><td><span class="badge ${r.reminded?'badge-active':'badge-waiting'}">${r.reminded?'Reminded':'Pending'}</span></td><td>${!r.reminded?`<button class="btn-primary btn-sm" onclick="markReminded('${r.id}')">Mark Reminded</button>`:''}</td></tr>`).join('');
+  return `
+  <div class="panel"><div class="panel-hdr"><h3>Add Reminder</h3></div><div class="panel-body padded"><form class="form-grid" onsubmit="addReminder(event)">
+    <div class="form-group"><label>Guest Name</label><input id="or_name" required></div>
+    <div class="form-group"><label>Contact</label><input id="or_contact" required></div>
+    <div class="form-group"><label>Occasion Type</label><select id="or_type"><option>Birthday</option><option>Anniversary</option><option>Celebration</option></select></div>
+    <div class="form-group"><label>Occasion Date (MM-DD)</label><input id="or_date" placeholder="01-15" required></div>
+    <div class="form-group"><label>Reminder Date</label><input id="or_rdate" type="date" required></div>
+    <div class="form-group" style="justify-content:flex-end"><button type="submit" class="btn-primary">${t('common.add')}</button></div>
+  </form></div></div>
+  ${panel(t('feat.occasionRemind'),`<div class="table-wrap"><table id="remTbl"><thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Type</th><th>Date</th><th>Remind On</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows||`<tr><td colspan="8" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'remTbl','reminders')}`;
+}
+
+async function addReminder(e) { e.preventDefault(); try { await api('reminder.create',{guestName:document.getElementById('or_name').value,contact:document.getElementById('or_contact').value,occasionType:document.getElementById('or_type').value,occasionDate:document.getElementById('or_date').value,reminderDate:document.getElementById('or_rdate').value}); toast('Reminder added ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+async function markReminded(id) { try { await api('reminder.update',{id,reminded:true}); toast('Marked ✓'); await fetchAux(); renderReport(); } catch(e) { toast(e.message,'error'); } }
+
+/* ================================================================
+   FEATURE 8: REVENUE TRACKING
+   ================================================================ */
+function R_revenue() {
+  if(!revenueData) return metrics([{value:'—',label:t('common.loading')}]);
+  const d=revenueData;
+  return metrics([{value:'৳'+d.totalRevenue?.toLocaleString(),label:'Total Revenue'},{value:'৳'+d.avgPerBooking?.toLocaleString(),label:'Avg/Booking'},{value:d.paidBookings,label:'Paid Bookings'}])
+    +`<div class="chart-row">${panel('Revenue by Session',hBar((d.bySession||[]).map(s=>({label:s.label,value:s.value,color:'var(--indigo)'}))),'revSess','rev_sess')}${panel('Revenue by Table',hBar((d.byTable||[]).slice(0,10).map(s=>({label:s.label,value:s.value,color:'var(--emerald)'}))),'revTbl','rev_tbl')}</div>`
+    +panel('Daily Revenue Trend',svgLine(d.byDate||[],700,250,'#10B981'),null,'revDaily');
+}
+
+/* ================================================================
+   FEATURE 9: ADVANCE PAYMENT
+   ================================================================ */
+function R_payment(data) {
+  const paid=data.filter(r=>num(r.amount)>0);
+  const totalAmt=paid.reduce((s,r)=>s+num(r.amount),0);
+  const rows=paid.sort((a,b)=>num(b.amount)-num(a.amount)).slice(0,30).map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.date)}</td><td style="font-weight:600">${esc(r.name)}</td><td>${esc(r.contact)}</td><td style="font-weight:700">৳${r.amount}</td><td>${esc(r.status)}</td></tr>`).join('');
+  return metrics([{value:'৳'+totalAmt.toLocaleString(),label:'Total Advance'},{value:paid.length,label:'Paid Bookings'},{value:paid.length?Math.round(totalAmt/paid.length):0,label:'Avg Payment'}])
+    +panel(t('feat.payment'),`<div class="table-wrap"><table id="payTbl"><thead><tr><th>#</th><th>Date</th><th>Name</th><th>Contact</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'payTbl','payments');
+}
+
+/* ================================================================
+   FEATURE 10: AI GUEST PREFERENCES
+   ================================================================ */
+function R_aiPref(data) {
+  const groups=groupByContact(data);
+  const prefKws={window:['window','view','scenic','natural'],outdoor:['outdoor','terrace','garden','patio','balcony'],quiet:['quiet','peaceful','calm','silent','corner'],booth:['booth','private','enclosed','cabin'],vip:['vip','premium','exclusive','special'],ac:['ac','air conditioned','cool','indoor'],family:['family','kids','child','baby','highchair'],couple:['couple','romantic','date','anniversary','intimate'],group:['group','party','large','big','celebration','corporate']};
+  const guestPrefs={};
+  Object.entries(groups).forEach(([c,g])=>{
+    const allNotes=(g.notes||[]).join(' ').toLowerCase();
+    const found=[];
+    Object.entries(prefKws).forEach(([pref,kws])=>{if(kws.some(k=>allNotes.includes(k)))found.push(pref);});
+    if(found.length) guestPrefs[c]={name:g.name,visits:g.visits,prefs:found};
+  });
+  const prefCounts={};
+  Object.values(guestPrefs).forEach(g=>g.prefs.forEach(p=>prefCounts[p]=(prefCounts[p]||0)+1));
+  const chart=Object.entries(prefCounts).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({label:l,value:v,color:'var(--indigo)'}));
+  const guestRows=Object.entries(guestPrefs).slice(0,20).map(([c,g],i)=>`<tr><td>${i+1}</td><td style="font-weight:600">${esc(g.name)}</td><td>${g.visits} visits</td><td>${g.prefs.map(p=>`<span class="badge badge-info">${p}</span>`).join(' ')}</td></tr>`).join('');
+  return panel('Top Preferences',hBar(chart),null,'aiPref')+panel('Guest Preference Details',`<div class="table-wrap"><table id="aiPrefTbl"><thead><tr><th>#</th><th>Guest</th><th>Visits</th><th>Detected Preferences</th></tr></thead><tbody>${guestRows||`<tr><td colspan="4" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'aiPrefTbl','preferences');
+}
+
+/* ================================================================
+   FEATURE 11: BOOKING FORECAST
+   ================================================================ */
+function R_forecast() {
+  if(!forecastData) return metrics([{value:'—',label:t('common.loading')}]);
+  const f=forecastData;
+  const trendIcon=f.trendDirection==='up'?'📈':f.trendDirection==='down'?'📉':'➡️';
+  const forecastRows=(f.forecast||[]).map(fc=>`<tr><td>${fc.date}</td><td>${fc.dayOfWeek}</td><td style="font-weight:700">${fc.predicted}</td><td>${fc.confidence}%</td></tr>`).join('');
+  const dowChart=(f.dowAvg||[]).map(d=>({label:d.day,value:d.avg,color:'var(--indigo)'}));
+  return metrics([{value:f.overallAvg,label:'Avg Daily Bookings'},{value:trendIcon+' '+f.trendFactor,label:'Trend Factor'},{value:f.trendDirection,label:'Direction'}])
+    +panel('14-Day Forecast',`<div class="table-wrap"><table id="fcTbl"><thead><tr><th>Date</th><th>Day</th><th>Predicted</th><th>Confidence</th></tr></thead><tbody>${forecastRows}</tbody></table></div>`,'fcTbl','forecast')
+    +panel('Day of Week Averages',barChart(dowChart),null,'fcDow');
+}
+
+/* ================================================================
+   FEATURE 12: WALK-IN VS RESERVATION
+   ================================================================ */
+function R_walkinVsRes(data) {
+  const src={};data.forEach(r=>{src[r.source||'unknown']=(src[r.source||'unknown']||0)+1;});
+  const colors={phone:'#4F46E5',online:'#8B5CF6',walkin:'#F59E0B',app:'#10B981',other:'#94A3B8'};
+  const chart=Object.entries(src).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({label:l,value:v,color:colors[l]||'#94A3B8'}));
+  const walkin=src.walkin||0, reserved=data.length-walkin;
+  return metrics([{value:reserved,label:'Reserved'},{value:walkin,label:'Walk-in'},{value:pct(walkin,data.length)+'%',label:'Walk-in %'}])+donutChart(chart);
+}
+
+/* ================================================================
+   FEATURE 13: QR CHECK-IN
+   ================================================================ */
+function R_qrCheckin(data) {
+  const todayRes=data.filter(r=>r.date===today()&&r.status!=='cancelled');
+  const rows=todayRes.map((r,i)=>{
+    const qrSvg=generateQRSVG(r.id,r.name,r.date);
+    return`<tr><td>${i+1}</td><td style="font-weight:600">${esc(r.name)}</td><td>${esc(r.contact)}</td><td>${r.pax||1}</td><td>${esc(r.tableNo||'-')}</td><td><span class="badge ${STATUS_OPTS.find(s=>s.v===r.status)?.c||''}">${r.status}</span></td><td><div class="qr-box">${qrSvg}<span style="font-size:.6rem">${r.id.substring(0,10)}...</span></div></td><td>${r.status==='confirmed'?`<button class="btn-success btn-sm" onclick="checkinRes('${r.id}')">✓ Check In</button>`:r.status==='checkedin'?'<span class="badge badge-checkedin">✓ Checked In</span>':''}</td></tr>`;
+  }).join('');
+  return panel(t('feat.qrCheckin'),`<div class="table-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Pax</th><th>Table</th><th>Status</th><th>QR Code</th><th>Action</th></tr></thead><tbody>${rows||`<tr><td colspan="8" style="text-align:center;padding:16px">No reservations for today</td></tr>`}</tbody></table></div>`);
+}
+
+function generateQRSVG(id,name,date) {
+  // Simple visual QR-like pattern (decorative, not a real QR scanner)
+  const seed=(id||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  let rects='';
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+    const filled=((seed*(x+1)*(y+1)+x*7+y*13)%3)!==0;
+    if(filled)rects+=`<rect x="${x*10}" y="${y*10}" width="10" height="10" fill="#1E293B"/>`;
+  }
+  // Corner markers
+  rects+=`<rect x="0" y="0" width="24" height="24" fill="#4F46E5" rx="2"/><rect x="4" y="4" width="16" height="16" fill="white" rx="1"/><rect x="7" y="7" width="10" height="10" fill="#4F46E5" rx="1"/>`;
+  return`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">${rects}</svg>`;
+}
+
+/* ================================================================
+   FEATURE 14 & 15: USER MANAGEMENT & AUDIT
+   ================================================================ */
+function R_users() {
+  if(user?.role!=='admin') return '<div class="empty"><p>Admin access required</p></div>';
+  const rows=(auditData._users||[]).map?.()||[];
+  // We need to fetch users
+  return `<div class="panel"><div class="panel-hdr"><h3>${t('feat.users')}</h3><button class="btn-primary btn-sm" onclick="addUserModal()">+ ${t('common.add')} User</button></div><div class="panel-body padded"><div id="usersTableArea">${t('common.loading')}</div></div></div>`;
+}
+
+function addUserModal() {
+  showModal(`<div class="modal-hdr"><h3>Add User</h3><button onclick="closeModal()">✕</button></div><div class="modal-body"><div class="form-grid" style="grid-template-columns:1fr"><div class="form-group"><label>Name</label><input id="au_name" required></div><div class="form-group"><label>Email</label><input id="au_email" type="email" required></div><div class="form-group"><label>Password</label><input id="au_pwd" type="password" required minlength="4"></div><div class="form-group"><label>Role</label><select id="au_role"><option value="staff">Staff</option><option value="admin">Admin</option></select></div></div></div><div class="modal-ft"><button class="btn-secondary" onclick="closeModal()">${t('common.close')}</button><button class="btn-primary" onclick="addUserSubmit()">Create</button></div>`);
+}
+
+async function addUserSubmit() {
+  try { await api('user.create',{name:document.getElementById('au_name').value,email:document.getElementById('au_email').value,password:document.getElementById('au_pwd').value,role:document.getElementById('au_role').value}); closeModal(); toast('User created ✓'); renderReport(); } catch(e) { toast(e.message,'error'); }
+}
+
+function R_auditLog() {
+  if(user?.role!=='admin') return '<div class="empty"><p>Admin access required</p></div>';
+  const rows=auditData.slice(0,50).map((a,i)=>`<tr><td>${i+1}</td><td>${esc(a.action)}</td><td>${esc(a.entity)}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${esc(a.details)}</td><td>${fmtD(a.createdAt)}</td></tr>`).join('');
+  return panel(t('feat.auditLog'),`<div class="table-wrap"><table id="auditTbl"><thead><tr><th>#</th><th>Action</th><th>Entity</th><th>Details</th><th>Date</th></tr></thead><tbody>${rows||`<tr><td colspan="5" style="text-align:center;padding:16px">${t('common.noData')}</td></tr>`}</tbody></table></div>`,'auditTbl','audit');
+}
+
+/* ================================================================
+   AUX DATA LOADER
+   ================================================================ */
+async function fetchAux() {
+  try { tables = await api('tables')||[]; } catch{}
+  try { waitlistData = await api('waitlist')||[]; } catch{}
+  try { recurringData = await api('recurring')||[]; } catch{}
+  try { menuPkgs = await api('menuPackages')||[]; } catch{}
+  try { notifications = await api('notifications')||[]; } catch{}
+  try { reminders = await api('reminders')||[]; } catch{}
+  try { auditData = await api('audit',{limit:'200'})||[]; } catch{}
+  try { revenueData = await api('revenue',reportFilters[currentReport]||{}); } catch{}
+  try { forecastData = await api('forecast'); } catch{}
+}
+
+// Fetch aux data when switching to relevant reports
+const _origSwitch = switchReport;
+switchReport = async function(id) {
+  currentReport=id; loadFilter(id); buildSidebar();
+  const found=REPORTS.flatMap(s=>s.items).find(i=>i.id===id);
+  document.getElementById('topTitle').textContent=found?t(found.name):'';
+  // Fetch aux data if needed
+  const needsAux=['floorPlan','waitlist','recurring','menuPkg','smsReminder','emailConfirm','occasionRemind','revenue','payment','forecast','qrCheckin','users','auditLog'];
+  if(needsAux.includes(id)) await fetchAux();
+  renderReport();
+};
+</script>
+</body>
+</html>
