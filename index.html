@@ -532,6 +532,15 @@ const APP={
 };
 const COLORS=['#c9a84c','#2da060','#60a5fa','#f87171','#a78bfa','#34d399','#fb923c','#f472b6','#22d3ee','#a3e635','#818cf8','#fbbf24'];
 
+// ═══ BANGLADESH TIMEZONE HELPER ═══
+function getBDToday(){
+  const now=new Date();
+  const bdOffset=6*60; // UTC+6 minutes
+  const utc=now.getTime()+now.getTimezoneOffset()*60000;
+  const bdTime=new Date(utc+bdOffset*60000);
+  return bdTime.toISOString().split('T')[0];
+}
+
 // ═══ GAS API ═══
 async function gasGet(action,params={}){
   if(!APP.gasUrl)return{error:'GAS URL not configured'};
@@ -619,7 +628,7 @@ function populateMenuSelect(selId){const s=document.getElementById(selId);if(!s)
 // ══════════════════════════════════════════════════════════
 async function renderDashboard(){
   const stats=await gasGet('getdashboardstats');const s=stats.error?{}:stats;
-  const today=new Date().toISOString().split('T')[0];
+  const today=getBDToday();
   await loadReservations({date_from:today,date_to:today});
   const todayRes=APP.reservations.filter(r=>r.date===today);
   const lunchRes=todayRes.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])<17));
@@ -650,15 +659,45 @@ async function renderDashboard(){
       <div class="stat-card lux-orange"><div class="label">👶 Babies/Kids</div><div class="value">${totalBabies}</div><div class="sub">Total today</div></div>
       <div class="stat-card lux-blue"><div class="label">💵 Revenue</div><div class="value">৳${(s.today_revenue||0).toLocaleString()}</div><div class="sub">Walk-in: ${s.walkins_today||0}</div></div>
     </div>
+    <div class="panel"><div class="panel-header"><h3>🔐 Quick Reservation</h3></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="fg"><label>📞 Phone *</label><input type="tel" id="qPhone" placeholder="01XXXXXXXXX"></div>
+      <div class="fg"><label>👤 Name *</label><input type="text" id="qName" placeholder="Guest name"></div>
+      <div class="fg"><label>📅 Date</label><input type="date" id="qDate"></div>
+      <div class="fg"><label>🕐 Time</label><input type="time" id="qTime" value="19:00"></div>
+      <div class="fg"><label>🍽️ Category</label><select id="qCategory"><option value="lunch">☀️ Lunch</option><option value="dinner">🌙 Dinner</option></select></div>
+      <div class="fg"><label>👨 Adults</label><input type="number" id="qAdults" min="1" value="2"></div>
+      <div class="fg"><label>👶 Babies</label><input type="number" id="qBabies" min="0" value="0"></div>
+      <div class="fg" style="display:flex;align-items:flex-end;"><button class="btn btn-gold btn-full" onclick="quickSaveReservation()">💾 Create</button></div>
+    </div></div>
     <div class="panel"><div class="panel-header"><h3>📋 Today's Reservations</h3></div>
     <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Phone</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>
     ${todayRes.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${r.time}</td><td><span class="badge ${r.category==='dinner'?'badge-gold':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge badge-${r.status==='confirmed'?'success':r.status==='checked_in'?'info':'warning'}">${r.status}</span></td><td><button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button></td></tr>`).join('')}
     </tbody></table></div></div>`;
+  document.getElementById('qDate').value=getBDToday();
+}
+
+// ═══ QUICK RESERVATION SAVE ═══
+async function quickSaveReservation(){
+  const data={
+    guest_name:document.getElementById('qName').value,
+    guest_phone:document.getElementById('qPhone').value,
+    date:document.getElementById('qDate').value,
+    time:document.getElementById('qTime').value,
+    category:document.getElementById('qCategory').value,
+    adults:parseInt(document.getElementById('qAdults').value)||2,
+    babies:parseInt(document.getElementById('qBabies').value)||0,
+    guests:(parseInt(document.getElementById('qAdults').value)||2)+(parseInt(document.getElementById('qBabies').value)||0),
+    type:'reservation',status:'confirmed',created_by:APP.user?.username||''
+  };
+  if(!data.guest_phone||!data.guest_name||!data.date||!data.time){toast('Fill required fields','error');return}
+  const r=await gasPost('addreservation',data);
+  if(r.success){toast('Reservation created!','success');renderDashboard()}else toast(r.error||'Failed','error');
 }
 
 // ═══ DASHBOARD QUICK VIEW — View from Card Buttons ═══
 function quickViewReservations(filter,title){
-  const today=new Date().toISOString().split('T')[0];
+  const today=getBDToday();
   let list=APP.reservations.filter(r=>r.date===today);
   if(filter==='lunch')list=list.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])<17));
   if(filter==='dinner')list=list.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])>=17));
@@ -725,7 +764,7 @@ function openReservationModal(editData){
   document.getElementById('resGuestPhone').value=editData?.guest_phone||'';
   document.getElementById('resGuestName').value=editData?.guest_name||'';
   document.getElementById('resGuestEmail').value=editData?.guest_email||'';
-  document.getElementById('resDate').value=editData?.date||new Date().toISOString().split('T')[0];
+  document.getElementById('resDate').value=editData?.date||getBDToday();
   document.getElementById('resTime').value=editData?.time||'19:00';
   document.getElementById('resCategory').value=editData?.category||'dinner';
   document.getElementById('resAdults').value=editData?.adults||editData?.guests||2;
@@ -784,9 +823,10 @@ async function deleteReservation(id){if(!confirm('Delete this reservation?'))ret
 // ══════════════════════════════════════════════════════════
 //  ★ RESERVATION VIEW — Fixed scrollable + Export ★
 // ══════════════════════════════════════════════════════════
-function viewReservation(id){
+async function viewReservation(id){
   const r=APP.reservations.find(x=>x.id===id);
   if(!r){toast('Reservation not found','error');return}
+  await loadMenuPackages();
   APP.currentViewRes=r;
 
   let menus=[];try{menus=JSON.parse(r.menu_packages||'[]')}catch(e){if(r.menu_packages)menus=[r.menu_packages]}
@@ -833,7 +873,7 @@ function viewReservation(id){
 
       <div class="vc-qr"><img src="https://chart.googleapis.com/chart?cht=qr&chs=80x80&chl=${encodeURIComponent(r.id)}&choe=UTF-8" alt="QR" style="border-radius:6px;"><p style="font-size:9px;color:#9ca3af;margin-top:4px;">Scan to check in</p></div>
     </div>
-    <div class="vc-footer">VAULT RESERVATION | ${new Date().toLocaleDateString()} | Created by: ${r.created_by||'System'}</div>
+    <div class="vc-footer">VAULT RESERVATION | ${new Date().toLocaleDateString('en-GB',{timeZone:'Asia/Dhaka'})} | Created by: ${r.created_by||'System'}</div>
   </div>`;
   // Reset scroll to top
   document.getElementById('viewScrollArea').scrollTop=0;
@@ -901,7 +941,7 @@ function shareWhatsApp(){
 }
 
 // ═══ FLOOR PLAN ═══
-async function renderFloorPlan(){await loadTables();await loadReservations();const today=new Date().toISOString().split('T')[0];const todayRes=APP.reservations.filter(r=>r.date===today&&(r.status==='confirmed'||r.status==='checked_in'));const c=document.getElementById('contentArea');const locs=[...new Set(APP.tables.map(t=>t.location))];c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Live Table Status</h3><div class="filter-bar"><button class="btn btn-ghost btn-sm" onclick="loadTables().then(()=>renderFloorPlan())">🔄</button></div></div>${locs.map(loc=>`<h4 style="margin:12px 0 6px;color:var(--txt2);">${loc}</h4><div class="floor-plan">${APP.tables.filter(t=>t.location===loc).map(t=>{const ri=todayRes.find(r=>r.table_id===t.id);const sc=t.status||'available';return`<div class="table-unit ${sc}" onclick="tableAction('${t.id}','${t.status}')"><div class="t-num">T${t.table_number}</div><div class="t-cap">${t.capacity}p</div><div class="t-loc">${ri?ri.guest_name+'@'+ri.time:sc}</div></div>`}).join('')}</div>`).join('')}</div>`;}
+async function renderFloorPlan(){await loadTables();await loadReservations();const today=getBDToday();const todayRes=APP.reservations.filter(r=>r.date===today&&(r.status==='confirmed'||r.status==='checked_in'));const c=document.getElementById('contentArea');const locs=[...new Set(APP.tables.map(t=>t.location))];c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Live Table Status</h3><div class="filter-bar"><button class="btn btn-ghost btn-sm" onclick="loadTables().then(()=>renderFloorPlan())">🔄</button></div></div>${locs.map(loc=>`<h4 style="margin:12px 0 6px;color:var(--txt2);">${loc}</h4><div class="floor-plan">${APP.tables.filter(t=>t.location===loc).map(t=>{const ri=todayRes.find(r=>r.table_id===t.id);const sc=t.status||'available';return`<div class="table-unit ${sc}" onclick="tableAction('${t.id}','${t.status}')"><div class="t-num">T${t.table_number}</div><div class="t-cap">${t.capacity}p</div><div class="t-loc">${ri?ri.guest_name+'@'+ri.time:sc}</div></div>`}).join('')}</div>`).join('')}</div>`;}
 async function tableAction(id,s){const n=s==='available'?'reserved':s==='reserved'?'occupied':'available';await gasPost('updatetable',{id,status:n});toast('→ '+n,'success');renderFloorPlan();}
 
 // ═══ WAITLIST ═══
@@ -911,7 +951,7 @@ async function seatWaitlist(id){const r=await gasPost('updatewaitlist',{id,statu
 async function removeWaitlist(id){const r=await gasPost('updatewaitlist',{id,status:'cancelled'});if(r.success){toast('Removed','success');renderWaitlist()}}
 
 // ═══ CHECK-IN ═══
-async function renderCheckin(){await loadReservations();const today=new Date().toISOString().split('T')[0];const tr=APP.reservations.filter(r=>r.date===today&&r.status==='confirmed');const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>QR Check-In</h3></div><div class="fg"><label>Select Reservation</label><select id="checkinSelect" onchange="generateQR()"><option value="">-- Select --</option>${tr.map(r=>`<option value="${r.id}">${r.guest_name} - ${r.time} (${r.adults||r.guests}A+${r.babies||0}B)</option>`).join('')}</select></div><div id="qrArea" style="text-align:center;padding:12px;"></div></div><div class="panel"><div class="panel-header"><h3>Today's Check-Ins</h3></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Time</th><th>Category</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>${tr.map(r=>`<tr><td>${r.guest_name}</td><td>${r.time}</td><td>${r.category==='dinner'?'🌙':'☀️'}</td><td>${r.table_id||'-'}</td><td><span class="badge ${r.checked_in?'badge-success':'badge-warning'}">${r.checked_in?'✅ In':'⏳'}</span></td><td>${!r.checked_in?`<button class="btn btn-green btn-sm" onclick="doCheckin('${r.id}')">Check In</button>`:''}</td></tr>`).join('')}</tbody></table></div></div>`;}
+async function renderCheckin(){await loadReservations();const today=getBDToday();const tr=APP.reservations.filter(r=>r.date===today&&r.status==='confirmed');const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>QR Check-In</h3></div><div class="fg"><label>Select Reservation</label><select id="checkinSelect" onchange="generateQR()"><option value="">-- Select --</option>${tr.map(r=>`<option value="${r.id}">${r.guest_name} - ${r.time} (${r.adults||r.guests}A+${r.babies||0}B)</option>`).join('')}</select></div><div id="qrArea" style="text-align:center;padding:12px;"></div></div><div class="panel"><div class="panel-header"><h3>Today's Check-Ins</h3></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Time</th><th>Category</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>${tr.map(r=>`<tr><td>${r.guest_name}</td><td>${r.time}</td><td>${r.category==='dinner'?'🌙':'☀️'}</td><td>${r.table_id||'-'}</td><td><span class="badge ${r.checked_in?'badge-success':'badge-warning'}">${r.checked_in?'✅ In':'⏳'}</span></td><td>${!r.checked_in?`<button class="btn btn-green btn-sm" onclick="doCheckin('${r.id}')">Check In</button>`:''}</td></tr>`).join('')}</tbody></table></div></div>`;}
 function generateQR(){const id=document.getElementById('checkinSelect').value;if(!id){document.getElementById('qrArea').innerHTML='';return}document.getElementById('qrArea').innerHTML=`<img src="https://chart.googleapis.com/chart?cht=qr&chs=180x180&chl=${encodeURIComponent(id)}" alt="QR" style="border-radius:8px;border:3px solid var(--gold3);"><p style="margin-top:6px;color:var(--txt3);font-size:11px;">ID: ${id}</p><button class="btn btn-green btn-sm" onclick="doCheckin('${id}')" style="margin-top:6px;">✅ Check In</button>`;}
 async function doCheckin(id){const r=await gasPost('checkin',{reservation_id:id,method:'qr',verified_by:APP.user?.username||''});if(r.success){toast('Checked in!','success');renderCheckin()}else toast(r.error,'error')}
 
@@ -949,7 +989,7 @@ async function loadReportData(){const container=document.getElementById('reports
 function renderBarChart(cid,data){const c=document.getElementById(cid);if(!c)return;let e=[];if(Array.isArray(data)&&data.length>0){const k=Object.keys(data[0]),nk=k.find(k=>typeof data[0][k]==='string')||k[0],vk=k.find(k=>typeof data[0][k]==='number')||k[1];e=data.map(d=>({label:String(d[nk]).substring(0,12),value:Number(d[vk])||0}))}else if(typeof data==='object'&&data){e=Object.entries(data).map(([k,v])=>({label:k.substring(0,12),value:typeof v==='number'?v:0})).slice(0,20)}if(!e.length){c.innerHTML='<p style="color:var(--txt3)">No data</p>';return}const mx=Math.max(...e.map(x=>x.value),1);c.innerHTML=`<div class="bar-chart">${e.map((x,i)=>`<div class="bar-col"><div class="bar-value">${x.value}</div><div class="bar" style="height:${(x.value/mx)*140}px;background:linear-gradient(180deg,${COLORS[i%COLORS.length]},${COLORS[(i+3)%COLORS.length]});"></div><div class="bar-label">${x.label}</div></div>`).join('')}</div>`;}
 
 // ═══ REVENUE ═══
-async function renderRevenue(){await loadPayments();const c=document.getElementById('contentArea');const total=APP.payments.reduce((s,p)=>s+(parseFloat(p.amount)||0),0);const today=new Date().toISOString().split('T')[0];const todayPay=APP.payments.filter(p=>p.paid_at&&p.paid_at.startsWith(today));c.innerHTML=`<div class="stats-grid"><div class="stat-card lux-green"><div class="label">Total Revenue</div><div class="value">৳${total.toLocaleString()}</div></div><div class="stat-card lux-gold"><div class="label">Today</div><div class="value">৳${todayPay.reduce((s,p)=>s+(parseFloat(p.amount)||0),0).toLocaleString()}</div></div></div><div class="panel"><div class="panel-header"><h3>Revenue Details</h3></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Reservation</th></tr></thead><tbody>${APP.payments.slice(0,30).map(p=>`<tr><td>${p.paid_at?new Date(p.paid_at).toLocaleDateString():''}</td><td style="font-weight:700;color:var(--gold3);">৳${p.amount}</td><td>${p.method}</td><td>${p.reservation_id}</td></tr>`).join('')}</tbody></table></div></div>`;}
+async function renderRevenue(){await loadPayments();const c=document.getElementById('contentArea');const total=APP.payments.reduce((s,p)=>s+(parseFloat(p.amount)||0),0);const today=getBDToday();const todayPay=APP.payments.filter(p=>p.paid_at&&p.paid_at.startsWith(today));c.innerHTML=`<div class="stats-grid"><div class="stat-card lux-green"><div class="label">Total Revenue</div><div class="value">৳${total.toLocaleString()}</div></div><div class="stat-card lux-gold"><div class="label">Today</div><div class="value">৳${todayPay.reduce((s,p)=>s+(parseFloat(p.amount)||0),0).toLocaleString()}</div></div></div><div class="panel"><div class="panel-header"><h3>Revenue Details</h3></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Reservation</th></tr></thead><tbody>${APP.payments.slice(0,30).map(p=>`<tr><td>${p.paid_at?new Date(p.paid_at).toLocaleDateString():''}</td><td style="font-weight:700;color:var(--gold3);">৳${p.amount}</td><td>${p.method}</td><td>${p.reservation_id}</td></tr>`).join('')}</tbody></table></div></div>`;}
 
 // ═══ FORECAST ═══
 async function renderForecast(){const c=document.getElementById('contentArea');const result=await gasGet('getforecast');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>7-Day Forecast</h3></div>${result.error?'<p style="color:var(--txt3)">No forecast data</p>':`<div class="stats-grid">${(result.forecast||[]).map((f,i)=>`<div class="stat-card ${['lux-green','lux-gold','lux-teal','lux-purple','lux-blue','lux-orange','lux-pink'][i%7]}"><div class="label">${f.date||'Day '+i}</div><div class="value">${f.expected_reservations||'-'}</div><div class="sub">~${f.expected_guests||0} guests</div></div>`).join('')}</div>`}</div>`;}
