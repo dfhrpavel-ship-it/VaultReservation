@@ -256,6 +256,52 @@ tr:hover{background:rgba(45,160,96,.02);}
 .new-res-card .nr-text{font-size:14px;font-weight:700;margin-top:6px;}
 .new-res-card .nr-sub{font-size:10px;opacity:.7;}
 
+/* ════ TIMELINE ════ */
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--green3),var(--green4),var(--green3));border-radius:1px;}
+.timeline-item{position:relative;padding:8px 0 8px 16px;border-left:none;}
+.timeline-item::before{content:'';position:absolute;left:-20px;top:12px;width:10px;height:10px;border-radius:50%;background:var(--green4);border:2px solid var(--bg2);box-shadow:0 0 6px rgba(45,160,96,.3);}
+.timeline-item.past::before{background:var(--txt3);box-shadow:none;}
+.timeline-item.now::before{background:var(--ok);box-shadow:0 0 10px rgba(52,211,153,.5);animation:pulse 2s infinite;}
+.timeline-item .tl-time{font-size:11px;color:var(--green4);font-weight:700;}
+.timeline-item.past .tl-time{color:var(--txt3);}
+.timeline-item .tl-name{font-size:13px;font-weight:600;color:var(--txt1);}
+.timeline-item .tl-meta{font-size:10px;color:var(--txt3);}
+.timeline-item .tl-badge{display:inline-block;margin-left:4px;}
+
+/* ════ ACTIVITY FEED ════ */
+.activity-feed{max-height:220px;overflow-y:auto;}
+.activity-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(45,160,96,.04);font-size:12px;}
+.activity-item .act-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.activity-item .act-icon.new{background:rgba(52,211,153,.1);color:var(--ok);}
+.activity-item .act-icon.edit{background:rgba(96,165,250,.1);color:var(--info);}
+.activity-item .act-icon.del{background:rgba(248,113,113,.1);color:var(--err);}
+.activity-item .act-icon.checkin{background:rgba(251,191,36,.1);color:var(--warn);}
+.activity-item .act-text{color:var(--txt2);line-height:1.4;}
+.activity-item .act-text strong{color:var(--txt1);}
+.activity-item .act-time{font-size:10px;color:var(--txt3);white-space:nowrap;}
+
+/* ════ OCCUPANCY BAR ════ */
+.occ-bar-wrap{background:var(--bg2);border-radius:8px;height:24px;overflow:hidden;position:relative;margin-top:6px;}
+.occ-bar{height:100%;border-radius:8px;transition:width .5s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;font-weight:700;color:#0a0a14;min-width:30px;}
+.occ-bar.low{background:linear-gradient(90deg,var(--green2),var(--green4));}
+.occ-bar.mid{background:linear-gradient(90deg,#c06020,var(--warn));}
+.occ-bar.high{background:linear-gradient(90deg,#991b1b,var(--err));}
+
+/* ════ DASHBOARD GRID SECTIONS ════ */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+.dash-grid .panel{margin-bottom:0;}
+@media(max-width:768px){.dash-grid{grid-template-columns:1fr;}}
+
+/* ════ PEAK HOURS ════ */
+.peak-hours{display:flex;gap:3px;align-items:flex-end;height:50px;}
+.peak-bar{flex:1;border-radius:3px 3px 0 0;transition:.3s;min-height:2px;}
+.peak-bar.lunch{background:rgba(52,211,153,.3);}
+.peak-bar.dinner{background:rgba(96,165,250,.3);}
+.peak-bar.active-lunch{background:var(--green4);box-shadow:0 0 8px rgba(52,211,153,.3);}
+.peak-bar.active-dinner{background:var(--info);box-shadow:0 0 8px rgba(96,165,250,.3);}
+.peak-label{font-size:8px;color:var(--txt3);text-align:center;margin-top:2px;}
+
 /* ════ RESPONSIVE ════ */
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);}
@@ -513,25 +559,53 @@ const COLORS=['#2da060','#34d399','#60a5fa','#f87171','#a78bfa','#6ee7b7','#fb92
 
 // ═══ BANGLADESH TIMEZONE ═══
 function getBDToday(){
-  const now=new Date();const bdOffset=6*60;const utc=now.getTime()+now.getTimezoneOffset()*60000;
-  const bdTime=new Date(utc+bdOffset*60000);return bdTime.toISOString().split('T')[0];
+  try{return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Dhaka'});}catch(e){
+    const now=new Date();const utc=now.getTime()+now.getTimezoneOffset()*60000;
+    const bdTime=new Date(utc+6*60*60000);
+    return bdTime.getFullYear()+'-'+String(bdTime.getMonth()+1).padStart(2,'0')+'-'+String(bdTime.getDate()).padStart(2,'0');
+  }
 }
 function normDate(d){if(!d)return'';if(typeof d==='string'){if(/^\d{4}-\d{2}-\d{2}$/.test(d))return d;if(d.includes('T'))return d.split('T')[0];}return String(d).split('T')[0];}
 
+// ═══ TIME FORMATTING ═══
+function fmtTime(t){
+  if(!t)return'--:--';
+  let s=String(t);
+  // Strip 1899-12-30 prefix if present (Google Sheets time serialization bug)
+  if(s.includes('1899-12-30'))s=s.replace(/^1899-12-30T?/,'');
+  // Extract HH:mm part
+  const match=s.match(/(\d{1,2}):(\d{2})/);
+  if(!match)return s;
+  let h=parseInt(match[1]),m=match[2];
+  const ampm=h>=12?'PM':'AM';
+  h=h%12||12;
+  return h+':'+m+' '+ampm;
+}
+function cleanTime(t){
+  if(!t)return'';
+  let s=String(t);
+  if(s.includes('1899-12-30'))s=s.replace(/^1899-12-30T?/,'');
+  return s.substring(0,5);
+}
+
 // ═══ BD CLOCK ═══
 function updateBDClock(){
-  const now=new Date();const bdOffset=6*60;const utc=now.getTime()+now.getTimezoneOffset()*60000;
-  const bdTime=new Date(utc+bdOffset*60000);
-  const h=String(bdTime.getHours()).padStart(2,'0');
-  const m=String(bdTime.getMinutes()).padStart(2,'0');
-  const s=String(bdTime.getSeconds()).padStart(2,'0');
+  const now=new Date();
   const timeEl=document.getElementById('clockTime');
   const dateEl=document.getElementById('clockDate');
-  if(timeEl)timeEl.textContent=h+':'+m+':'+s;
+  if(timeEl){
+    try{timeEl.textContent=now.toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour12:false});}catch(e){
+      const utc=now.getTime()+now.getTimezoneOffset()*60000;const bd=new Date(utc+6*60*60000);
+      timeEl.textContent=String(bd.getHours()).padStart(2,'0')+':'+String(bd.getMinutes()).padStart(2,'0')+':'+String(bd.getSeconds()).padStart(2,'0');
+    }
+  }
   if(dateEl){
-    const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-    dateEl.textContent=days[bdTime.getDay()]+', '+bdTime.getDate()+' '+months[bdTime.getMonth()]+' '+bdTime.getFullYear();
+    try{dateEl.textContent=now.toLocaleDateString('en-US',{timeZone:'Asia/Dhaka',weekday:'long',year:'numeric',month:'long',day:'numeric'});}catch(e){
+      const utc=now.getTime()+now.getTimezoneOffset()*60000;const bd=new Date(utc+6*60*60000);
+      const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+      dateEl.textContent=days[bd.getDay()]+', '+bd.getDate()+' '+months[bd.getMonth()]+' '+bd.getFullYear();
+    }
   }
 }
 setInterval(updateBDClock,1000);
@@ -605,22 +679,68 @@ function populateTableSelect(selId){const s=document.getElementById(selId);if(!s
 function populateMenuSelect(selId){const s=document.getElementById(selId);if(!s)return;s.innerHTML='<option value="">+ Add menu</option>'+APP.menuPackages.map(m=>`<option value="${m.name}">${m.name} - ৳${m.price}</option>`).join('');}
 
 // ══════════════════════════════════════════════════════════
-//  ✅ DASHBOARD — With BD Clock, Reservation Card, Forecast, Recurring
+//  ✅ DASHBOARD — Ultra Informative with BD Clock, Timeline, Occupancy, Activity
 // ══════════════════════════════════════════════════════════
 async function renderDashboard(){
   const today=getBDToday();
-  // Load all data needed
-  const [stats,,tables,recurring] = await Promise.all([
+  // Load all data needed in parallel
+  const [stats,,tables,recurring,occasions,payments] = await Promise.all([
     gasGet('getdashboardstats'),
     loadReservations(),
     loadTables(),
-    loadRecurring()
+    loadRecurring(),
+    loadOccasions(),
+    loadPayments()
   ]);
   const s=stats.error?{}:stats;
   const todayRes=APP.reservations.filter(r=>normDate(r.date)===today);
-  const lunchRes=todayRes.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])<17));
-  const dinnerRes=todayRes.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])>=17));
+  const lunchRes=todayRes.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])<17));
+  const dinnerRes=todayRes.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])>=17));
   const activeRecurring=APP.recurring.filter(r=>r.active===true);
+  const confirmedRes=todayRes.filter(r=>r.status==='confirmed'||r.status==='checked_in');
+
+  // ── Table Occupancy ──
+  const totalTables=APP.tables.length||1;
+  const reservedTables=APP.tables.filter(t=>t.status==='reserved'||t.status==='occupied').length;
+  const occPct=Math.round((reservedTables/totalTables)*100);
+  const occClass=occPct<50?'low':occPct<80?'mid':'high';
+
+  // ── Deposit Summary ──
+  const todayDeposits=todayRes.filter(r=>r.deposit_status==='paid');
+  const totalDeposit=todayDeposits.reduce((sum,r)=>sum+(parseFloat(r.deposit_amount)||0),0);
+  const unpaidDeposit=todayRes.filter(r=>r.deposit_status==='unpaid'||r.deposit_status==='partial');
+
+  // ── Upcoming Reservations (next 3 hours) ──
+  const nowBD=new Date().toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour12:false});
+  const nowMins=parseInt(nowBD.split(':')[0])*60+parseInt(nowBD.split(':')[1]);
+  const upcoming=confirmedRes.filter(r=>{
+    if(!r.time)return false;
+    const ct=cleanTime(r.time);
+    const[h,m]=ct.split(':').map(Number);
+    const rMins=h*60+(m||0);
+    return rMins>=nowMins&&rMins<=nowMins+180;
+  }).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+
+  // ── Timeline for today (sorted by time) ──
+  const timelineRes=confirmedRes.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+
+  // ── Peak Hours (hourly distribution) ──
+  const hourCounts={};
+  for(let h=11;h<=22;h++)hourCounts[h]=0;
+  todayRes.forEach(r=>{
+    if(r.time){const ct=cleanTime(r.time);const h=parseInt(ct.split(':')[0]);if(h>=11&&h<=22)hourCounts[h]=(hourCounts[h]||0)+1;}
+  });
+  const maxHourCount=Math.max(...Object.values(hourCounts),1);
+
+  // ── Upcoming Occasions (next 30 days) ──
+  const upcomingOcc=APP.occasions.filter(o=>{
+    if(!o.occasion_date)return false;
+    const d=normDate(o.occasion_date);
+    return d>=today&&d<=addDays(today,30);
+  }).slice(0,5);
+
+  // ── Recent Activity (from today's reservations by created_at) ──
+  const recentActivity=todayRes.filter(r=>r.created_at).sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||'')).slice(0,6);
 
   const c=document.getElementById('contentArea');
   c.innerHTML=`
@@ -629,28 +749,39 @@ async function renderDashboard(){
       <div class="clock-date" id="clockDate">Loading...</div>
       <div class="clock-badge">🕐 Bangladesh Time (UTC+6)</div>
     </div>
+
+    <!-- ═══ STAT CARDS ═══ -->
     <div class="stats-grid">
       <div class="stat-card lux-green">
         <div class="label">📋 Today's Total</div><div class="value">${todayRes.length}</div>
-        <div class="sub">Active: ${todayRes.filter(r=>r.status==='confirmed'||r.status==='checked_in').length}</div>
+        <div class="sub">Active: ${confirmedRes.length} | Cancelled: ${todayRes.filter(r=>r.status==='cancelled').length}</div>
         <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('all','Today\\'s Reservations')">👁 View</button></div>
       </div>
       <div class="stat-card lux-emerald">
         <div class="label">☀️ Lunch</div><div class="value">${lunchRes.length}</div>
-        <div class="sub">${s.lunch_guests||0} guests</div>
+        <div class="sub">${lunchRes.reduce((s,r)=>s+(parseInt(r.adults)||parseInt(r.guests)||0),0)} guests</div>
         <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('lunch','Lunch Reservations')">👁 View</button></div>
       </div>
       <div class="stat-card lux-teal">
         <div class="label">🌙 Dinner</div><div class="value">${dinnerRes.length}</div>
-        <div class="sub">${s.dinner_guests||0} guests</div>
+        <div class="sub">${dinnerRes.reduce((s,r)=>s+(parseInt(r.adults)||parseInt(r.guests)||0),0)} guests</div>
         <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('dinner','Dinner Reservations')">👁 View</button></div>
       </div>
-      <div class="stat-card lux-purple"><div class="label">👨 Adults</div><div class="value">${s.total_adults||0}</div><div class="sub">Total today</div></div>
-      <div class="stat-card lux-orange"><div class="label">👶 Babies/Kids</div><div class="value">${s.total_babies||0}</div><div class="sub">Total today</div></div>
+      <div class="stat-card lux-purple"><div class="label">👨 Adults</div><div class="value">${todayRes.reduce((s,r)=>s+(parseInt(r.adults)||0),0)}</div><div class="sub">Total today</div></div>
+      <div class="stat-card lux-orange"><div class="label">👶 Babies/Kids</div><div class="value">${todayRes.reduce((s,r)=>s+(parseInt(r.babies)||0),0)}</div><div class="sub">Total today</div></div>
       <div class="stat-card new-res-card" onclick="openDashboardReservation()">
         <div class="nr-icon">➕</div>
         <div class="nr-text">New Reservation</div>
         <div class="nr-sub">Click to create</div>
+      </div>
+      <div class="stat-card lux-blue">
+        <div class="label">🪑 Occupancy</div><div class="value">${occPct}%</div>
+        <div class="sub">${reservedTables}/${totalTables} tables</div>
+        <div class="occ-bar-wrap"><div class="occ-bar ${occClass}" style="width:${occPct}%">${occPct}%</div></div>
+      </div>
+      <div class="stat-card lux-red">
+        <div class="label">💰 Deposits</div><div class="value">৳${totalDeposit.toLocaleString()}</div>
+        <div class="sub">${todayDeposits.length} paid | ${unpaidDeposit.length} unpaid</div>
       </div>
       <div class="stat-card lux-blue">
         <div class="label">🔄 Recurring</div><div class="value">${activeRecurring.length}</div>
@@ -662,14 +793,124 @@ async function renderDashboard(){
         <div class="sub">Click to view</div>
       </div>
     </div>
-    <div class="panel"><div class="panel-header"><h3>📋 Today's Reservations (${today})</h3></div>
-    <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Phone</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>
-    ${todayRes.length===0?'<tr><td colspan="9" style="text-align:center;color:var(--txt3);padding:20px;">No reservations for today</td></tr>':''}
-    ${todayRes.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${r.time}</td><td><span class="badge ${r.category==='dinner'?'badge-info':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}">${r.status}</span></td><td><button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button></td></tr>`).join('')}
-    </tbody></table></div></div>`;
+
+    <!-- ═══ DASHBOARD GRID: Timeline + Activity ═══ -->
+    <div class="dash-grid">
+      <!-- ── Left: Arrival Timeline ── -->
+      <div class="panel">
+        <div class="panel-header"><h3>🕐 Today's Timeline</h3><span style="font-size:10px;color:var(--txt3);">${today}</span></div>
+        ${timelineRes.length===0?'<p style="color:var(--txt3);text-align:center;padding:20px;">No confirmed reservations today</p>':`
+        <div class="timeline">
+          ${timelineRes.map(r=>{
+            const ct=cleanTime(r.time);
+            const isPast=r.time&&ct.split(':').map(Number)[0]*60+(parseInt(ct.split(':')[1])||0)<nowMins;
+            const isNow=!isPast&&r.time&&ct.split(':').map(Number)[0]*60+(parseInt(ct.split(':')[1])||0)<=nowMins+30;
+            const cls=isPast?'past':isNow?'now':'';
+            return`<div class="timeline-item ${cls}" onclick="viewReservation('${r.id}')" style="cursor:pointer;">
+              <div class="tl-time">${fmtTime(r.time)} ${isNow?'<span class="badge badge-success" style="font-size:9px;">NOW</span>':''} ${isPast&&r.status==='checked_in'?'<span class="badge badge-info" style="font-size:9px;">✅ In</span>':''}</div>
+              <div class="tl-name">${r.guest_name}</div>
+              <div class="tl-meta">${r.adults||r.guests||'-'}A${r.babies?'+'+r.babies+'B':''} | ${r.table_id||'Auto'} | <span class="badge ${r.category==='dinner'?'badge-info':'badge-green'}" style="font-size:9px;">${r.category==='dinner'?'Dinner':'Lunch'}</span></div>
+            </div>`;
+          }).join('')}
+        </div>`}
+      </div>
+
+      <!-- ── Right: Activity + Occasions ── -->
+      <div>
+        <!-- Activity Feed -->
+        <div class="panel" style="margin-bottom:14px;">
+          <div class="panel-header"><h3>📰 Recent Activity</h3></div>
+          <div class="activity-feed">
+            ${recentActivity.length===0?'<p style="color:var(--txt3);text-align:center;padding:12px;">No activity today</p>':''}
+            ${recentActivity.map(r=>{
+              const icon=r.status==='checked_in'?'checkin':r.status==='cancelled'?'del':'new';
+              const icoEmoji=r.status==='checked_in'?'✅':r.status==='cancelled'?'❌':'📋';
+              const actText=r.status==='checked_in'?`<strong>${r.guest_name}</strong> checked in at ${fmtTime(r.time)}`:r.status==='cancelled'?`<strong>${r.guest_name}</strong> cancelled ${fmtTime(r.time)} reservation`:`<strong>${r.guest_name}</strong> reserved for ${fmtTime(r.time)} (${r.adults||r.guests||'-'} guests)`;
+              const ago=r.created_at?timeAgo(r.created_at):'';
+              return`<div class="activity-item"><div class="act-icon ${icon}">${icoEmoji}</div><div style="flex:1;"><div class="act-text">${actText}</div></div><div class="act-time">${ago}</div></div>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Upcoming Occasions -->
+        <div class="panel">
+          <div class="panel-header"><h3>🎂 Upcoming Occasions</h3><button class="btn btn-ghost btn-sm" onclick="navigate('occasions')">View All</button></div>
+          ${upcomingOcc.length===0?'<p style="color:var(--txt3);text-align:center;padding:12px;">No upcoming occasions</p>':''}
+          ${upcomingOcc.map(o=>`<div class="occasion-card" style="cursor:pointer;" onclick="navigate('occasions')">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div><span class="occ-type">${o.occasion_type}</span> — ${o.guest_name}
+              <div class="occ-date">📅 ${normDate(o.occasion_date)} | 📞 ${o.guest_phone||'-'} | ${o.reminder_days||7}d reminder</div>
+              ${o.notes?`<div style="font-size:10px;color:var(--txt3);margin-top:2px;">${o.notes}</div>`:''}</div>
+              <span class="badge badge-warning" style="font-size:9px;">${daysUntil(today,normDate(o.occasion_date))}d</span>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PEAK HOURS CHART ═══ -->
+    <div class="panel" style="margin-top:14px;">
+      <div class="panel-header"><h3>📊 Peak Hours Today</h3><span style="font-size:10px;color:var(--txt3);">Hourly reservation distribution</span></div>
+      <div style="display:flex;gap:2px;align-items:flex-end;height:60px;">
+        ${Object.entries(hourCounts).map(([h,count])=>{
+          const hNum=parseInt(h);
+          const isLunch=hNum<17;
+          const isCurrent=hNum===parseInt(nowBD.split(':')[0]);
+          const barH=Math.max(Math.round((count/maxHourCount)*100),4);
+          const barClass=isCurrent?(isLunch?'active-lunch':'active-dinner'):(isLunch?'lunch':'dinner');
+          return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+            <div style="font-size:9px;color:var(--green4);font-weight:700;${count===0?'opacity:.3;':''}">${count||''}</div>
+            <div class="peak-bar ${barClass}" style="height:${barH}%;"></div>
+            <div class="peak-label" style="${isCurrent?'color:var(--green4);font-weight:700;':''}">${hNum>12?hNum-12:hNum}${hNum<12?'a':'p'}${isCurrent?'●':''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;justify-content:center;">
+        <span style="font-size:10px;color:var(--green4);">● Lunch</span>
+        <span style="font-size:10px;color:var(--info);">● Dinner</span>
+        <span style="font-size:10px;color:var(--warn);">● Current Hour</span>
+      </div>
+    </div>
+
+    <!-- ═══ TODAY'S TABLE ═══ -->
+    <div class="panel" style="margin-top:14px;">
+      <div class="panel-header"><h3>📋 Today's Reservations (${today})</h3>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-ghost btn-sm" onclick="quickViewReservations('all','All Reservations')">👁 Quick View</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Phone</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>
+      ${todayRes.length===0?'<tr><td colspan="9" style="text-align:center;color:var(--txt3);padding:20px;">No reservations for today</td></tr>':''}
+      ${todayRes.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${fmtTime(r.time)}</td><td><span class="badge ${r.category==='dinner'?'badge-info':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}">${r.status}</span></td><td><button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button></td></tr>`).join('')}
+      </tbody></table></div>
+    </div>`;
+
   updateBDClock();
   // Load forecast for tomorrow
   try{const fc=await gasGet('getforecast',{days:1});if(fc.forecast&&fc.forecast[0]){const el=document.getElementById('dashForecastVal');if(el)el.textContent=fc.forecast[0].expected_reservations||'-';}}catch(e){}
+}
+
+// ── Dashboard Helper Functions ──
+function addDays(dateStr,days){
+  const d=new Date(dateStr+'T00:00:00');d.setDate(d.getDate()+days);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function daysUntil(fromDate,toDate){
+  const f=new Date(fromDate+'T00:00:00'),t=new Date(toDate+'T00:00:00');
+  return Math.ceil((t-f)/(1000*60*60*24));
+}
+function timeAgo(isoStr){
+  if(!isoStr)return'';
+  try{
+    const now=new Date(),then=new Date(isoStr);
+    const diffMs=now-then;
+    const mins=Math.floor(diffMs/60000);
+    if(mins<1)return'just now';
+    if(mins<60)return mins+'m ago';
+    const hrs=Math.floor(mins/60);
+    if(hrs<24)return hrs+'h ago';
+    return Math.floor(hrs/24)+'d ago';
+  }catch(e){return'';}
 }
 
 // ═══ DASHBOARD RESERVATION ═══
@@ -701,8 +942,8 @@ async function openDashboardReservation(){
 function quickViewReservations(filter,title){
   const today=getBDToday();
   let list=APP.reservations.filter(r=>normDate(r.date)===today);
-  if(filter==='lunch')list=list.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])<17));
-  if(filter==='dinner')list=list.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])>=17));
+  if(filter==='lunch')list=list.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])<17));
+  if(filter==='dinner')list=list.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])>=17));
   document.getElementById('quickViewTitle').textContent='📋 '+title+' ('+list.length+')';
   if(list.length===0){
     document.getElementById('quickViewList').innerHTML='<p style="text-align:center;color:var(--txt3);padding:20px;">No reservations found</p>';
@@ -710,7 +951,7 @@ function quickViewReservations(filter,title){
     document.getElementById('quickViewList').innerHTML=list.map(r=>`
       <div class="quick-view-item">
         <div><div class="qvi-name">${r.guest_name}</div>
-        <div class="qvi-meta">📞 ${r.guest_phone||'-'} | 🕐 ${r.time} | 👨 ${r.adults||r.guests||'-'}A + ${r.babies||0}B | 🪑 ${r.table_id||'Auto'}</div></div>
+        <div class="qvi-meta">📞 ${r.guest_phone||'-'} | 🕐 ${fmtTime(r.time)} | 👨 ${r.adults||r.guests||'-'}A + ${r.babies||0}B | 🪑 ${r.table_id||'Auto'}</div></div>
         <div class="qvi-actions"><span class="badge ${sb(r.status)}">${r.status}</span>
         <button class="btn btn-green btn-sm" onclick="closeModal('quickViewModal');viewReservation('${r.id}')">👁</button></div>
       </div>`).join('');
@@ -735,7 +976,7 @@ function filterReservations(){
   const f=document.getElementById('resFilterFrom')?.value,t=document.getElementById('resFilterTo')?.value,s=document.getElementById('resFilterStatus')?.value,cat=document.getElementById('resFilterCat')?.value;
   let d=[...APP.reservations];if(f)d=d.filter(r=>normDate(r.date)>=f);if(t)d=d.filter(r=>normDate(r.date)<=t);if(s)d=d.filter(r=>r.status===s);if(cat)d=d.filter(r=>r.category===cat);
   document.getElementById('resTableBody').innerHTML=`<table><thead><tr><th>Guest</th><th>Phone</th><th>Date</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-  ${d.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${normDate(r.date)}</td><td>${r.time}</td><td><span class="badge ${r.category==='dinner'?'badge-info':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}">${r.status}</span></td><td style="white-space:nowrap;">
+  ${d.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${normDate(r.date)}</td><td>${fmtTime(r.time)}</td><td><span class="badge ${r.category==='dinner'?'badge-info':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}">${r.status}</span></td><td style="white-space:nowrap;">
     <button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button>
     <button class="btn btn-ghost btn-sm" onclick="editReservation('${r.id}')">✏️</button>
     <button class="btn btn-danger btn-sm" onclick="deleteReservation('${r.id}')">🗑</button>
@@ -826,7 +1067,7 @@ async function viewReservation(id){
       <div class="vc-row"><span class="vc-label">Email</span><span class="vc-value">${r.guest_email||'-'}</span></div>
       <div class="vc-section"><h4>📅 Reservation Details</h4></div>
       <div class="vc-row"><span class="vc-label">Date</span><span class="vc-value" style="font-weight:700;">${normDate(r.date)}</span></div>
-      <div class="vc-row"><span class="vc-label">Time</span><span class="vc-value" style="font-weight:700;">${r.time}</span></div>
+      <div class="vc-row"><span class="vc-label">Time</span><span class="vc-value" style="font-weight:700;">${fmtTime(r.time)}</span></div>
       <div class="vc-row"><span class="vc-label">Adults</span><span class="vc-value">${r.adults||r.guests||'-'}</span></div>
       <div class="vc-row"><span class="vc-label">Babies/Kids</span><span class="vc-value">${r.babies||0}</span></div>
       <div class="vc-row"><span class="vc-label">Total Guests</span><span class="vc-value" style="font-weight:800;font-size:14px;color:#0a2e1a;">${totalGuests}</span></div>
@@ -859,13 +1100,13 @@ async function exportViewJPG(){
 }
 function shareWhatsApp(){
   const r=APP.currentViewRes;if(!r)return;
-  const msg=`🔐 *VAULT RESERVATION*\n\n📋 ID: ${r.id}\n👤 Guest: ${r.guest_name}\n📞 Phone: ${r.guest_phone||'-'}\n📅 Date: ${normDate(r.date)}\n🕐 Time: ${r.time}\n🍽️ Category: ${r.category==='dinner'?'Dinner':'Lunch'}\n👨 Adults: ${r.adults||r.guests||'-'}\n👶 Babies: ${r.babies||0}\n🪑 Table: ${r.table_id||'Auto'}\n💰 Deposit: ৳${r.deposit_amount||0} (${(r.deposit_status||'unpaid').toUpperCase()})\n📊 Status: ${(r.status||'confirmed').toUpperCase()}\n${r.notes?'📝 Notes: '+r.notes:''}\n— VAULT RESERVATION`;
+  const msg=`🔐 *VAULT RESERVATION*\n\n📋 ID: ${r.id}\n👤 Guest: ${r.guest_name}\n📞 Phone: ${r.guest_phone||'-'}\n📅 Date: ${normDate(r.date)}\n🕐 Time: ${fmtTime(r.time)}\n🍽️ Category: ${r.category==='dinner'?'Dinner':'Lunch'}\n👨 Adults: ${r.adults||r.guests||'-'}\n👶 Babies: ${r.babies||0}\n🪑 Table: ${r.table_id||'Auto'}\n💰 Deposit: ৳${r.deposit_amount||0} (${(r.deposit_status||'unpaid').toUpperCase()})\n📊 Status: ${(r.status||'confirmed').toUpperCase()}\n${r.notes?'📝 Notes: '+r.notes:''}\n— VAULT RESERVATION`;
   const phone=(r.guest_phone||'').replace(/[^0-9]/g,'');
   window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`:`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
 // ═══ FLOOR PLAN ═══
-async function renderFloorPlan(){await loadTables();await loadReservations();const today=getBDToday();const todayRes=APP.reservations.filter(r=>normDate(r.date)===today&&(r.status==='confirmed'||r.status==='checked_in'));const c=document.getElementById('contentArea');const locs=[...new Set(APP.tables.map(t=>t.location))];c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Live Table Status</h3><div class="filter-bar"><button class="btn btn-ghost btn-sm" onclick="loadTables().then(()=>renderFloorPlan())">🔄</button></div></div>${locs.map(loc=>`<h4 style="margin:12px 0 6px;color:var(--txt2);">${loc}</h4><div class="floor-plan">${APP.tables.filter(t=>t.location===loc).map(t=>{const ri=todayRes.find(r=>r.table_id===t.id);const sc=t.status||'available';return`<div class="table-unit ${sc}" onclick="tableAction('${t.id}','${t.status}')"><div class="t-num">T${t.table_number}</div><div class="t-cap">${t.capacity}p</div><div class="t-loc">${ri?ri.guest_name+'@'+ri.time:sc}</div></div>`}).join('')}</div>`).join('')}</div>`;}
+async function renderFloorPlan(){await loadTables();await loadReservations();const today=getBDToday();const todayRes=APP.reservations.filter(r=>normDate(r.date)===today&&(r.status==='confirmed'||r.status==='checked_in'));const c=document.getElementById('contentArea');const locs=[...new Set(APP.tables.map(t=>t.location))];c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Live Table Status</h3><div class="filter-bar"><button class="btn btn-ghost btn-sm" onclick="loadTables().then(()=>renderFloorPlan())">🔄</button></div></div>${locs.map(loc=>`<h4 style="margin:12px 0 6px;color:var(--txt2);">${loc}</h4><div class="floor-plan">${APP.tables.filter(t=>t.location===loc).map(t=>{const ri=todayRes.find(r=>r.table_id===t.id);const sc=t.status||'available';return`<div class="table-unit ${sc}" onclick="tableAction('${t.id}','${t.status}')"><div class="t-num">T${t.table_number}</div><div class="t-cap">${t.capacity}p</div><div class="t-loc">${ri?ri.guest_name+'@'+fmtTime(ri.time):sc}</div></div>`}).join('')}</div>`).join('')}</div>`;}
 async function tableAction(id,s){const n=s==='available'?'reserved':s==='reserved'?'occupied':'available';await gasPost('updatetable',{id,status:n});toast('→ '+n,'success');renderFloorPlan();}
 
 // ═══ WAITLIST ═══
@@ -875,12 +1116,12 @@ async function seatWaitlist(id){const r=await gasPost('updatewaitlist',{id,statu
 async function removeWaitlist(id){const r=await gasPost('updatewaitlist',{id,status:'cancelled'});if(r.success){toast('Removed','success');renderWaitlist()}}
 
 // ═══ CHECK-IN ═══
-async function renderCheckin(){await loadReservations();const today=getBDToday();const tr=APP.reservations.filter(r=>normDate(r.date)===today&&r.status==='confirmed');const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>QR Check-In</h3></div><div class="fg"><label>Select Reservation</label><select id="checkinSelect" onchange="generateQR()"><option value="">-- Select --</option>${tr.map(r=>`<option value="${r.id}">${r.guest_name} - ${r.time} (${r.adults||r.guests}A+${r.babies||0}B)</option>`).join('')}</select></div><div id="qrArea" style="text-align:center;padding:12px;"></div></div><div class="panel"><div class="panel-header"><h3>Today's Check-Ins</h3></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Time</th><th>Category</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>${tr.map(r=>`<tr><td>${r.guest_name}</td><td>${r.time}</td><td>${r.category==='dinner'?'🌙':'☀️'}</td><td>${r.table_id||'-'}</td><td><span class="badge ${r.checked_in?'badge-success':'badge-warning'}">${r.checked_in?'✅ In':'⏳'}</span></td><td>${!r.checked_in?`<button class="btn btn-green btn-sm" onclick="doCheckin('${r.id}')">Check In</button>`:''}</td></tr>`).join('')}</tbody></table></div></div>`;}
+async function renderCheckin(){await loadReservations();const today=getBDToday();const tr=APP.reservations.filter(r=>normDate(r.date)===today&&r.status==='confirmed');const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>QR Check-In</h3></div><div class="fg"><label>Select Reservation</label><select id="checkinSelect" onchange="generateQR()"><option value="">-- Select --</option>${tr.map(r=>`<option value="${r.id}">${r.guest_name} - ${fmtTime(r.time)} (${r.adults||r.guests}A+${r.babies||0}B)</option>`).join('')}</select></div><div id="qrArea" style="text-align:center;padding:12px;"></div></div><div class="panel"><div class="panel-header"><h3>Today's Check-Ins</h3></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Time</th><th>Category</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>${tr.map(r=>`<tr><td>${r.guest_name}</td><td>${fmtTime(r.time)}</td><td>${r.category==='dinner'?'🌙':'☀️'}</td><td>${r.table_id||'-'}</td><td><span class="badge ${r.checked_in?'badge-success':'badge-warning'}">${r.checked_in?'✅ In':'⏳'}</span></td><td>${!r.checked_in?`<button class="btn btn-green btn-sm" onclick="doCheckin('${r.id}')">Check In</button>`:''}</td></tr>`).join('')}</tbody></table></div></div>`;}
 function generateQR(){const id=document.getElementById('checkinSelect').value;if(!id){document.getElementById('qrArea').innerHTML='';return}document.getElementById('qrArea').innerHTML=`<img src="https://chart.googleapis.com/chart?cht=qr&chs=180x180&chl=${encodeURIComponent(id)}" alt="QR" style="border-radius:8px;border:3px solid var(--green3);"><p style="margin-top:6px;color:var(--txt3);font-size:11px;">ID: ${id}</p><button class="btn btn-green btn-sm" onclick="doCheckin('${id}')" style="margin-top:6px;">✅ Check In</button>`;}
 async function doCheckin(id){const r=await gasPost('checkin',{reservation_id:id,method:'qr',verified_by:APP.user?.username||''});if(r.success){toast('Checked in!','success');renderCheckin()}else toast(r.error,'error')}
 
 // ═══ RECURRING ═══
-async function renderRecurring(){await loadRecurring();await loadTables();populateTableSelect('recTable');const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Recurring Reservations</h3><button class="btn btn-green btn-sm" onclick="openModal('recurringModal')">+ New</button></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Frequency</th><th>Day</th><th>Time</th><th>Guests</th><th>Active</th><th>Actions</th></tr></thead><tbody>${APP.recurring.map(r=>`<tr><td>${r.guest_name}</td><td><span class="badge badge-green">${r.frequency}</span></td><td>${r.day_of_week}</td><td>${r.time}</td><td>${r.guests}</td><td><span class="badge ${r.active?'badge-success':'badge-danger'}">${r.active?'Active':'Off'}</span></td><td><button class="btn btn-ghost btn-sm" onclick="toggleRecurring('${r.id}',${!r.active})">${r.active?'⏸':'▶'}</button><button class="btn btn-danger btn-sm" onclick="deleteRecurringItem('${r.id}')">🗑</button></td></tr>`).join('')}</tbody></table></div></div>`;}
+async function renderRecurring(){await loadRecurring();await loadTables();populateTableSelect('recTable');const c=document.getElementById('contentArea');c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Recurring Reservations</h3><button class="btn btn-green btn-sm" onclick="openModal('recurringModal')">+ New</button></div><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Frequency</th><th>Day</th><th>Time</th><th>Guests</th><th>Active</th><th>Actions</th></tr></thead><tbody>${APP.recurring.map(r=>`<tr><td>${r.guest_name}</td><td><span class="badge badge-green">${r.frequency}</span></td><td>${r.day_of_week}</td><td>${fmtTime(r.time)}</td><td>${r.guests}</td><td><span class="badge ${r.active?'badge-success':'badge-danger'}">${r.active?'Active':'Off'}</span></td><td><button class="btn btn-ghost btn-sm" onclick="toggleRecurring('${r.id}',${!r.active})">${r.active?'⏸':'▶'}</button><button class="btn btn-danger btn-sm" onclick="deleteRecurringItem('${r.id}')">🗑</button></td></tr>`).join('')}</tbody></table></div></div>`;}
 async function saveRecurring(){const d={guest_name:document.getElementById('recGuestName').value,guest_phone:document.getElementById('recGuestPhone').value,frequency:document.getElementById('recFrequency').value,day_of_week:document.getElementById('recDay').value,time:document.getElementById('recTime').value,guests:parseInt(document.getElementById('recGuests').value),table_id:document.getElementById('recTable').value};if(!d.guest_name||!d.time){toast('Fill required','error');return}const r=await gasPost('addrecurring',d);if(r.success){toast('Created!','success');closeModal('recurringModal');renderRecurring()}else toast(r.error,'error')}
 async function toggleRecurring(id,a){await gasPost('updaterecurring',{id,active:a});toast(a?'Resumed':'Paused','success');renderRecurring()}
 async function deleteRecurringItem(id){if(!confirm('Delete?'))return;await gasPost('deleterecurring',{id});toast('Deleted','success');renderRecurring()}
