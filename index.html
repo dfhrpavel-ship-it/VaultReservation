@@ -506,7 +506,7 @@ function setLang(l){APP.lang=l;localStorage.setItem('VAULT_LANG',l);document.doc
 
 // ═══ NAVIGATION ═══
 const PAGE_TITLES={dashboard:{en:'Dashboard',bn:'ড্যাশবোর্ড'},reservations:{en:'Reservations',bn:'রিজার্ভেশন'},floorplan:{en:'Floor Plan',bn:'ফ্লোর প্ল্যান'},waitlist:{en:'Waitlist',bn:'ওয়েটলিস্ট'},checkin:{en:'Check-In',bn:'চেক-ইন'},recurring:{en:'Recurring',bn:'রিকারিং'},occasions:{en:'Occasions',bn:'অকেশন'},menupackages:{en:'Menu & Packages',bn:'মেনু ও প্যাকেজ'},payments:{en:'Payments',bn:'পেমেন্ট'},reminders:{en:'Reminders',bn:'রিমাইন্ডার'},reports:{en:'Analytics',bn:'অ্যানালিটিক্স'},revenue:{en:'Revenue',bn:'রেভিনিউ'},forecast:{en:'Forecast',bn:'ফোরকাস্ট'},preferences:{en:'Guest AI',bn:'গেস্ট AI'},users:{en:'Users',bn:'ইউজার'},tables:{en:'Tables',bn:'টেবিল'},settings:{en:'Settings',bn:'সেটিংস'}};
-function navigate(p){stopClock();APP.currentPage=p;document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));const n=document.querySelector(`.nav-item[data-page="${p}"]`);if(n)n.classList.add('active');document.getElementById('pageTitle').textContent=PAGE_TITLES[p]?.[APP.lang]||p;document.getElementById('sidebar').classList.remove('open');renderPage(p);}
+function navigate(p){APP.currentPage=p;document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));const n=document.querySelector(`.nav-item[data-page="${p}"]`);if(n)n.classList.add('active');document.getElementById('pageTitle').textContent=PAGE_TITLES[p]?.[APP.lang]||p;document.getElementById('sidebar').classList.remove('open');renderPage(p);}
 async function renderPage(p){const c=document.getElementById('contentArea');c.innerHTML='<div style="text-align:center;padding:40px;color:var(--txt3)">Loading...</div>';switch(p){case'dashboard':await renderDashboard();break;case'reservations':await renderReservations();break;case'floorplan':await renderFloorPlan();break;case'waitlist':await renderWaitlist();break;case'checkin':await renderCheckin();break;case'recurring':await renderRecurring();break;case'occasions':await renderOccasions();break;case'menupackages':await renderMenuPackages();break;case'payments':await renderPayments();break;case'reminders':await renderReminders();break;case'reports':await renderReports();break;case'revenue':await renderRevenue();break;case'forecast':await renderForecast();break;case'preferences':await renderPreferences();break;case'users':await renderUsers();break;case'tables':await renderTables();break;case'settings':await renderSettings();break;default:c.innerHTML='<p>Not found</p>';}}
 
 // ═══ DATA LOADERS (with TTL caching & dedup) ═══
@@ -580,13 +580,9 @@ function addDays(dateStr,days){const d=new Date(dateStr+'T00:00:00');d.setDate(d
 function sb(s){return{confirmed:'badge-success',checked_in:'badge-info',cancelled:'badge-danger',no_show:'badge-warning'}[s]||'badge-info';}
 function updateBDClock(){
   const now=new Date();const timeEl=document.getElementById('clockTime');const dateEl=document.getElementById('clockDate');
-  if(timeEl){try{timeEl.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Dhaka',hour12:true,hour:'numeric',minute:'2-digit',second:'2-digit'});}catch(e){timeEl.textContent=now.toLocaleTimeString();}}
+  if(timeEl){try{timeEl.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Dhaka',hour12:true,hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){timeEl.textContent=now.toLocaleTimeString();}}
   if(dateEl){try{dateEl.textContent=now.toLocaleDateString('en-US',{timeZone:'Asia/Dhaka',weekday:'long',year:'numeric',month:'long',day:'numeric'});}catch(e){dateEl.textContent=now.toLocaleDateString();}}
 }
-// Auto-update clock every second
-let _clockTimer=null;
-function startClock(){if(_clockTimer)clearInterval(_clockTimer);updateBDClock();_clockTimer=setInterval(updateBDClock,1000);}
-function stopClock(){if(_clockTimer){clearInterval(_clockTimer);_clockTimer=null;}}
 
 // ═══ QUICK VIEW ═══
 function quickViewReservations(filter,title){
@@ -754,7 +750,7 @@ async function renderDashboard(){
           return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
             <div style="font-size:9px;color:var(--green4);font-weight:700;${count===0?'opacity:.3;':''}">${count||''}</div>
             <div class="peak-bar ${barClass}" style="height:${barH}%;"></div>
-            <div class="peak-label" style="${isCurrent?'color:var(--green4);font-weight:700;':''}">${hNum===0?'12 AM':hNum===12?'12 PM':hNum<12?hNum+' AM':(hNum-12)+' PM'}</div>
+            <div class="peak-label" style="${isCurrent?'color:var(--green4);font-weight:700;':''}">${hNum>12?hNum-12:hNum}${hNum<12?'a':'p'}</div>
           </div>`;
         }).join('')}
       </div>
@@ -773,7 +769,7 @@ async function renderDashboard(){
       </tbody></table></div>
     </div>`;
 
-  startClock();
+  updateBDClock();
 }
 
 // ══════════════════════════════════════════════════════════
