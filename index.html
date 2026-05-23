@@ -170,14 +170,18 @@ button{cursor:pointer;}
 .act-text strong{color:var(--txt1);}
 
 /* ════ QUICK VIEW MODAL ════ */
-.quick-view-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(212,160,23,.12);margin-bottom:10px;flex-shrink:0;}
-.quick-view-header h3{margin:0;font-size:17px;background:linear-gradient(135deg,var(--g3),var(--g5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex:1;}
+.quick-view-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(212,160,23,.12);margin-bottom:10px;flex-shrink:0;cursor:move;user-select:none;}
+.quick-view-header h3{margin:0;font-size:17px;background:linear-gradient(135deg,var(--g3),var(--g5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex:1;pointer-events:none;}
 .quick-view-list-scroll{max-height:65vh;overflow-y:auto;padding-right:4px;scrollbar-width:thin;}
 .quick-view-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:var(--r);background:rgba(255,255,255,.02);border:1px solid rgba(212,160,23,.06);margin-bottom:6px;transition:.2s;}
 .quick-view-item:hover{background:rgba(212,160,23,.05);border-color:rgba(212,160,23,.15);}
 .qvi-name{font-weight:700;font-size:13px;color:var(--g4);}
 .qvi-meta{font-size:10px;color:var(--txt3);margin-top:2px;}
 .qvi-actions{display:flex;gap:4px;align-items:center;}
+.qvi-export{display:flex;gap:3px;margin-top:6px;padding-top:6px;border-top:1px solid rgba(212,160,23,.06);}
+.qvi-export .btn{padding:2px 6px;font-size:9px;}
+.quick-view-footer{flex-shrink:0;border-top:1px solid rgba(212,160,23,.1);padding-top:10px;margin-top:6px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+.quick-view-footer .btn{font-size:11px;}
 
 /* ════ SIDEBAR OVERLAY ════ */
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;backdrop-filter:blur(2px);}
@@ -473,12 +477,13 @@ tr:hover{background:rgba(212,160,23,.03);}
 
 <!-- ═══ QUICK VIEW MODAL ═══ -->
 <div class="modal-overlay" id="quickViewModal">
-  <div class="modal" style="max-width:520px;padding:18px;overflow:hidden;display:flex;flex-direction:column;">
-    <div class="quick-view-header">
+  <div class="modal" id="quickViewModalBox" style="max-width:520px;padding:18px;overflow:hidden;display:flex;flex-direction:column;position:relative;">
+    <div class="quick-view-header" id="quickViewDragHandle">
       <h3 id="quickViewTitle">📋 Details</h3>
       <button class="quick-view-close" onclick="closeModal('quickViewModal')">✕</button>
     </div>
     <div class="quick-view-list-scroll" id="quickViewList"></div>
+    <div class="quick-view-footer" id="quickViewFooter"></div>
   </div>
 </div>
 
@@ -760,9 +765,124 @@ function quickViewReservations(filter,title){
     list.map(r=>{
       const guestInfo=(r.adults||r.guests||0)+(r.babies?'+'+r.babies:'');
       const depositInfo=filter==='deposits'?` | 💰 ৳${r.deposit_amount||0} (${r.deposit_status||'unpaid'})`:'';
-      return`<div class="quick-view-item"><div style="flex:1;min-width:0;"><div class="qvi-name">${r.guest_name}</div><div class="qvi-meta">📞 ${r.guest_phone||'-'} | 🕐 ${fmtTime(r.time)} | 👨 ${guestInfo} | 🪑 ${r.table_id||'Auto'} | ${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}${depositInfo}</div></div><div class="qvi-actions"><span class="badge ${sb(r.status)}">${r.status==='checked_in'?'✅ In':r.status==='cancelled'?'❌ Cancel':r.status==='no_show'?'⚠ NoShow':'✓ OK'}</span><button class="btn btn-green btn-sm" style="padding:3px 6px;font-size:10px;" onclick="closeModal('quickViewModal');viewReservation('${r.id}')" title="View Detail">👁</button>${r.status==='confirmed'?`<button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:10px;" onclick="cancelReservation('${r.id}');closeModal('quickViewModal');" title="Cancel">✕</button>`:''}</div></div>`;
+      return`<div class="quick-view-item" style="flex-wrap:wrap;"><div style="flex:1;min-width:0;"><div class="qvi-name">${r.guest_name}</div><div class="qvi-meta">📞 ${r.guest_phone||'-'} | 🕐 ${fmtTime(r.time)} | 👨 ${guestInfo} | 🪑 ${r.table_id||'Auto'} | ${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}${depositInfo}</div></div><div class="qvi-actions"><span class="badge ${sb(r.status)}">${r.status==='checked_in'?'✅ In':r.status==='cancelled'?'❌ Cancel':r.status==='no_show'?'⚠ NoShow':'✓ OK'}</span><button class="btn btn-green btn-sm" style="padding:3px 6px;font-size:10px;" onclick="quickViewOpenReservation('${r.id}')" title="View Detail">👁</button>${r.status==='confirmed'?`<button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:10px;" onclick="cancelReservation('${r.id}');quickViewReservations('${filter}','${title.replace(/'/g,"\\'")}');" title="Cancel">✕</button>`:''}</div><div class="qvi-export" style="width:100%;"><button class="btn btn-gold" onclick="quickViewExportPDF('${r.id}')" title="Export PDF">📄 PDF</button><button class="btn btn-green" onclick="quickViewExportJPG('${r.id}')" title="Export JPG">🖼️ JPG</button><button class="btn btn-ghost" onclick="quickViewWhatsApp('${r.id}')" title="Share WhatsApp">💬</button></div></div>`;
     }).join('');
+  // Footer export buttons for all
+  document.getElementById('quickViewFooter').innerHTML=list.length>0?`
+    <button class="btn btn-gold btn-sm" onclick="quickViewExportAllPDF()" title="Export All PDF">📄 Export All PDF</button>
+    <button class="btn btn-ghost btn-sm" onclick="closeModal('quickViewModal')">✕ Close</button>
+  `:`<button class="btn btn-ghost btn-sm" onclick="closeModal('quickViewModal')">✕ Close</button>`;
   openModal('quickViewModal');
+  initQuickViewDrag();
+}
+// Quick View: Open single reservation view
+function quickViewOpenReservation(id){closeModal('quickViewModal');setTimeout(()=>viewReservation(id),200);}
+// Quick View: Export single reservation as PDF
+async function quickViewExportPDF(id){
+  const r=APP.reservations.find(x=>x.id===id);if(!r){toast('Not found','error');return;}
+  APP.currentViewRes=r;
+  // Build a temporary view card for export
+  const tmp=document.createElement('div');tmp.style.cssText='position:fixed;left:-9999px;top:0;';
+  tmp.innerHTML=buildViewCardHTML(r);
+  document.body.appendChild(tmp);
+  try{
+    toast('Generating PDF...','info');
+    const canvas=await html2canvas(tmp.querySelector('.view-card'),{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false});
+    const imgData=canvas.toDataURL('image/png');
+    const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
+    const pw=pdf.internal.pageSize.getWidth();const ph=pdf.internal.pageSize.getHeight();
+    const iw=pw-20;const ih=(canvas.height*iw)/canvas.width;
+    pdf.addImage(imgData,'PNG',10,10,iw,Math.min(ih,ph-20));
+    pdf.save('VAULT_'+r.id+'.pdf');toast('PDF exported!','success');
+  }catch(e){console.error(e);toast('PDF failed','error');}
+  document.body.removeChild(tmp);
+}
+// Quick View: Export single reservation as JPG
+async function quickViewExportJPG(id){
+  const r=APP.reservations.find(x=>x.id===id);if(!r){toast('Not found','error');return;}
+  APP.currentViewRes=r;
+  const tmp=document.createElement('div');tmp.style.cssText='position:fixed;left:-9999px;top:0;';
+  tmp.innerHTML=buildViewCardHTML(r);
+  document.body.appendChild(tmp);
+  try{
+    toast('Generating JPG...','info');
+    const canvas=await html2canvas(tmp.querySelector('.view-card'),{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false});
+    const link=document.createElement('a');link.download='VAULT_'+r.id+'.jpg';
+    link.href=canvas.toDataURL('image/jpeg',0.95);link.click();
+    toast('JPG exported!','success');
+  }catch(e){console.error(e);toast('JPG failed','error');}
+  document.body.removeChild(tmp);
+}
+// Quick View: Share via WhatsApp
+function quickViewWhatsApp(id){
+  const r=APP.reservations.find(x=>x.id===id);if(!r)return;
+  const msg=`🔐 *VAULT RESERVATION*\n\n📋 ID: ${r.id}\n👤 Guest: ${r.guest_name}\n📞 Phone: ${r.guest_phone||'-'}\n📅 Date: ${r.date}\n🕐 Time: ${fmtTime(r.time)}\n🍽️ Category: ${r.category==='dinner'?'Dinner':'Lunch'}\n👨 Adults: ${r.adults||r.guests||'-'}\n👶 Babies: ${r.babies||0}\n🪑 Table: ${r.table_id||'Auto'}\n💰 Deposit: ৳${r.deposit_amount||0} (${(r.deposit_status||'unpaid').toUpperCase()})\n📊 Status: ${(r.status||'confirmed').toUpperCase()}${r.notes?'\n📝 Notes: '+r.notes:''}\n\n— VAULT RESERVATION`;
+  const phone=(r.guest_phone||'').replace(/[^0-9]/g,'');
+  window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`:`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+}
+// Quick View: Export all as PDF
+async function quickViewExportAllPDF(){
+  const today=getBDToday();const list=APP.reservations.filter(r=>normDate(r.date)===today);
+  if(list.length===0){toast('No reservations','error');return;}
+  toast('Generating PDF for all...','info');
+  try{
+    const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
+    const pw=pdf.internal.pageSize.getWidth();const ph=pdf.internal.pageSize.getHeight();
+    let first=true;
+    for(const r of list){
+      if(!first)pdf.addPage();first=false;
+      const tmp=document.createElement('div');tmp.style.cssText='position:fixed;left:-9999px;top:0;';
+      tmp.innerHTML=buildViewCardHTML(r);document.body.appendChild(tmp);
+      const canvas=await html2canvas(tmp.querySelector('.view-card'),{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false});
+      const imgData=canvas.toDataURL('image/png');
+      const iw=pw-20;const ih=(canvas.height*iw)/canvas.width;
+      pdf.addImage(imgData,'PNG',10,10,iw,Math.min(ih,ph-20));
+      document.body.removeChild(tmp);
+    }
+    pdf.save('VAULT_AllReservations_'+today+'.pdf');toast('All PDF exported!','success');
+  }catch(e){console.error(e);toast('PDF failed','error');}
+}
+// Build view card HTML (reusable for export)
+function buildViewCardHTML(r){
+  let menus=[];try{menus=JSON.parse(r.menu_packages||'[]')}catch(e){if(r.menu_packages)menus=[r.menu_packages]}
+  const menuItems=menus.map(m=>{const pkg=APP.menuPackages.find(p=>p.name===m);return{name:m,price:pkg?pkg.price:0,items:pkg?pkg.items:''}});
+  const totalMenuPrice=menuItems.reduce((s,m)=>s+parseFloat(m.price),0);
+  const totalGuests=(parseInt(r.adults)||parseInt(r.guests)||0)+(parseInt(r.babies)||0);
+  return`<div class="view-card"><div class="vc-header"><h1>VAULT RESERVATION</h1><p>Reservation Confirmation</p></div><div class="vc-body"><div class="vc-row"><span class="vc-label">Reservation ID</span><span class="vc-value" style="font-weight:700;">${r.id}</span></div><div class="vc-row"><span class="vc-label">Status</span><span class="vc-value" style="color:${r.status==='confirmed'?'#16a34a':r.status==='cancelled'?'#dc2626':'#2563eb'};font-weight:700;">${(r.status||'confirmed').toUpperCase()}</span></div><div class="vc-row"><span class="vc-label">Category</span><span class="vc-value">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></div><div class="vc-section"><h4>👤 Guest Information</h4></div><div class="vc-row"><span class="vc-label">Guest Name</span><span class="vc-value">${r.guest_name}</span></div><div class="vc-row"><span class="vc-label">Phone</span><span class="vc-value">${r.guest_phone||'-'}</span></div><div class="vc-row"><span class="vc-label">Email</span><span class="vc-value">${r.guest_email||'-'}</span></div><div class="vc-section"><h4>📅 Reservation Details</h4></div><div class="vc-row"><span class="vc-label">Date</span><span class="vc-value" style="font-weight:700;">${r.date}</span></div><div class="vc-row"><span class="vc-label">Time</span><span class="vc-value" style="font-weight:700;">${fmtTime(r.time)}</span></div><div class="vc-row"><span class="vc-label">Adults</span><span class="vc-value">${r.adults||r.guests||'-'}</span></div><div class="vc-row"><span class="vc-label">Babies/Kids</span><span class="vc-value">${r.babies||0}</span></div><div class="vc-row"><span class="vc-label">Total Guests</span><span class="vc-value" style="font-weight:800;font-size:14px;color:#1a5c2e;">${totalGuests}</span></div><div class="vc-row"><span class="vc-label">Table</span><span class="vc-value">${r.table_id||'Auto-assign'}</span></div><div class="vc-row"><span class="vc-label">Type</span><span class="vc-value">${r.type==='walkin'?'Walk-in':'Reservation'}</span></div>${r.occasion?`<div class="vc-row"><span class="vc-label">Occasion</span><span class="vc-value">🎉 ${r.occasion}</span></div>`:''}${menuItems.length?`<div class="vc-section"><h4>🍽️ Menu Packages</h4>${menuItems.map(m=>`<div class="vc-menu-item"><span>${m.name}${m.items?'<br><small style="color:#6b7280">'+m.items+'</small>':''}</span><span style="font-weight:700;">৳${m.price}</span></div>`).join('')}<div class="vc-row" style="font-weight:800;font-size:14px;border-top:2px solid #1a5c2e;padding-top:10px;"><span class="vc-label">Menu Total</span><span class="vc-value" style="color:#1a5c2e;">৳${totalMenuPrice}</span></div>`:''}<div class="vc-section"><h4>💰 Payment</h4></div><div class="vc-row"><span class="vc-label">Deposit</span><span class="vc-value">৳${r.deposit_amount||0}</span></div><div class="vc-row"><span class="vc-label">Deposit Status</span><span class="vc-value" style="color:${r.deposit_status==='paid'?'#16a34a':'#dc2626'};font-weight:700;">${(r.deposit_status||'unpaid').toUpperCase()}</span></div>${menuItems.length?`<div class="vc-row" style="font-weight:800;font-size:14px;"><span class="vc-label">Due Amount</span><span class="vc-value" style="color:#dc2626;">৳${Math.max(0,totalMenuPrice-parseFloat(r.deposit_amount||0))}</span></div>`:''}${r.notes?`<div class="vc-section"><h4>📝 Notes</h4><p style="font-size:12px;color:#374151;padding:4px 0;">${r.notes}</p></div>`:''}<div class="vc-qr"><img src="https://chart.googleapis.com/chart?cht=qr&chs=80x80&chl=${encodeURIComponent(r.id)}&choe=UTF-8" alt="QR" style="border-radius:6px;"><p style="font-size:9px;color:#9ca3af;margin-top:4px;">Scan to check in</p></div></div><div class="vc-footer">VAULT RESERVATION | ${new Date().toLocaleDateString()} | Created by: ${r.created_by||'System'}</div></div>`;
+}
+// Quick View: Drag to move modal
+function initQuickViewDrag(){
+  const modal=document.getElementById('quickViewModalBox');
+  const handle=document.getElementById('quickViewDragHandle');
+  if(!modal||!handle)return;
+  // Reset position
+  modal.style.left='';modal.style.top='';modal.style.margin='';
+  modal.style.transform='';modal.style.position='relative';
+  let dragging=false,startX,startY,origLeft,origTop;
+  handle.onmousedown=function(e){if(e.target.closest('.quick-view-close'))return;dragging=true;
+    modal.style.position='fixed';modal.style.margin='0';
+    const rect=modal.getBoundingClientRect();
+    origLeft=rect.left;origTop=rect.top;startX=e.clientX;startY=e.clientY;
+    modal.style.left=origLeft+'px';modal.style.top=origTop+'px';
+    e.preventDefault();
+  };
+  handle.ontouchstart=function(e){if(e.target.closest('.quick-view-close'))return;dragging=true;
+    modal.style.position='fixed';modal.style.margin='0';
+    const rect=modal.getBoundingClientRect();
+    origLeft=rect.left;origTop=rect.top;
+    const t=e.touches[0];startX=t.clientX;startY=t.clientY;
+    modal.style.left=origLeft+'px';modal.style.top=origTop+'px';
+  };
+  document.onmousemove=function(e){if(!dragging)return;
+    modal.style.left=(origLeft+e.clientX-startX)+'px';
+    modal.style.top=(origTop+e.clientY-startY)+'px';
+  };
+  document.ontouchmove=function(e){if(!dragging)return;const t=e.touches[0];
+    modal.style.left=(origLeft+t.clientX-startX)+'px';
+    modal.style.top=(origTop+t.clientY-startY)+'px';
+  };
+  document.onmouseup=function(){dragging=false;};
+  document.ontouchend=function(){dragging=false;};
 }
 
 // ═══ STATUS CHANGE FUNCTIONS ═══
@@ -770,9 +890,16 @@ async function cancelReservation(id){if(!confirm('Cancel this reservation?'))ret
 async function noShowReservation(id){if(!confirm('Mark as No Show?'))return;const r=await gasPost('updatereservation',{id,status:'no_show'});if(r.success){_cacheInvalidate(['reservations']);toast('⚠️ No Show marked','success');if(APP.currentPage==='dashboard')renderDashboard();else renderReservations()}else toast(r.error,'error')}
 async function reactivateReservation(id){if(!confirm('Reactivate this reservation?'))return;const r=await gasPost('updatereservation',{id,status:'confirmed'});if(r.success){_cacheInvalidate(['reservations','tables']);toast('✅ Reactivated!','success');if(APP.currentPage==='dashboard')renderDashboard();else renderReservations()}else toast(r.error,'error')}
 function openModal(id){document.getElementById(id).classList.add('show');}
-function closeModal(id){document.getElementById(id).classList.remove('show');}
+function closeModal(id){
+  document.getElementById(id).classList.remove('show');
+  // Reset Quick View drag position
+  if(id==='quickViewModal'){
+    const box=document.getElementById('quickViewModalBox');
+    if(box){box.style.position='relative';box.style.left='';box.style.top='';box.style.margin='';box.style.transform='';}
+  }
+}
 // Close modal on overlay click (outside modal content)
-document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('show')){e.target.classList.remove('show');}});
+document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('show')){closeModal(e.target.id);}});
 function toast(msg,type='info'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
 function populateTableSelect(selId){const s=document.getElementById(selId);if(!s)return;s.innerHTML='<option value="">Auto-assign</option>'+APP.tables.map(t=>`<option value="${t.id}">T${t.table_number} (${t.capacity}p - ${t.location})</option>`).join('');}
 function populateMenuSelect(selId){const s=document.getElementById(selId);if(!s)return;s.innerHTML='<option value="">+ Add menu</option>'+APP.menuPackages.map(m=>`<option value="${m.name}">${m.name} - ৳${m.price}</option>`).join('');}
