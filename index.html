@@ -170,6 +170,9 @@ button{cursor:pointer;}
 .act-text strong{color:var(--txt1);}
 
 /* ════ QUICK VIEW MODAL ════ */
+.quick-view-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(212,160,23,.12);margin-bottom:10px;flex-shrink:0;}
+.quick-view-header h3{margin:0;font-size:17px;background:linear-gradient(135deg,var(--g3),var(--g5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex:1;}
+.quick-view-list-scroll{max-height:65vh;overflow-y:auto;padding-right:4px;scrollbar-width:thin;}
 .quick-view-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:var(--r);background:rgba(255,255,255,.02);border:1px solid rgba(212,160,23,.06);margin-bottom:6px;transition:.2s;}
 .quick-view-item:hover{background:rgba(212,160,23,.05);border-color:rgba(212,160,23,.15);}
 .qvi-name{font-weight:700;font-size:13px;color:var(--g4);}
@@ -183,6 +186,8 @@ button{cursor:pointer;}
 /* ════ MODAL CLOSE BUTTON ════ */
 .modal-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(239,68,68,.12);color:var(--err);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.3s;border:1px solid rgba(239,68,68,.2);z-index:10;line-height:1;}
 .modal-close:hover{background:rgba(239,68,68,.25);transform:rotate(90deg);}
+.quick-view-close{position:static!important;width:38px!important;height:38px!important;font-size:22px!important;flex-shrink:0;background:rgba(239,68,68,.15)!important;color:var(--err);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.3s;border:1px solid rgba(239,68,68,.25);}
+.quick-view-close:hover{background:rgba(239,68,68,.3)!important;transform:rotate(90deg);}
 
 /* ════ PANEL ════ */
 .panel{background:linear-gradient(145deg,rgba(11,26,15,.7),rgba(15,38,22,.5));border-radius:var(--rl);padding:16px;margin-bottom:16px;border:1px solid rgba(212,160,23,.08);backdrop-filter:blur(5px);}
@@ -287,6 +292,7 @@ tr:hover{background:rgba(212,160,23,.03);}
   .form-row{grid-template-columns:1fr;}
   .content{padding:10px;}
   .modal{max-width:100%;padding:14px;}
+  .quick-view-list-scroll{max-height:55vh;}
   .panel{padding:10px;}
   table{font-size:11px;}
   th,td{padding:6px 8px;}
@@ -467,10 +473,12 @@ tr:hover{background:rgba(212,160,23,.03);}
 
 <!-- ═══ QUICK VIEW MODAL ═══ -->
 <div class="modal-overlay" id="quickViewModal">
-  <div class="modal" style="max-width:520px;">
-    <button class="modal-close" onclick="closeModal('quickViewModal')">✕</button>
-    <h3 id="quickViewTitle">📋 Details</h3>
-    <div id="quickViewList"></div>
+  <div class="modal" style="max-width:520px;padding:18px;overflow:hidden;display:flex;flex-direction:column;">
+    <div class="quick-view-header">
+      <h3 id="quickViewTitle">📋 Details</h3>
+      <button class="quick-view-close" onclick="closeModal('quickViewModal')">✕</button>
+    </div>
+    <div class="quick-view-list-scroll" id="quickViewList"></div>
   </div>
 </div>
 
@@ -763,6 +771,8 @@ async function noShowReservation(id){if(!confirm('Mark as No Show?'))return;cons
 async function reactivateReservation(id){if(!confirm('Reactivate this reservation?'))return;const r=await gasPost('updatereservation',{id,status:'confirmed'});if(r.success){_cacheInvalidate(['reservations','tables']);toast('✅ Reactivated!','success');if(APP.currentPage==='dashboard')renderDashboard();else renderReservations()}else toast(r.error,'error')}
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
+// Close modal on overlay click (outside modal content)
+document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('show')){e.target.classList.remove('show');}});
 function toast(msg,type='info'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
 function populateTableSelect(selId){const s=document.getElementById(selId);if(!s)return;s.innerHTML='<option value="">Auto-assign</option>'+APP.tables.map(t=>`<option value="${t.id}">T${t.table_number} (${t.capacity}p - ${t.location})</option>`).join('');}
 function populateMenuSelect(selId){const s=document.getElementById(selId);if(!s)return;s.innerHTML='<option value="">+ Add menu</option>'+APP.menuPackages.map(m=>`<option value="${m.name}">${m.name} - ৳${m.price}</option>`).join('');}
