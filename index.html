@@ -18,7 +18,7 @@
   --g1:#8b6914;--g2:#b8860b;--g3:#d4a017;--g4:#e8b830;--g5:#f0d060;--g6:#f7e898;
   --lux1:#0a0f0b;--lux2:#111e14;--lux3:#162b1a;--lux4:#1e3a24;
   --txt1:#eaf5ec;--txt2:#a8c8ae;--txt3:#5a8a62;
-  --ok:#22c55e;--warn:#eab308;--err:#ef4444;--info:#3b82f6;
+  --ok:#22c55e;--warn:#eab308;--err:#ef4444;--info:#3b82f6;--green4:#4ade80;
   --r:10px;--rl:16px;--sh:0 4px 24px rgba(0,0,0,.5);
   --sw:260px;--th:56px;
 }
@@ -108,6 +108,81 @@ button{cursor:pointer;}
 .lux-blue{background:linear-gradient(135deg,#1e3a5f,#3b82f6);border-color:rgba(59,130,246,.2);}
 .lux-orange{background:linear-gradient(135deg,#7c2d12,#f97316);border-color:rgba(249,115,22,.2);}
 .lux-pink{background:linear-gradient(135deg,#831843,#ec4899);border-color:rgba(236,72,153,.2);}
+.lux-emerald{background:linear-gradient(135deg,#064e3b,#10b981);border-color:rgba(16,185,129,.2);}
+
+/* ════ CARD VIEW BUTTON ════ */
+.card-view-btn{position:absolute;bottom:8px;right:8px;z-index:2;}
+.card-view-btn .btn{opacity:.7;transition:.3s;padding:3px 8px;font-size:11px;}
+.card-view-btn .btn:hover{opacity:1;}
+.stat-card{cursor:default;position:relative;}
+
+/* ════ NEW RES CARD ════ */
+.new-res-card{cursor:pointer!important;background:linear-gradient(135deg,var(--g1),var(--g3));color:#000!important;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:90px;transition:.3s;}
+.new-res-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(212,160,23,.4);}
+.nr-icon{font-size:28px;margin-bottom:4px;}
+.nr-text{font-size:13px;font-weight:800;letter-spacing:.5px;}
+.nr-sub{font-size:10px;opacity:.7;margin-top:2px;}
+
+/* ════ BD CLOCK ════ */
+.bd-clock{text-align:center;padding:18px;background:linear-gradient(145deg,rgba(11,26,15,.8),rgba(15,38,22,.6));border-radius:var(--rl);border:1px solid rgba(212,160,23,.12);margin-bottom:16px;position:relative;overflow:hidden;}
+.bd-clock::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;background:radial-gradient(circle,rgba(212,160,23,.08),transparent 70%);border-radius:50%;}
+.clock-time{font-size:36px;font-weight:800;background:linear-gradient(135deg,var(--g3),var(--g6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;font-variant-numeric:tabular-nums;position:relative;}
+.clock-date{font-size:13px;color:var(--txt2);margin-top:4px;position:relative;}
+.clock-badge{font-size:10px;color:var(--g4);margin-top:4px;background:rgba(212,160,23,.08);display:inline-block;padding:2px 12px;border-radius:10px;border:1px solid rgba(212,160,23,.15);position:relative;}
+
+/* ════ DASH GRID ════ */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:768px){.dash-grid{grid-template-columns:1fr;}}
+
+/* ════ OCCUPANCY BAR ════ */
+.occ-bar-wrap{height:6px;background:rgba(255,255,255,.1);border-radius:3px;margin-top:6px;overflow:hidden;}
+.occ-bar{height:100%;border-radius:3px;transition:.5s;font-size:0;}
+.occ-bar.low{background:linear-gradient(90deg,var(--dg5),var(--dg6));}
+.occ-bar.mid{background:linear-gradient(90deg,var(--g2),var(--g4));}
+.occ-bar.high{background:linear-gradient(90deg,#b91c1c,#ef4444);}
+
+/* ════ PEAK HOURS BAR ════ */
+.peak-bar{width:100%;border-radius:3px 3px 0 0;transition:.3s;min-height:2px;}
+.peak-bar.lunch{background:linear-gradient(180deg,rgba(16,185,129,.4),rgba(16,185,129,.1));}
+.peak-bar.dinner{background:linear-gradient(180deg,rgba(212,160,23,.4),rgba(212,160,23,.1));}
+.peak-bar.active-lunch{background:linear-gradient(180deg,#10b981,#059669);box-shadow:0 0 8px rgba(16,185,129,.4);}
+.peak-bar.active-dinner{background:linear-gradient(180deg,var(--g3),var(--g2));box-shadow:0 0 8px rgba(212,160,23,.4);}
+.peak-label{font-size:8px;color:var(--txt3);margin-top:3px;text-align:center;}
+
+/* ════ TIMELINE ════ */
+.timeline{display:flex;flex-direction:column;gap:8px;}
+.timeline-item{display:flex;gap:10px;padding:8px 10px;border-radius:var(--r);background:rgba(255,255,255,.02);border-left:3px solid var(--g3);transition:.2s;align-items:center;}
+.timeline-item:hover{background:rgba(212,160,23,.05);}
+.timeline-item.past{opacity:.5;border-left-color:var(--txt3);}
+.timeline-item.now{background:rgba(212,160,23,.08);border-left-color:var(--g4);box-shadow:0 0 12px rgba(212,160,23,.1);}
+.tl-time{font-size:11px;font-weight:700;color:var(--g4);min-width:70px;}
+.tl-name{font-size:13px;font-weight:600;flex:1;}
+.tl-meta{font-size:10px;color:var(--txt3);}
+
+/* ════ ACTIVITY FEED ════ */
+.activity-feed{display:flex;flex-direction:column;gap:6px;}
+.activity-item{display:flex;gap:8px;align-items:center;padding:6px 0;}
+.act-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.act-icon.new{background:rgba(34,197,94,.12);}
+.act-icon.checkin{background:rgba(59,130,246,.12);}
+.act-icon.del{background:rgba(239,68,68,.12);}
+.act-text{font-size:11px;color:var(--txt2);line-height:1.4;}
+.act-text strong{color:var(--txt1);}
+
+/* ════ QUICK VIEW MODAL ════ */
+.quick-view-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:var(--r);background:rgba(255,255,255,.02);border:1px solid rgba(212,160,23,.06);margin-bottom:6px;transition:.2s;}
+.quick-view-item:hover{background:rgba(212,160,23,.05);border-color:rgba(212,160,23,.15);}
+.qvi-name{font-weight:700;font-size:13px;color:var(--g4);}
+.qvi-meta{font-size:10px;color:var(--txt3);margin-top:2px;}
+.qvi-actions{display:flex;gap:4px;align-items:center;}
+
+/* ════ SIDEBAR OVERLAY ════ */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;backdrop-filter:blur(2px);}
+.sidebar-overlay.show{display:block;}
+
+/* ════ MODAL CLOSE BUTTON ════ */
+.modal-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(239,68,68,.12);color:var(--err);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.3s;border:1px solid rgba(239,68,68,.2);z-index:10;line-height:1;}
+.modal-close:hover{background:rgba(239,68,68,.25);transform:rotate(90deg);}
 
 /* ════ PANEL ════ */
 .panel{background:linear-gradient(145deg,rgba(11,26,15,.7),rgba(15,38,22,.5));border-radius:var(--rl);padding:16px;margin-bottom:16px;border:1px solid rgba(212,160,23,.08);backdrop-filter:blur(5px);}
@@ -152,7 +227,7 @@ tr:hover{background:rgba(212,160,23,.03);}
 /* ════ MODAL ════ */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:10px;backdrop-filter:blur(3px);}
 .modal-overlay.show{display:flex;}
-.modal{background:linear-gradient(145deg,var(--dg2),var(--dg3));border-radius:var(--rl);padding:22px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;border:1px solid rgba(212,160,23,.15);box-shadow:0 8px 40px rgba(0,0,0,.6);}
+.modal{background:linear-gradient(145deg,var(--dg2),var(--dg3));border-radius:var(--rl);padding:22px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;border:1px solid rgba(212,160,23,.15);box-shadow:0 8px 40px rgba(0,0,0,.6);position:relative;}
 .modal h3{margin-bottom:16px;font-size:17px;background:linear-gradient(135deg,var(--g3),var(--g5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .modal-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:16px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -206,6 +281,8 @@ tr:hover{background:rgba(212,160,23,.03);}
   .sidebar.open{transform:translateX(0);}
   .main{margin-left:0;}
   .topbar-left .hamburger{display:block;}
+  .sidebar-overlay{display:none;}
+  .sidebar-overlay.show{display:block;}
   .stats-grid{grid-template-columns:1fr 1fr;}
   .form-row{grid-template-columns:1fr;}
   .content{padding:10px;}
@@ -263,6 +340,7 @@ tr:hover{background:rgba(212,160,23,.03);}
 
 <!-- ═══ MAIN APP ═══ -->
 <div id="app">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header"><h2>🔐 VAULT</h2><span class="role-badge" id="roleBadge">ADMIN</span></div>
     <nav class="sidebar-nav">
@@ -308,6 +386,7 @@ tr:hover{background:rgba(212,160,23,.03);}
 <!-- ═══ RESERVATION MODAL ═══ -->
 <div class="modal-overlay" id="reservationModal">
   <div class="modal" style="max-width:620px;">
+    <button class="modal-close" onclick="closeModal('reservationModal')">✕</button>
     <h3 id="resModalTitle">🔐 New Reservation</h3>
     <div class="step-indicator" id="resSteps"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
     <div id="resStep1">
@@ -383,6 +462,15 @@ tr:hover{background:rgba(212,160,23,.03);}
       <button class="btn btn-ghost btn-sm" onclick="shareWhatsApp()">💬 WhatsApp</button>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('viewModal')">✕ Close</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══ QUICK VIEW MODAL ═══ -->
+<div class="modal-overlay" id="quickViewModal">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" onclick="closeModal('quickViewModal')">✕</button>
+    <h3 id="quickViewTitle">📋 Details</h3>
+    <div id="quickViewList"></div>
   </div>
 </div>
 
@@ -500,13 +588,14 @@ async function doLogin(){
 }
 function doLogout(){APP.user=null;localStorage.removeItem('VAULT_USER');document.getElementById('app').style.display='none';document.getElementById('loginPage').style.display='flex';}
 function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='block';document.getElementById('userName').textContent=APP.user?.full_name||APP.user?.username;document.getElementById('userAvatar').textContent=(APP.user?.full_name||'A').charAt(0).toUpperCase();document.getElementById('roleBadge').textContent=(APP.user?.role||'staff').toUpperCase();setLang(APP.lang);navigate('dashboard');}
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+function toggleSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sidebarOverlay');const isOpen=sb.classList.contains('open');if(isOpen){closeSidebar();}else{sb.classList.add('open');ov.classList.add('show');}}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('show');}
 function toggleLang(){setLang(APP.lang==='en'?'bn':'en');}
 function setLang(l){APP.lang=l;localStorage.setItem('VAULT_LANG',l);document.documentElement.setAttribute('data-lang',l);document.getElementById('langBtn').textContent=l==='en'?'বাং':'EN';}
 
 // ═══ NAVIGATION ═══
 const PAGE_TITLES={dashboard:{en:'Dashboard',bn:'ড্যাশবোর্ড'},reservations:{en:'Reservations',bn:'রিজার্ভেশন'},floorplan:{en:'Floor Plan',bn:'ফ্লোর প্ল্যান'},waitlist:{en:'Waitlist',bn:'ওয়েটলিস্ট'},checkin:{en:'Check-In',bn:'চেক-ইন'},recurring:{en:'Recurring',bn:'রিকারিং'},occasions:{en:'Occasions',bn:'অকেশন'},menupackages:{en:'Menu & Packages',bn:'মেনু ও প্যাকেজ'},payments:{en:'Payments',bn:'পেমেন্ট'},reminders:{en:'Reminders',bn:'রিমাইন্ডার'},reports:{en:'Analytics',bn:'অ্যানালিটিক্স'},revenue:{en:'Revenue',bn:'রেভিনিউ'},forecast:{en:'Forecast',bn:'ফোরকাস্ট'},preferences:{en:'Guest AI',bn:'গেস্ট AI'},users:{en:'Users',bn:'ইউজার'},tables:{en:'Tables',bn:'টেবিল'},settings:{en:'Settings',bn:'সেটিংস'}};
-function navigate(p){stopClock();APP.currentPage=p;document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));const n=document.querySelector(`.nav-item[data-page="${p}"]`);if(n)n.classList.add('active');document.getElementById('pageTitle').textContent=PAGE_TITLES[p]?.[APP.lang]||p;document.getElementById('sidebar').classList.remove('open');renderPage(p);}
+function navigate(p){stopClock();APP.currentPage=p;document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));const n=document.querySelector(`.nav-item[data-page="${p}"]`);if(n)n.classList.add('active');document.getElementById('pageTitle').textContent=PAGE_TITLES[p]?.[APP.lang]||p;closeSidebar();renderPage(p);}
 async function renderPage(p){const c=document.getElementById('contentArea');c.innerHTML='<div style="text-align:center;padding:40px;color:var(--txt3)">Loading...</div>';switch(p){case'dashboard':await renderDashboard();break;case'reservations':await renderReservations();break;case'floorplan':await renderFloorPlan();break;case'waitlist':await renderWaitlist();break;case'checkin':await renderCheckin();break;case'recurring':await renderRecurring();break;case'occasions':await renderOccasions();break;case'menupackages':await renderMenuPackages();break;case'payments':await renderPayments();break;case'reminders':await renderReminders();break;case'reports':await renderReports();break;case'revenue':await renderRevenue();break;case'forecast':await renderForecast();break;case'preferences':await renderPreferences();break;case'users':await renderUsers();break;case'tables':await renderTables();break;case'settings':await renderSettings();break;default:c.innerHTML='<p>Not found</p>';}}
 
 // ═══ DATA LOADERS (with TTL caching & dedup) ═══
@@ -594,9 +683,15 @@ function quickViewReservations(filter,title){
   if(filter==='lunch')list=list.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])<17));
   if(filter==='dinner')list=list.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])>=17));
   if(filter==='cancelled')list=list.filter(r=>r.status==='cancelled');
+  if(filter==='deposits')list=list.filter(r=>r.deposit_status==='paid'||r.deposit_status==='partial'||r.deposit_status==='unpaid');
+  // 'all' = all today's reservations, 'all_guests' = same but show guest count
   document.getElementById('quickViewTitle').textContent='📋 '+title+' ('+list.length+')';
   document.getElementById('quickViewList').innerHTML=list.length===0?'<p style="text-align:center;color:var(--txt3);padding:20px;">No reservations found</p>':
-    list.map(r=>`<div class="quick-view-item"><div><div class="qvi-name">${r.guest_name}</div><div class="qvi-meta">📞 ${r.guest_phone||'-'} | 🕐 ${fmtTime(r.time)} | 👨 ${r.adults||r.guests||'-'}A</div></div><div class="qvi-actions"><span class="badge ${sb(r.status)}">${r.status==='checked_in'?'✅ In':r.status==='cancelled'?'❌ Cancel':'✓ OK'}</span><button class="btn btn-green btn-sm" style="padding:3px 6px;font-size:10px;" onclick="closeModal('quickViewModal');viewReservation('${r.id}')">👁</button>${r.status==='confirmed'?`<button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:10px;" onclick="cancelReservation('${r.id}');closeModal('quickViewModal');">✕</button>`:''}</div></div>`).join('');
+    list.map(r=>{
+      const guestInfo=(r.adults||r.guests||0)+(r.babies?'+'+r.babies:'');
+      const depositInfo=filter==='deposits'?` | 💰 ৳${r.deposit_amount||0} (${r.deposit_status||'unpaid'})`:'';
+      return`<div class="quick-view-item"><div style="flex:1;min-width:0;"><div class="qvi-name">${r.guest_name}</div><div class="qvi-meta">📞 ${r.guest_phone||'-'} | 🕐 ${fmtTime(r.time)} | 👨 ${guestInfo} | 🪑 ${r.table_id||'Auto'} | ${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}${depositInfo}</div></div><div class="qvi-actions"><span class="badge ${sb(r.status)}">${r.status==='checked_in'?'✅ In':r.status==='cancelled'?'❌ Cancel':r.status==='no_show'?'⚠ NoShow':'✓ OK'}</span><button class="btn btn-green btn-sm" style="padding:3px 6px;font-size:10px;" onclick="closeModal('quickViewModal');viewReservation('${r.id}')" title="View Detail">👁</button>${r.status==='confirmed'?`<button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:10px;" onclick="cancelReservation('${r.id}');closeModal('quickViewModal');" title="Cancel">✕</button>`:''}</div></div>`;
+    }).join('');
   openModal('quickViewModal');
 }
 
@@ -669,18 +764,23 @@ async function renderDashboard(){
       <div class="stat-card lux-green">
         <div class="label">📋 Today's Total</div><div class="value">${todayRes.length}</div>
         <div class="sub">Active: ${confirmedRes.length} | Cancelled: ${todayRes.filter(r=>r.status==='cancelled').length}</div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('all','Today\'s Reservations')">👁 View</button></div>
       </div>
       <div class="stat-card lux-emerald">
         <div class="label">☀️ Lunch</div><div class="value">${lunchRes.length}</div>
         <div class="sub">${lunchRes.reduce((s,r)=>s+(parseInt(r.adults)||parseInt(r.guests)||0),0)} guests</div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('lunch','Lunch Reservations')">👁 View</button></div>
       </div>
       <div class="stat-card lux-teal">
         <div class="label">🌙 Dinner</div><div class="value">${dinnerRes.length}</div>
         <div class="sub">${dinnerRes.reduce((s,r)=>s+(parseInt(r.adults)||parseInt(r.guests)||0),0)} guests</div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('dinner','Dinner Reservations')">👁 View</button></div>
       </div>
-      <div class="stat-card lux-purple" style="padding:22px 18px;"><div class="label">👨 Total Guests</div><div class="value" style="font-size:42px;">${todayRes.reduce((s,r)=>s+(parseInt(r.adults)||parseInt(r.guests)||0)+(parseInt(r.babies)||0),0)}</div><div class="sub">Adults: ${todayRes.reduce((s,r)=>s+(parseInt(r.adults)||0),0)} | Kids: ${todayRes.reduce((s,r)=>s+(parseInt(r.babies)||0),0)}</div></div>
+      <div class="stat-card lux-purple" style="padding:22px 18px;"><div class="label">👨 Total Guests</div><div class="value" style="font-size:42px;">${todayRes.reduce((s,r)=>s+(parseInt(r.adults)||parseInt(r.guests)||0)+(parseInt(r.babies)||0),0)}</div><div class="sub">Adults: ${todayRes.reduce((s,r)=>s+(parseInt(r.adults)||0),0)} | Kids: ${todayRes.reduce((s,r)=>s+(parseInt(r.babies)||0),0)}</div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('all_guests','All Guests')">👁 View</button></div>
+      </div>
       <div class="stat-card lux-red"><div class="label">❌ Cancelled</div><div class="value">${todayRes.filter(r=>r.status==='cancelled').length}</div><div class="sub">${todayRes.filter(r=>r.status==='cancelled').map(r=>r.guest_name).join(', ')||'None'}</div>
-        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('cancelled','Cancelled')">👁</button></div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('cancelled','Cancelled Reservations')">👁 View</button></div>
       </div>
       <div class="stat-card new-res-card" onclick="openReservationModal()">
         <div class="nr-icon">➕</div>
@@ -691,14 +791,17 @@ async function renderDashboard(){
         <div class="label">🪑 Occupancy</div><div class="value">${occPct}%</div>
         <div class="sub">${reservedTables}/${totalTables} tables</div>
         <div class="occ-bar-wrap"><div class="occ-bar ${occClass}" style="width:${occPct}%">${occPct}%</div></div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="navigate('floorplan')">👁 View</button></div>
       </div>
       <div class="stat-card lux-red">
         <div class="label">💰 Deposits</div><div class="value">৳${totalDeposit.toLocaleString()}</div>
         <div class="sub">${todayDeposits.length} paid | ${unpaidDeposit.length} unpaid</div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('deposits','Deposit Details')">👁 View</button></div>
       </div>
       <div class="stat-card lux-orange">
         <div class="label">💵 Revenue</div><div class="value">৳${(s.today_revenue||0).toLocaleString()}</div>
         <div class="sub">Walk-in: ${s.walkins_today||0}</div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="navigate('revenue')">👁 View</button></div>
       </div>
     </div>
 
