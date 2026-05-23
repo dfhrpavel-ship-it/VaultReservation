@@ -153,9 +153,10 @@ button{cursor:pointer;}
 /* ════ TABLES ════ */
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;}
-th,td{padding:9px 12px;text-align:left;border-bottom:1px solid rgba(45,160,96,.04);font-size:12px;white-space:nowrap;}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid rgba(45,160,96,.04);font-size:12px;white-space:nowrap;}
 th{color:var(--green5);font-size:10px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;background:var(--bg2);position:sticky;top:0;}
 tr:hover{background:rgba(45,160,96,.02);}
+tr.cancelled-row{opacity:.5;text-decoration:line-through;}
 .badge{padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;}
 .badge-success{background:rgba(52,211,153,.1);color:var(--ok);}
 .badge-warning{background:rgba(251,191,36,.1);color:var(--warn);}
@@ -477,6 +478,9 @@ tr:hover{background:rgba(45,160,96,.02);}
   <div class="view-modal-inner" onclick="event.stopPropagation()">
     <div class="view-scroll-area" id="viewScrollArea"><div id="viewCardContainer"></div></div>
     <div class="export-bar no-print">
+      <button class="btn btn-danger btn-sm" id="viewCancelBtn" onclick="cancelCurrentView()" style="display:none;">❌ Cancel</button>
+      <button class="btn btn-ghost btn-sm" id="viewNoShowBtn" onclick="noShowCurrentView()" style="display:none;">⚠ No Show</button>
+      <button class="btn btn-green btn-sm" id="viewReactivateBtn" onclick="reactivateCurrentView()" style="display:none;">↩ Reactivate</button>
       <button class="btn btn-green btn-sm" onclick="exportViewPDF()">📄 PDF</button>
       <button class="btn btn-green btn-sm" onclick="exportViewJPG()">🖼️ JPG</button>
       <button class="btn btn-ghost btn-sm" onclick="shareWhatsApp()">💬 WhatsApp</button>
@@ -570,9 +574,29 @@ function normDate(d){if(!d)return'';if(typeof d==='string'){if(/^\d{4}-\d{2}-\d{
 // ═══ TIME FORMATTING ═══
 function fmtTime(t){
   if(!t)return'--:--';
+  // If it's a Date object, extract hours and minutes directly
+  if(t instanceof Date){
+    let h=t.getHours(),m=t.getMinutes();
+    const ampm=h>=12?'PM':'AM';
+    h=h%12||12;
+    return h+':'+String(m).padStart(2,'0')+' '+ampm;
+  }
   let s=String(t);
-  // Strip 1899-12-30 prefix if present (Google Sheets time serialization bug)
-  if(s.includes('1899-12-30'))s=s.replace(/^1899-12-30T?/,'');
+  // Strip 1899-12-30 prefix in all forms (Google Sheets time serialization bug)
+  // Handles: "1899-12-30", "1899-12-30T", "Sat Dec 30 1899", etc.
+  if(s.includes('1899')){
+    // Try to extract time from various formats
+    const isoMatch=s.match(/(\d{2}):(\d{2})/);
+    if(isoMatch){
+      let h=parseInt(isoMatch[1]),m=isoMatch[2];
+      const ampm=h>=12?'PM':'AM';
+      h=h%12||12;
+      return h+':'+m+' '+ampm;
+    }
+  }
+  // Strip date prefix patterns like "1899-12-30T" or "Dec 30 1899 "
+  s=s.replace(/^\d{4}-\d{2}-\d{2}T?/,'');
+  s=s.replace(/^[A-Z][a-z]{2} \d{1,2} \d{4} /,'');
   // Extract HH:mm part
   const match=s.match(/(\d{1,2}):(\d{2})/);
   if(!match)return s;
@@ -583,8 +607,16 @@ function fmtTime(t){
 }
 function cleanTime(t){
   if(!t)return'';
+  if(t instanceof Date){
+    return String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+  }
   let s=String(t);
-  if(s.includes('1899-12-30'))s=s.replace(/^1899-12-30T?/,'');
+  if(s.includes('1899')){
+    const m=s.match(/(\d{2}):(\d{2})/);
+    if(m)return m[1]+':'+m[2];
+  }
+  s=s.replace(/^\d{4}-\d{2}-\d{2}T?/,'');
+  s=s.replace(/^[A-Z][a-z]{2} \d{1,2} \d{4} /,'');
   return s.substring(0,5);
 }
 
@@ -767,8 +799,10 @@ async function renderDashboard(){
         <div class="sub">${dinnerRes.reduce((s,r)=>s+(parseInt(r.adults)||parseInt(r.guests)||0),0)} guests</div>
         <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('dinner','Dinner Reservations')">👁 View</button></div>
       </div>
-      <div class="stat-card lux-purple"><div class="label">👨 Adults</div><div class="value">${todayRes.reduce((s,r)=>s+(parseInt(r.adults)||0),0)}</div><div class="sub">Total today</div></div>
-      <div class="stat-card lux-orange"><div class="label">👶 Babies/Kids</div><div class="value">${todayRes.reduce((s,r)=>s+(parseInt(r.babies)||0),0)}</div><div class="sub">Total today</div></div>
+      <div class="stat-card lux-purple" style="padding:22px 18px;"><div class="label">👨 Total Guests</div><div class="value" style="font-size:42px;">${todayRes.reduce((s,r)=>s+(parseInt(r.adults)||parseInt(r.guests)||0)+(parseInt(r.babies)||0),0)}</div><div class="sub">Adults: ${todayRes.reduce((s,r)=>s+(parseInt(r.adults)||0),0)} | Kids: ${todayRes.reduce((s,r)=>s+(parseInt(r.babies)||0),0)}</div></div>
+      <div class="stat-card lux-red"><div class="label">❌ Cancelled</div><div class="value">${todayRes.filter(r=>r.status==='cancelled').length}</div><div class="sub">${todayRes.filter(r=>r.status==='cancelled').map(r=>r.guest_name).join(', ')||'None'}</div>
+        <div class="card-view-btn"><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('cancelled','Cancelled Reservations')">👁 View</button></div>
+      </div>
       <div class="stat-card new-res-card" onclick="openDashboardReservation()">
         <div class="nr-icon">➕</div>
         <div class="nr-text">New Reservation</div>
@@ -879,9 +913,13 @@ async function renderDashboard(){
           <button class="btn btn-ghost btn-sm" onclick="quickViewReservations('all','All Reservations')">👁 Quick View</button>
         </div>
       </div>
-      <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Phone</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>
-      ${todayRes.length===0?'<tr><td colspan="9" style="text-align:center;color:var(--txt3);padding:20px;">No reservations for today</td></tr>':''}
-      ${todayRes.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${fmtTime(r.time)}</td><td><span class="badge ${r.category==='dinner'?'badge-info':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}">${r.status}</span></td><td><button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button></td></tr>`).join('')}
+      <div class="table-wrap"><table style="font-size:11px;"><thead><tr><th>Guest</th><th>Phone</th><th>Time</th><th>Cat.</th><th>Pax</th><th>Table</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+      ${todayRes.length===0?'<tr><td colspan="8" style="text-align:center;color:var(--txt3);padding:16px;">No reservations for today</td></tr>':''}
+      ${todayRes.map(r=>`<tr style="${r.status==='cancelled'?'opacity:.5;text-decoration:line-through;':''}"><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td style="font-weight:700;color:var(--green4);">${fmtTime(r.time)}</td><td>${r.category==='dinner'?'🌙':'☀️'}</td><td>${(r.adults||r.guests||0)+(r.babies?'+':0)}${r.babies||''}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}" style="font-size:9px;">${r.status==='checked_in'?'✅ In':r.status==='cancelled'?'❌ Cancel':r.status==='no_show'?'⚠ NoShow':'✓ OK'}</span></td><td style="white-space:nowrap;">
+        <button class="btn btn-green btn-sm" style="padding:3px 6px;font-size:10px;" onclick="viewReservation('${r.id}')" title="View">👁</button>
+        ${r.status==='confirmed'?`<button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:10px;" onclick="cancelReservation('${r.id}')" title="Cancel">✕</button>`:''}
+        ${r.status==='confirmed'?`<button class="btn btn-ghost btn-sm" style="padding:3px 6px;font-size:10px;" onclick="noShowReservation('${r.id}')" title="No Show">⚠</button>`:''}
+      </td></tr>`).join('')}
       </tbody></table></div>
     </div>`;
 
@@ -944,6 +982,7 @@ function quickViewReservations(filter,title){
   let list=APP.reservations.filter(r=>normDate(r.date)===today);
   if(filter==='lunch')list=list.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])<17));
   if(filter==='dinner')list=list.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])>=17));
+  if(filter==='cancelled')list=list.filter(r=>r.status==='cancelled');
   document.getElementById('quickViewTitle').textContent='📋 '+title+' ('+list.length+')';
   if(list.length===0){
     document.getElementById('quickViewList').innerHTML='<p style="text-align:center;color:var(--txt3);padding:20px;">No reservations found</p>';
@@ -952,8 +991,10 @@ function quickViewReservations(filter,title){
       <div class="quick-view-item">
         <div><div class="qvi-name">${r.guest_name}</div>
         <div class="qvi-meta">📞 ${r.guest_phone||'-'} | 🕐 ${fmtTime(r.time)} | 👨 ${r.adults||r.guests||'-'}A + ${r.babies||0}B | 🪑 ${r.table_id||'Auto'}</div></div>
-        <div class="qvi-actions"><span class="badge ${sb(r.status)}">${r.status}</span>
-        <button class="btn btn-green btn-sm" onclick="closeModal('quickViewModal');viewReservation('${r.id}')">👁</button></div>
+        <div class="qvi-actions"><span class="badge ${sb(r.status)}">${r.status==='checked_in'?'✅ In':r.status==='cancelled'?'❌ Cancel':r.status==='no_show'?'⚠ NoShow':'✓ OK'}</span>
+        <button class="btn btn-green btn-sm" style="padding:3px 6px;font-size:10px;" onclick="closeModal('quickViewModal');viewReservation('${r.id}')" title="View">👁</button>
+        ${r.status==='confirmed'?`<button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:10px;" onclick="cancelReservation('${r.id}');closeModal('quickViewModal');" title="Cancel">✕</button>`:''}
+        </div>
       </div>`).join('');
   }
   openModal('quickViewModal');
@@ -975,11 +1016,14 @@ async function renderReservations(){
 function filterReservations(){
   const f=document.getElementById('resFilterFrom')?.value,t=document.getElementById('resFilterTo')?.value,s=document.getElementById('resFilterStatus')?.value,cat=document.getElementById('resFilterCat')?.value;
   let d=[...APP.reservations];if(f)d=d.filter(r=>normDate(r.date)>=f);if(t)d=d.filter(r=>normDate(r.date)<=t);if(s)d=d.filter(r=>r.status===s);if(cat)d=d.filter(r=>r.category===cat);
-  document.getElementById('resTableBody').innerHTML=`<table><thead><tr><th>Guest</th><th>Phone</th><th>Date</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-  ${d.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${normDate(r.date)}</td><td>${fmtTime(r.time)}</td><td><span class="badge ${r.category==='dinner'?'badge-info':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}">${r.status}</span></td><td style="white-space:nowrap;">
-    <button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button>
-    <button class="btn btn-ghost btn-sm" onclick="editReservation('${r.id}')">✏️</button>
-    <button class="btn btn-danger btn-sm" onclick="deleteReservation('${r.id}')">🗑</button>
+  document.getElementById('resTableBody').innerHTML=`<table style="font-size:11px;"><thead><tr><th>Guest</th><th>Phone</th><th>Date</th><th>Time</th><th>Cat.</th><th>Pax</th><th>Table</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+  ${d.map(r=>`<tr style="${r.status==='cancelled'?'opacity:.5;text-decoration:line-through;':''}"><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${normDate(r.date)}</td><td style="font-weight:700;color:var(--green4);">${fmtTime(r.time)}</td><td>${r.category==='dinner'?'🌙':'☀️'}</td><td>${(r.adults||r.guests||0)+(r.babies?'+':0)}${r.babies||''}</td><td>${r.table_id||'-'}</td><td><span class="badge ${sb(r.status)}" style="font-size:9px;">${r.status==='checked_in'?'✅ In':r.status==='cancelled'?'❌ Cancel':r.status==='no_show'?'⚠ NoShow':'✓ OK'}</span></td><td style="white-space:nowrap;">
+    <button class="btn btn-green btn-sm" style="padding:3px 6px;font-size:10px;" onclick="viewReservation('${r.id}')" title="View">👁</button>
+    <button class="btn btn-ghost btn-sm" style="padding:3px 6px;font-size:10px;" onclick="editReservation('${r.id}')" title="Edit">✏️</button>
+    ${r.status==='confirmed'?`<button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:10px;" onclick="cancelReservation('${r.id}')" title="Cancel">✕</button>`:''}
+    ${r.status==='confirmed'?`<button class="btn btn-ghost btn-sm" style="padding:3px 6px;font-size:10px;" onclick="noShowReservation('${r.id}')" title="No Show">⚠</button>`:''}
+    ${r.status==='cancelled'||r.status==='no_show'?`<button class="btn btn-green btn-sm" style="padding:3px 6px;font-size:10px;" onclick="reactivateReservation('${r.id}')" title="Reactivate">↩</button>`:''}
+    <button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:10px;" onclick="deleteReservation('${r.id}')" title="Delete">🗑</button>
   </td></tr>`).join('')}</tbody></table>`;
 }
 
@@ -1042,7 +1086,10 @@ async function saveReservation(){
     if(APP.currentPage==='dashboard')renderDashboard();else renderReservations();
   }else toast(result.error||'Failed','error');
 }
-async function deleteReservation(id){if(!confirm('Delete this reservation?'))return;const r=await gasPost('deletereservation',{id});if(r.success){toast('Deleted','success');renderReservations()}else toast(r.error,'error')}
+async function deleteReservation(id){if(!confirm('Delete this reservation?'))return;const r=await gasPost('deletereservation',{id});if(r.success){toast('Deleted','success');if(APP.currentPage==='dashboard')renderDashboard();else renderReservations()}else toast(r.error,'error')}
+async function cancelReservation(id){if(!confirm('Cancel this reservation? The guest will be marked as cancelled.'))return;const r=await gasPost('updatereservation',{id,status:'cancelled'});if(r.success){toast('❌ Reservation Cancelled','success');if(APP.currentPage==='dashboard')renderDashboard();else renderReservations()}else toast(r.error,'error')}
+async function noShowReservation(id){if(!confirm('Mark as No Show?'))return;const r=await gasPost('updatereservation',{id,status:'no_show'});if(r.success){toast('⚠️ Marked as No Show','success');if(APP.currentPage==='dashboard')renderDashboard();else renderReservations()}else toast(r.error,'error')}
+async function reactivateReservation(id){if(!confirm('Reactivate this reservation?'))return;const r=await gasPost('updatereservation',{id,status:'confirmed'});if(r.success){toast('✅ Reservation Reactivated','success');if(APP.currentPage==='dashboard')renderDashboard();else renderReservations()}else toast(r.error,'error')}
 
 // ═══ VIEW RESERVATION ═══
 async function viewReservation(id){
@@ -1084,7 +1131,15 @@ async function viewReservation(id){
     </div>
     <div class="vc-footer">VAULT RESERVATION | ${new Date().toLocaleDateString('en-GB',{timeZone:'Asia/Dhaka'})} | Created by: ${r.created_by||'System'}</div>
   </div>`;
-  document.getElementById('viewScrollArea').scrollTop=0;openModal('viewModal');
+  document.getElementById('viewScrollArea').scrollTop=0;
+  // Show/hide status change buttons in view modal
+  const cancelBtn=document.getElementById('viewCancelBtn');
+  const noShowBtn=document.getElementById('viewNoShowBtn');
+  const reactivateBtn=document.getElementById('viewReactivateBtn');
+  if(cancelBtn)cancelBtn.style.display=r.status==='confirmed'?'inline-flex':'none';
+  if(noShowBtn)noShowBtn.style.display=r.status==='confirmed'?'inline-flex':'none';
+  if(reactivateBtn)reactivateBtn.style.display=(r.status==='cancelled'||r.status==='no_show')?'inline-flex':'none';
+  openModal('viewModal');
 }
 
 // ═══ EXPORT ═══
@@ -1104,6 +1159,11 @@ function shareWhatsApp(){
   const phone=(r.guest_phone||'').replace(/[^0-9]/g,'');
   window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`:`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
 }
+
+// ── View Modal Status Actions ──
+async function cancelCurrentView(){const r=APP.currentViewRes;if(!r)return;closeModal('viewModal');await cancelReservation(r.id);}
+async function noShowCurrentView(){const r=APP.currentViewRes;if(!r)return;closeModal('viewModal');await noShowReservation(r.id);}
+async function reactivateCurrentView(){const r=APP.currentViewRes;if(!r)return;closeModal('viewModal');await reactivateReservation(r.id);}
 
 // ═══ FLOOR PLAN ═══
 async function renderFloorPlan(){await loadTables();await loadReservations();const today=getBDToday();const todayRes=APP.reservations.filter(r=>normDate(r.date)===today&&(r.status==='confirmed'||r.status==='checked_in'));const c=document.getElementById('contentArea');const locs=[...new Set(APP.tables.map(t=>t.location))];c.innerHTML=`<div class="panel"><div class="panel-header"><h3>Live Table Status</h3><div class="filter-bar"><button class="btn btn-ghost btn-sm" onclick="loadTables().then(()=>renderFloorPlan())">🔄</button></div></div>${locs.map(loc=>`<h4 style="margin:12px 0 6px;color:var(--txt2);">${loc}</h4><div class="floor-plan">${APP.tables.filter(t=>t.location===loc).map(t=>{const ri=todayRes.find(r=>r.table_id===t.id);const sc=t.status||'available';return`<div class="table-unit ${sc}" onclick="tableAction('${t.id}','${t.status}')"><div class="t-num">T${t.table_number}</div><div class="t-cap">${t.capacity}p</div><div class="t-loc">${ri?ri.guest_name+'@'+fmtTime(ri.time):sc}</div></div>`}).join('')}</div>`).join('')}</div>`;}
