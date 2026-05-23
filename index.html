@@ -554,8 +554,12 @@ async function gasGet(action,params={}){
   const url=new URL(APP.gasUrl);
   url.searchParams.set('action',action);
   Object.entries(params).forEach(([k,v])=>{if(v)url.searchParams.set(k,v);});
-  try{const r=await fetch(url.toString(),{redirect:'follow',headers:{'Accept':'application/json'}});if(r.ok){const t=await r.text();try{return JSON.parse(t)}catch(e){return{data:t}}}}catch(e){console.warn('fetch fail',e.message)}
-  try{return await new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('GET',url.toString(),true);x.onload=function(){try{res(JSON.parse(x.responseText))}catch(e){res({data:x.responseText})}};x.onerror=()=>rej(new Error('XHR fail'));x.send()})}catch(e){}
+  // Method 1: Direct fetch with no-cache
+  try{const r=await fetch(url.toString(),{redirect:'follow',headers:{'Accept':'application/json'},cache:'no-cache'});if(r.ok){const t=await r.text();try{const parsed=JSON.parse(t);console.log('📡 GAS fetch '+action+':',Array.isArray(parsed)?'Array('+parsed.length+')':parsed.data?'data:'+parsed.data.length:typeof parsed);return parsed}catch(e){console.warn('GAS parse error:',t.substring(0,100));return{data:t}}}}catch(e){console.warn('fetch fail',e.message)}
+  // Method 2: JSONP (works around CORS)
+  try{const result=await new Promise((res,rej)=>{const cb='gcb_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);const script=document.createElement('script');const jsonpUrl=url.toString()+'&callback='+cb;window[cb]=function(data){delete window[cb];document.head.removeChild(script);res(data);};script.src=jsonpUrl;script.onerror=()=>{delete window[cb];if(script.parentNode)document.head.removeChild(script);rej(new Error('JSONP fail'));};document.head.appendChild(script);setTimeout(()=>{delete window[cb];if(script.parentNode)document.head.removeChild(script);rej(new Error('JSONP timeout'));},10000);});console.log('📡 GAS JSONP '+action+':',typeof result);return result;}catch(e){console.warn('JSONP fail',e.message)}
+  // Method 3: XHR
+  try{return await new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('GET',url.toString(),true);x.onload=function(){try{const parsed=JSON.parse(x.responseText);console.log('📡 GAS XHR '+action+': OK');res(parsed)}catch(e){res({data:x.responseText})}};x.onerror=()=>rej(new Error('XHR fail'));x.send()})}catch(e){console.warn('XHR fail',e.message)}
   return{error:'Failed to fetch',checks:['1. URL ends with /exec','2. Deployed as Web App','3. Execute as: Me','4. Access: Anyone','5. Run setupVault() first','6. New Deployment after code change']};
 }
 async function gasPost(action,data={}){
@@ -603,45 +607,55 @@ async function renderPage(p){const c=document.getElementById('contentArea');c.in
 const _inflight={};
 async function _dedup(key,fn){if(_inflight[key])return _inflight[key];_inflight[key]=fn();try{return await _inflight[key];}finally{delete _inflight[key];}}
 
+// ═══ PARSE GAS RESPONSE (handles multiple formats) ═══
+function _extractData(r){
+  if(!r)return[];
+  if(Array.isArray(r))return r;
+  if(r.data&&Array.isArray(r.data))return r.data;
+  if(r.rows&&Array.isArray(r.rows))return r.rows;
+  if(r.success&&r.data)return Array.isArray(r.data)?r.data:[];
+  return[];
+}
+
 async function loadReservations(p,force=false){
   if(!force&&_cacheOk('reservations')&&APP.reservations.length>0)return APP.reservations;
-  return _dedup('loadReservations',async()=>{const r=await gasGet('getreservations',p);APP.reservations=r.data||[];_cacheSet('reservations');return APP.reservations;});
+  return _dedup('loadReservations',async()=>{const r=await gasGet('getreservations',p);APP.reservations=_extractData(r);console.log('📋 Reservations loaded:',APP.reservations.length);_cacheSet('reservations');return APP.reservations;});
 }
 async function loadTables(force=false){
   if(!force&&_cacheOk('tables')&&APP.tables.length>0)return APP.tables;
-  return _dedup('loadTables',async()=>{const r=await gasGet('gettables');APP.tables=r.data||[];_cacheSet('tables');return APP.tables;});
+  return _dedup('loadTables',async()=>{const r=await gasGet('gettables');APP.tables=_extractData(r);console.log('🪑 Tables loaded:',APP.tables.length);_cacheSet('tables');return APP.tables;});
 }
 async function loadUsers(force=false){
   if(!force&&_cacheOk('users')&&APP.users.length>0)return APP.users;
-  return _dedup('loadUsers',async()=>{const r=await gasGet('getusers');APP.users=r.data||[];_cacheSet('users');return APP.users;});
+  return _dedup('loadUsers',async()=>{const r=await gasGet('getusers');APP.users=_extractData(r);_cacheSet('users');return APP.users;});
 }
 async function loadWaitlist(force=false){
   if(!force&&_cacheOk('waitlist')&&APP.waitlist.length>0)return APP.waitlist;
-  return _dedup('loadWaitlist',async()=>{const r=await gasGet('getwaitlist');APP.waitlist=r.data||[];_cacheSet('waitlist');return APP.waitlist;});
+  return _dedup('loadWaitlist',async()=>{const r=await gasGet('getwaitlist');APP.waitlist=_extractData(r);_cacheSet('waitlist');return APP.waitlist;});
 }
 async function loadMenuPackages(force=false){
   if(!force&&_cacheOk('menuPackages')&&APP.menuPackages.length>0)return APP.menuPackages;
-  return _dedup('loadMenuPackages',async()=>{const r=await gasGet('getmenupackages');APP.menuPackages=r.data||[];_cacheSet('menuPackages');return APP.menuPackages;});
+  return _dedup('loadMenuPackages',async()=>{const r=await gasGet('getmenupackages');APP.menuPackages=_extractData(r);console.log('🍽️ Menu Packages loaded:',APP.menuPackages.length);_cacheSet('menuPackages');return APP.menuPackages;});
 }
 async function loadPayments(p,force=false){
   if(!force&&_cacheOk('payments')&&APP.payments.length>0)return APP.payments;
-  return _dedup('loadPayments',async()=>{const r=await gasGet('getpayments',p);APP.payments=r.data||[];_cacheSet('payments');return APP.payments;});
+  return _dedup('loadPayments',async()=>{const r=await gasGet('getpayments',p);APP.payments=_extractData(r);_cacheSet('payments');return APP.payments;});
 }
 async function loadReminders(force=false){
   if(!force&&_cacheOk('reminders')&&APP.reminders.length>0)return APP.reminders;
-  return _dedup('loadReminders',async()=>{const r=await gasGet('getreminders');APP.reminders=r.data||[];_cacheSet('reminders');return APP.reminders;});
+  return _dedup('loadReminders',async()=>{const r=await gasGet('getreminders');APP.reminders=_extractData(r);_cacheSet('reminders');return APP.reminders;});
 }
 async function loadRecurring(force=false){
   if(!force&&_cacheOk('recurring')&&APP.recurring.length>0)return APP.recurring;
-  return _dedup('loadRecurring',async()=>{const r=await gasGet('getrecurring');APP.recurring=r.data||[];_cacheSet('recurring');return APP.recurring;});
+  return _dedup('loadRecurring',async()=>{const r=await gasGet('getrecurring');APP.recurring=_extractData(r);_cacheSet('recurring');return APP.recurring;});
 }
 async function loadOccasions(force=false){
   if(!force&&_cacheOk('occasions')&&APP.occasions.length>0)return APP.occasions;
-  return _dedup('loadOccasions',async()=>{const r=await gasGet('getoccasions');APP.occasions=r.data||[];_cacheSet('occasions');return APP.occasions;});
+  return _dedup('loadOccasions',async()=>{const r=await gasGet('getoccasions');APP.occasions=_extractData(r);_cacheSet('occasions');return APP.occasions;});
 }
 async function loadGuestPrefs(force=false){
   if(!force&&_cacheOk('guestPrefs')&&APP.guestPrefs.length>0)return APP.guestPrefs;
-  return _dedup('loadGuestPrefs',async()=>{const r=await gasGet('getguestpreferences');APP.guestPrefs=r.data||[];_cacheSet('guestPrefs');return APP.guestPrefs;});
+  return _dedup('loadGuestPrefs',async()=>{const r=await gasGet('getguestpreferences');APP.guestPrefs=_extractData(r);_cacheSet('guestPrefs');return APP.guestPrefs;});
 }
 // Load all core data in parallel (used by dashboard & reservations)
 async function loadAllCore(){
@@ -650,21 +664,69 @@ async function loadAllCore(){
 
 // ═══ TIME & DATE HELPERS ═══
 function getBDToday(){try{return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Dhaka'})}catch(e){return new Date().toISOString().split('T')[0]}}
+// ═══ PARSE 12-HOUR TIME (e.g. "3:30 PM") TO 24-HOUR ═══
+function parse12h(t){
+  if(!t)return null;
+  let s=String(t).trim();
+  // Already 24h like "15:30"
+  const m24=s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if(m24&&!/[ap]m/i.test(s)){let h=parseInt(m24[1]),mi=m24[2];if(h>=0&&h<=23&&parseInt(mi)<=59)return{h,mi};}
+  // 12h like "3:30 PM" or "3:30PM" or "3:30 pm"
+  const m12=s.match(/(\d{1,2}):(\d{2})\s*([ap]m)/i);
+  if(m12){let h=parseInt(m12[1]),mi=m12[2];const isPM=/pm/i.test(m12[3]);if(h===12)h=isPM?12:0;else if(isPM)h+=12;return{h,mi};}
+  // Try just number match
+  const mf=s.match(/(\d{1,2}):(\d{2})/);
+  if(mf){let h=parseInt(mf[1]),mi=mf[2];if(h>=0&&h<=23)return{h,mi};}
+  return null;
+}
+
 function fmtTime(t){
   if(!t)return'--:--';
   if(t instanceof Date){let h=t.getHours(),m=t.getMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+String(m).padStart(2,'0')+' '+ap;}
   let s=String(t);
+  // Google Sheets 1899 epoch date
   if(s.includes('1899')){const m=s.match(/(\d{2}):(\d{2})/);if(m){let h=parseInt(m[1]),mi=m[2];const ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+mi+' '+ap;}}
+  // Already has AM/PM — just format nicely
+  const hasAMPM=/\d\s*[ap]m/i.test(s);
+  if(hasAMPM){const p=parse12h(s);if(p){const ap=p.h>=12?'PM':'AM';let h12=p.h%12||12;return h12+':'+p.mi+' '+ap;}}
+  // 24h or raw time string
   s=s.replace(/^\d{4}-\d{2}-\d{2}T?/,'');s=s.replace(/^[A-Z][a-z]{2} \d{1,2} \d{4} /,'');
   const match=s.match(/(\d{1,2}):(\d{2})/);if(!match)return s;
   let h=parseInt(match[1]),m=match[2];const ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+m+' '+ap;
 }
 function cleanTime(t){
   if(!t)return'';if(t instanceof Date)return String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
-  let s=String(t);if(s.includes('1899')){const m=s.match(/(\d{2}):(\d{2})/);if(m)return m[1]+':'+m[2];}
-  s=s.replace(/^\d{4}-\d{2}-\d{2}T?/,'');s=s.replace(/^[A-Z][a-z]{2} \d{1,2} \d{4} /,'');return s.substring(0,5);
+  let s=String(t);
+  // Google Sheets 1899 epoch date
+  if(s.includes('1899')){const m=s.match(/(\d{2}):(\d{2})/);if(m)return m[1]+':'+m[2];}
+  // 12-hour format like "3:30 PM" → convert to 24h "15:30"
+  const p=parse12h(s);
+  if(p)return String(p.h).padStart(2,'0')+':'+p.mi;
+  // Fallback: strip date prefix, take first 5 chars
+  s=s.replace(/^\d{4}-\d{2}-\d{2}T?/,'');s=s.replace(/^[A-Z][a-z]{2} \d{1,2} \d{4} /,'');
+  const m=s.match(/(\d{1,2}):(\d{2})/);if(m){let h=parseInt(m[1]);return String(h).padStart(2,'0')+':'+m[2];}
+  return s.substring(0,5);
 }
-function normDate(d){if(!d)return'';if(typeof d==='string'){if(/^\d{4}-\d{2}-\d{2}$/.test(d))return d;if(d.includes('T'))return d.split('T')[0];}return String(d).split('T')[0];}
+function normDate(d){
+  if(!d)return'';
+  if(typeof d==='string'){
+    // Already YYYY-MM-DD
+    if(/^\d{4}-\d{2}-\d{2}$/.test(d))return d;
+    // ISO format with T
+    if(d.includes('T'))return d.split('T')[0];
+    // Google Sheets date: "Sat Jan 15 2025 00:00:00 GMT+0600"
+    const m=d.match(/(\w{3})\s+(\d{1,2})\s+(\d{4})/);
+    if(m){const months={Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};const day=m[2].padStart(2,'0');return m[3]+'-'+(months[m[1]]||'01')+'-'+day;}
+    // Try Date parse
+    const dt=new Date(d);if(!isNaN(dt.getTime()))return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+  }
+  // Number (Google Sheets serial date)
+  if(typeof d==='number'){
+    const epoch=new Date(1899,11,30);epoch.setDate(epoch.getDate()+d);
+    return epoch.getFullYear()+'-'+String(epoch.getMonth()+1).padStart(2,'0')+'-'+String(epoch.getDate()).padStart(2,'0');
+  }
+  return String(d).split('T')[0];
+}
 function addDays(dateStr,days){const d=new Date(dateStr+'T00:00:00');d.setDate(d.getDate()+days);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function sb(s){return{confirmed:'badge-success',checked_in:'badge-info',cancelled:'badge-danger',no_show:'badge-warning'}[s]||'badge-info';}
 function updateBDClock(){
@@ -710,6 +772,7 @@ function populateMenuSelect(selId){const s=document.getElementById(selId);if(!s)
 // ══════════════════════════════════════════════════════════
 async function renderDashboard(){
   const today=getBDToday();
+  console.log('📅 BD Today:',today,'| Total reservations in APP:',APP.reservations.length);
   // ✅ PARALLEL loading — all requests fire at once instead of sequentially
   const [stats] = await Promise.all([
     gasGet('getdashboardstats'),
@@ -719,8 +782,10 @@ async function renderDashboard(){
     loadOccasions(),
     loadPayments()
   ]);
+  console.log('📋 After load - APP.reservations:',APP.reservations.length,'| Sample dates:',APP.reservations.slice(0,3).map(r=>normDate(r.date)));
   const s=stats.error?{}:stats;
-  const todayRes=APP.reservations.filter(r=>normDate(r.date)===today);
+  const todayRes=APP.reservations.filter(r=>{const nd=normDate(r.date);return nd===today;});
+  console.log('📋 Today:',today,'| todayRes:',todayRes.length,'| Date samples:',APP.reservations.slice(0,5).map(r=>({raw:r.date,norm:normDate(r.date)})));
   const lunchRes=todayRes.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])<17));
   const dinnerRes=todayRes.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(cleanTime(r.time).split(':')[0])>=17));
   const confirmedRes=todayRes.filter(r=>r.status==='confirmed'||r.status==='checked_in');
@@ -919,7 +984,11 @@ function resNextStep(step){
   document.querySelectorAll('#resSteps .step-dot').forEach((d,i)=>{d.className='step-dot';if(i<step-1)d.classList.add('done');if(i===step-1)d.classList.add('active');});
 }
 
-function openReservationModal(editData){
+async function openReservationModal(editData){
+  // ✅ Ensure tables & menu packages are loaded before opening form
+  await Promise.all([loadTables(),loadMenuPackages(),loadGuestPrefs()]);
+  populateTableSelect('resTable');
+  populateMenuSelect('resMenuSelect');
   document.getElementById('resModalTitle').textContent=editData?'✏️ Edit Reservation':'🔐 New Reservation';
   document.getElementById('resEditId').value=editData?.id||'';
   document.getElementById('resGuestPhone').value=editData?.guest_phone||'';
