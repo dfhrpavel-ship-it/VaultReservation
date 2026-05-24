@@ -89,6 +89,8 @@ button{cursor:pointer;}
 .lang-toggle:hover{background:rgba(212,160,23,.15);}
 .user-info{display:flex;align-items:center;gap:6px;color:var(--txt2);font-size:12px;}
 .user-info .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--g2),var(--g4));color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;box-shadow:0 2px 8px rgba(212,160,23,.3);}
+.bd-clock{background:linear-gradient(135deg,rgba(11,26,15,.9),rgba(20,61,31,.7));border:1px solid rgba(212,160,23,.2);border-radius:var(--r);padding:4px 12px;color:var(--g4);font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.5px;white-space:nowrap;}
+.bd-clock .clock-date{color:var(--txt3);font-size:9px;margin-right:6px;}
 .content{flex:1;padding:16px;overflow-y:auto;}
 
 /* ════ LUXURY STAT CARDS ════ */
@@ -213,6 +215,9 @@ tr:hover{background:rgba(212,160,23,.03);}
   .panel{padding:10px;}
   table{font-size:11px;}
   th,td{padding:6px 8px;}
+  div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;}
+  .bd-clock{font-size:9px;padding:3px 8px;}
+  .bd-clock .clock-date{display:none;}
 }
 @media(max-width:400px){
   .stats-grid{grid-template-columns:1fr;}
@@ -318,6 +323,7 @@ tr:hover{background:rgba(212,160,23,.03);}
     <header class="topbar">
       <div class="topbar-left"><button class="hamburger" onclick="toggleSidebar()">☰</button><h3 id="pageTitle">Dashboard</h3></div>
       <div class="topbar-right">
+        <div class="bd-clock" id="bdClock">🕐 Loading...</div>
         <button class="lang-toggle" onclick="toggleLang()" id="langBtn">বাং</button>
         <div class="user-info"><div class="avatar" id="userAvatar">A</div><span id="userName">Admin</span></div>
         <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
@@ -559,33 +565,63 @@ function toast(msg,type='info'){const c=document.getElementById('toastContainer'
 function populateTableSelect(selId){const s=document.getElementById(selId);if(!s)return;s.innerHTML='<option value="">Auto-assign</option>'+APP.tables.map(t=>`<option value="${t.id}">T${t.table_number} (${t.capacity}p - ${t.location})</option>`).join('');}
 function populateMenuSelect(selId){const s=document.getElementById(selId);if(!s)return;s.innerHTML='<option value="">+ Add menu</option>'+APP.menuPackages.map(m=>`<option value="${m.name}">${m.name} - ৳${m.price}</option>`).join('');}
 
+// ═══ BD CLOCK + TIME HELPERS ═══
+function fmtTime(t){if(!t)return'-';if(t.includes('AM')||t.includes('PM')||t.includes('am')||t.includes('pm'))return t;const p=t.split(':'),h=parseInt(p[0]),m=p[1]||'00';const ap=h>=12?'PM':'AM';const h12=h===0?12:h>12?h-12:h;return h12+':'+m+' '+ap;}
+function getBDToday(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Dhaka'})).toISOString().split('T')[0];}
+function updateBDClock(){const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Dhaka'}));const h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();const ap=h>=12?'PM':'AM';const h12=h===0?12:h>12?h-12:h;const ts=String(h12).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' '+ap;const ds=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});const el=document.getElementById('bdClock');if(el)el.innerHTML=`<span class="clock-date">${ds}</span>${ts} 🇧🇩`;}
+function startClock(){stopClock();updateBDClock();APP._clockInterval=setInterval(updateBDClock,1000);}
+function stopClock(){if(APP._clockInterval){clearInterval(APP._clockInterval);APP._clockInterval=null;}}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');}
+
 // ══════════════════════════════════════════════════════════
 //  DASHBOARD — Today's Lunch/Dinner Split
 // ══════════════════════════════════════════════════════════
 async function renderDashboard(){
   const stats=await gasGet('getdashboardstats');const s=stats.error?{}:stats;
-  const today=new Date().toISOString().split('T')[0];
+  const today=getBDToday();
   await loadReservations({date_from:today,date_to:today});
+  await loadTables();
   const todayRes=APP.reservations.filter(r=>r.date===today);
+  const activeRes=todayRes.filter(r=>r.status==='confirmed'||r.status==='checked_in');
+  const cancelledRes=todayRes.filter(r=>r.status==='cancelled');
+  const noShowRes=todayRes.filter(r=>r.status==='no_show');
   const lunchRes=todayRes.filter(r=>r.category==='lunch'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])<17));
   const dinnerRes=todayRes.filter(r=>r.category==='dinner'||(!r.category&&r.time&&parseInt(r.time.split(':')[0])>=17));
   const lunchGuests=lunchRes.reduce((a,r)=>a+(parseInt(r.adults)||0)+(parseInt(r.babies)||0),0);
   const dinnerGuests=dinnerRes.reduce((a,r)=>a+(parseInt(r.adults)||0)+(parseInt(r.babies)||0),0);
   const totalAdults=todayRes.reduce((a,r)=>a+(parseInt(r.adults)||parseInt(r.guests)||0),0);
   const totalBabies=todayRes.reduce((a,r)=>a+(parseInt(r.babies)||0),0);
+  const totalGuests=totalAdults+totalBabies;
+  const occupiedTables=APP.tables.filter(t=>t.status==='occupied').length;
+  const reservedTables=APP.tables.filter(t=>t.status==='reserved').length;
+  const totalTables=APP.tables.length||1;
+  const occupancyRate=Math.round(((occupiedTables+reservedTables)/totalTables)*100);
+  const depositPaid=todayRes.filter(r=>r.deposit_status==='paid').reduce((a,r)=>a+(parseFloat(r.deposit_amount)||0),0);
+  const depositUnpaid=todayRes.filter(r=>r.deposit_status!=='paid').reduce((a,r)=>a+(parseFloat(r.deposit_amount)||0),0);
+  const upcoming=activeRes.filter(r=>r.status==='confirmed').sort((a,b)=>(a.time||'').localeCompare(b.time||'')).slice(0,5);
+  const peakHours={};todayRes.forEach(r=>{if(r.time){const h=r.time.split(':')[0];peakHours[h]=(peakHours[h]||0)+1;}});
+  const peakData=Object.entries(peakHours).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxPeak=Math.max(...peakData.map(d=>d[1]),1);
+  startClock();
   const c=document.getElementById('contentArea');
   c.innerHTML=`
     <div class="stats-grid">
-      <div class="stat-card lux-green" style="cursor:pointer;" onclick="quickViewReservations('today')"><div class="label">📋 Today's Total</div><div class="value">${todayRes.length}</div><div class="sub">Active: ${todayRes.filter(r=>r.status==='confirmed'||r.status==='checked_in').length}</div></div>
+      <div class="stat-card lux-green" style="cursor:pointer;" onclick="quickViewReservations('today')"><div class="label">📋 Today's Total</div><div class="value">${todayRes.length}</div><div class="sub">Active: ${activeRes.length}</div></div>
       <div class="stat-card lux-gold" style="cursor:pointer;" onclick="quickViewReservations('lunch')"><div class="label">☀️ Lunch</div><div class="value">${lunchRes.length}</div><div class="sub">${lunchGuests} guests</div></div>
       <div class="stat-card lux-teal" style="cursor:pointer;" onclick="quickViewReservations('dinner')"><div class="label">🌙 Dinner</div><div class="value">${dinnerRes.length}</div><div class="sub">${dinnerGuests} guests</div></div>
-      <div class="stat-card lux-purple" style="cursor:pointer;" onclick="quickViewReservations('today')"><div class="label">👨 Adults</div><div class="value">${totalAdults}</div><div class="sub">Total today</div></div>
-      <div class="stat-card lux-orange" style="cursor:pointer;" onclick="quickViewReservations('today')"><div class="label">👶 Babies/Kids</div><div class="value">${totalBabies}</div><div class="sub">Total today</div></div>
-      <div class="stat-card lux-blue" style="cursor:pointer;" onclick="quickViewReservations('today')"><div class="label">💵 Revenue</div><div class="value">৳${(s.today_revenue||0).toLocaleString()}</div><div class="sub">Walk-in: ${s.walkins_today||0}</div></div>
+      <div class="stat-card lux-purple"><div class="label">🪑 Occupancy</div><div class="value">${occupancyRate}%</div><div class="sub">${occupiedTables+reservedTables}/${totalTables} tables</div></div>
+      <div class="stat-card lux-blue" style="cursor:pointer;" onclick="quickViewReservations('today')"><div class="label">👥 Total Guests</div><div class="value">${totalGuests}</div><div class="sub">Adults: ${totalAdults} | Kids: ${totalBabies}</div></div>
+      <div class="stat-card lux-orange"><div class="label">💰 Deposit Paid</div><div class="value">৳${depositPaid.toLocaleString()}</div><div class="sub">Unpaid: ৳${depositUnpaid.toLocaleString()}</div></div>
+      <div class="stat-card lux-red" style="cursor:pointer;" onclick="quickViewReservations('cancelled')"><div class="label">❌ Cancelled</div><div class="value">${cancelledRes.length}</div><div class="sub">No-show: ${noShowRes.length}</div></div>
+      <div class="stat-card lux-pink"><div class="label">💵 Revenue</div><div class="value">৳${(s.today_revenue||0).toLocaleString()}</div><div class="sub">Walk-in: ${s.walkins_today||0}</div></div>
     </div>
-    <div class="panel"><div class="panel-header"><h3>📋 Today's Reservations</h3></div>
-    <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Phone</th><th>Time</th><th>Category</th><th>Adults</th><th>Babies</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>
-    ${todayRes.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${r.time}</td><td><span class="badge ${r.category==='dinner'?'badge-gold':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${r.adults||r.guests||'-'}</td><td>${r.babies||0}</td><td>${r.table_id||'-'}</td><td><span class="badge badge-${r.status==='confirmed'?'success':r.status==='checked_in'?'info':'warning'}">${r.status}</span></td><td><button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button></td></tr>`).join('')}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="panel" style="grid-column:span 1;"><div class="panel-header"><h3>🕐 Arrival Timeline</h3></div>${upcoming.length?upcoming.map(r=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(212,160,23,.06);"><div><strong style="color:var(--g4);">${r.guest_name}</strong> <span style="font-size:10px;color:var(--txt3);">${r.guest_phone||''}</span></div><div style="color:var(--g3);font-weight:600;font-size:12px;">${fmtTime(r.time)}</div></div>`).join(''):'<p style="color:var(--txt3);font-size:12px;">No upcoming arrivals</p>'}</div>
+      <div class="panel" style="grid-column:span 1;"><div class="panel-header"><h3>📊 Peak Hours</h3></div>${peakData.length?`<div class="bar-chart">${peakData.map(([h,c],i)=>`<div class="bar-col"><div class="bar-value">${c}</div><div class="bar" style="height:${(c/maxPeak)*130}px;background:linear-gradient(180deg,${COLORS[i%COLORS.length]},${COLORS[(i+3)%COLORS.length]});"></div><div class="bar-label">${fmtTime(h+':00')}</div></div>`).join('')}</div>`:'<p style="color:var(--txt3);font-size:12px;">No data yet</p>'}</div>
+    </div>
+    <div class="panel"><div class="panel-header"><h3>📋 Today's Reservations</h3><button class="btn btn-gold btn-sm" onclick="openReservationModal()">+ New</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Phone</th><th>Time</th><th>Category</th><th>Guests</th><th>Table</th><th>Status</th><th>Action</th></tr></thead><tbody>
+    ${todayRes.map(r=>`<tr><td><strong>${r.guest_name}</strong></td><td>${r.guest_phone||''}</td><td>${fmtTime(r.time)}</td><td><span class="badge ${r.category==='dinner'?'badge-gold':'badge-green'}">${r.category==='dinner'?'🌙 Dinner':'☀️ Lunch'}</span></td><td>${(parseInt(r.adults)||0)+(parseInt(r.babies)||0)}</td><td>${r.table_id||'-'}</td><td><span class="badge badge-${r.status==='confirmed'?'success':r.status==='checked_in'?'info':r.status==='cancelled'?'danger':'warning'}">${r.status}</span></td><td style="white-space:nowrap;"><button class="btn btn-green btn-sm" onclick="viewReservation('${r.id}')">👁</button>${r.status==='confirmed'?`<button class="btn btn-danger btn-sm" onclick="cancelReservation('${r.id}')">✕</button><button class="btn btn-ghost btn-sm" onclick="noShowReservation('${r.id}')">⚠</button>`:r.status==='cancelled'||r.status==='no_show'?`<button class="btn btn-green btn-sm" onclick="reactivateReservation('${r.id}')">↻</button>`:''}</td></tr>`).join('')}
     </tbody></table></div></div>`;
 }
 
@@ -686,6 +722,9 @@ async function saveReservation(){
   if(result.success){toast(id?'Updated!':'Created!','success');closeModal('reservationModal');renderReservations()}else toast(result.error||'Failed','error');
 }
 async function deleteReservation(id){if(!confirm('Delete this reservation?'))return;const r=await gasPost('deletereservation',{id});if(r.success){toast('Deleted','success');renderReservations()}else toast(r.error,'error')}
+async function cancelReservation(id){if(!confirm('Cancel this reservation?'))return;const r=await gasPost('cancelreservation',{id});if(r.success){toast('Reservation cancelled','success');renderPage(APP.currentPage)}else toast(r.error,'error')}
+async function noShowReservation(id){if(!confirm('Mark as No Show?'))return;const r=await gasPost('noshowreservation',{id});if(r.success){toast('Marked as No Show','success');renderPage(APP.currentPage)}else toast(r.error,'error')}
+async function reactivateReservation(id){if(!confirm('Reactivate this reservation?'))return;const r=await gasPost('reactivatereservation',{id});if(r.success){toast('Reservation reactivated','success');renderPage(APP.currentPage)}else toast(r.error,'error')}
 
 // ══════════════════════════════════════════════════════════
 //  ★ RESERVATION VIEW — Full Details + PDF + JPG ★
@@ -720,7 +759,7 @@ function viewReservation(id){
 
       <div class="vc-section"><h4>📅 Reservation Details</h4></div>
       <div class="vc-row"><span class="vc-label">Date</span><span class="vc-value" style="font-weight:700;">${r.date}</span></div>
-      <div class="vc-row"><span class="vc-label">Time</span><span class="vc-value" style="font-weight:700;">${r.time}</span></div>
+      <div class="vc-row"><span class="vc-label">Time</span><span class="vc-value" style="font-weight:700;">${fmtTime(r.time)}</span></div>
       <div class="vc-row"><span class="vc-label">Adults</span><span class="vc-value">${r.adults||r.guests||'-'}</span></div>
       <div class="vc-row"><span class="vc-label">Babies/Kids</span><span class="vc-value">${r.babies||0}</span></div>
       <div class="vc-row"><span class="vc-label">Total Guests</span><span class="vc-value" style="font-weight:800;font-size:14px;color:#1a5c2e;">${totalGuests}</span></div>
@@ -773,7 +812,7 @@ function quickViewReservations(filter){
       return`<div class="quick-view-item" data-res-id="${r.id}">
         <div class="qv-item-top">
           <span class="qv-item-name">${r.guest_name}</span>
-          <span class="qv-item-time">🕐 ${r.time||'-'}</span>
+          <span class="qv-item-time">🕐 ${fmtTime(r.time)||'-'}</span>
         </div>
         <div class="qv-item-meta">
           <span>📅 ${r.date}</span>
@@ -1169,6 +1208,7 @@ function exportReservationsCSV(){
 
 // ═══ INIT ═══
 (function init(){
+  startClock();
   if(APP.user)showApp();
   if(APP.gasUrl){const i=document.getElementById('gasUrlInput');if(i)i.value=APP.gasUrl;}
   // Register service worker
