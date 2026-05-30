@@ -1413,6 +1413,42 @@
     }
 
     /* ============================================================
+       RESERVATION STEP CONTENT
+       ============================================================ */
+    .res-step {
+      animation: fadeIn .3s ease both;
+    }
+
+    .res-step label {
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--t3);
+      display: block;
+      margin-bottom: .25rem;
+    }
+
+    .res-step input,
+    .res-step select,
+    .res-step textarea {
+      width: 100%;
+      padding: .5rem .7rem;
+      background: var(--dg1);
+      border: 1px solid var(--dg5);
+      border-radius: var(--radius-sm);
+      color: var(--t1);
+      font-size: .85rem;
+      transition: border-color var(--transition);
+    }
+
+    .res-step input:focus,
+    .res-step select:focus,
+    .res-step textarea:focus {
+      border-color: var(--g4);
+    }
+
+    /* ============================================================
        MENU CHIP (Removable Pill Tag)
        ============================================================ */
     .menu-chip {
@@ -1450,6 +1486,84 @@
     .menu-chip .chip-remove:hover {
       background: rgba(239,68,68,.2);
       color: var(--err);
+    }
+
+    /* ============================================================
+       QUICK RESERVATION CARD (Dashboard)
+       ============================================================ */
+    .quick-res-card {
+      background: linear-gradient(135deg, var(--dg2), var(--dg3));
+      border: 1px solid var(--g2);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quick-res-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--dg6), var(--g4), var(--dg6));
+    }
+
+    .quick-res-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--g4);
+      letter-spacing: .5px;
+      margin-bottom: .8rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .quick-res-card .quick-res-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: .6rem;
+      align-items: end;
+    }
+
+    .quick-res-card .quick-res-grid > .form-group {
+      min-width: 0;
+    }
+
+    .quick-res-card label {
+      font-size: .65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--t3);
+      display: block;
+      margin-bottom: .25rem;
+    }
+
+    .quick-res-card input,
+    .quick-res-card select {
+      width: 100%;
+      padding: .5rem .6rem;
+      background: var(--dg1);
+      border: 1px solid var(--dg5);
+      border-radius: var(--radius-sm);
+      color: var(--t1);
+      font-size: .82rem;
+      transition: border-color var(--transition);
+    }
+
+    .quick-res-card input:focus,
+    .quick-res-card select:focus {
+      border-color: var(--g4);
+    }
+
+    .quick-res-card .quick-res-actions {
+      display: flex;
+      gap: .4rem;
+      align-items: end;
     }
 
     /* ============================================================
@@ -2119,6 +2233,20 @@
 
       .stat-cards {
         grid-template-columns: repeat(2, 1fr);
+        gap: .6rem;
+      }
+
+      .stat-card {
+        padding: .8rem;
+        min-width: 0;
+      }
+
+      .stat-card .stat-value {
+        font-size: 1.2rem;
+      }
+
+      .stat-card .stat-label {
+        font-size: .6rem;
       }
 
       .grid-2,
@@ -2129,10 +2257,17 @@
       .filter-bar {
         flex-direction: column;
         align-items: stretch;
+        gap: .5rem;
+      }
+
+      .filter-bar .filter-group {
+        min-width: 100%;
       }
 
       .filter-bar .filter-actions {
         margin-left: 0;
+        display: flex;
+        gap: .4rem;
       }
 
       .topbar .user-info {
@@ -2140,12 +2275,19 @@
       }
 
       .page-content {
-        padding: 1rem;
+        padding: .75rem;
       }
 
       .modal {
         max-width: 95vw;
         margin: .5rem;
+        max-height: 90vh;
+      }
+
+      .modal .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .quick-view-modal {
@@ -2167,22 +2309,133 @@
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
         gap: .5rem;
       }
+
+      /* ---- Reservation Module Mobile ---- */
+      .data-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -0.75rem;
+        padding: 0 0.75rem;
+      }
+
+      .data-table {
+        min-width: 700px;
+        font-size: .78rem;
+      }
+
+      .data-table thead th {
+        font-size: .65rem;
+        padding: .5rem .3rem;
+        white-space: nowrap;
+      }
+
+      .data-table tbody td {
+        padding: .4rem .3rem;
+        font-size: .75rem;
+      }
+
+      .data-table .table-actions {
+        flex-wrap: wrap;
+        gap: .2rem;
+      }
+
+      /* Quick Reservation Card on Dashboard */
+      .quick-res-card {
+        margin-bottom: 1rem;
+      }
+
+      .quick-res-card .quick-res-grid {
+        grid-template-columns: 1fr;
+        gap: .6rem;
+      }
+
+      .quick-res-card .quick-res-grid > .form-group {
+        min-width: 100%;
+      }
+
+      .quick-res-card .quick-res-actions {
+        flex-direction: column;
+      }
+
+      .quick-res-card .quick-res-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* Dashboard 2-col grid */
+      .dash-grid-2col {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* View Card Mobile */
+      .view-card .detail-row {
+        flex-direction: column;
+        gap: .1rem;
+      }
+
+      .view-card .detail-label {
+        min-width: auto;
+        font-size: .65rem;
+      }
+
+      .view-card .detail-value {
+        font-size: .8rem;
+      }
+
+      .view-card .view-card-footer {
+        flex-direction: column;
+      }
+
+      .view-card .view-card-footer .btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      /* Reservation modal form grid - force single column */
+      #res-modal-body [style*="grid-template-columns: 1fr 1fr"],
+      #res-modal-body [style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Step indicator compact */
+      .step-indicator {
+        padding: .5rem 0;
+      }
+
+      .step-dot {
+        width: 24px;
+        height: 24px;
+        font-size: .65rem;
+      }
+
+      .step-line {
+        width: 30px;
+      }
     }
 
     /* ============================================================
-       RESPONSIVE - SMALL MOBILE (max-width: 400px)
+       RESPONSIVE - SMALL MOBILE (max-width: 480px)
        ============================================================ */
-    @media (max-width: 400px) {
-      html {
-        font-size: 13px;
+    @media (max-width: 480px) {
+      .stat-cards {
+        grid-template-columns: 1fr 1fr;
+        gap: .4rem;
       }
 
-      .stat-cards {
-        grid-template-columns: 1fr;
+      .stat-card {
+        padding: .6rem;
+      }
+
+      .stat-card .stat-value {
+        font-size: 1rem;
+      }
+
+      .stat-card .stat-icon {
+        font-size: 1.1rem;
       }
 
       .page-content {
-        padding: .75rem;
+        padding: .5rem;
       }
 
       .content-card {
@@ -2207,6 +2460,32 @@
         right: .75rem;
         bottom: .75rem;
         left: .75rem;
+      }
+
+      /* Quick Reservation Card compact */
+      .quick-res-card {
+        padding: .8rem;
+      }
+
+      .quick-res-card h3 {
+        font-size: .9rem;
+      }
+
+      .quick-res-card input,
+      .quick-res-card select {
+        font-size: .8rem;
+        padding: .45rem .5rem;
+      }
+
+      /* Topbar clock hide on very small screens */
+      .topbar-center .clock {
+        font-size: .7rem;
+      }
+
+      /* Table actions more compact */
+      .data-table .table-actions button {
+        font-size: .7rem;
+        padding: 2px 4px;
       }
     }
 
@@ -2504,105 +2783,16 @@
 
   <!-- Reservation Modal -->
   <div id="reservationModal" class="modal-overlay">
-    <div class="modal">
+    <div class="modal" style="max-width:600px;">
       <div class="modal-header">
-        <h2 id="reservationModalTitle">New Reservation</h2>
+        <h2 id="res-modal-title">New Reservation</h2>
         <button class="modal-close" data-close="reservationModal">&times;</button>
       </div>
-      <div class="modal-body">
-        <div id="resStepIndicator" class="step-indicator">
-          <div class="step-dot active" data-step="1"></div>
-          <div class="step-line"></div>
-          <div class="step-dot" data-step="2"></div>
-          <div class="step-line"></div>
-          <div class="step-dot" data-step="3"></div>
-        </div>
-
-        <div id="resStep1" class="res-step">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="resGuestName">Guest Name *</label>
-              <input type="text" id="resGuestName" placeholder="Full name" />
-            </div>
-            <div class="form-group">
-              <label for="resGuestPhone">Phone *</label>
-              <input type="tel" id="resGuestPhone" placeholder="+1 (555) 000-0000" />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="resGuestEmail">Email</label>
-              <input type="email" id="resGuestEmail" placeholder="email@example.com" />
-            </div>
-            <div class="form-group">
-              <label for="resGuestCount">Party Size *</label>
-              <input type="number" id="resGuestCount" min="1" max="50" placeholder="2" />
-            </div>
-          </div>
-        </div>
-
-        <div id="resStep2" class="res-step hidden">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="resDate">Date *</label>
-              <input type="date" id="resDate" />
-            </div>
-            <div class="form-group">
-              <label for="resTime">Time *</label>
-              <input type="time" id="resTime" />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="resTable">Table</label>
-              <select id="resTable">
-                <option value="">Auto-assign</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="resDuration">Duration</label>
-              <select id="resDuration">
-                <option value="60">1 hour</option>
-                <option value="90">1.5 hours</option>
-                <option value="120">2 hours</option>
-                <option value="180">3 hours</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="resOccasion">Occasion</label>
-            <select id="resOccasion">
-              <option value="">None</option>
-              <option value="birthday">Birthday</option>
-              <option value="anniversary">Anniversary</option>
-              <option value="business">Business Dinner</option>
-              <option value="date">Date Night</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="resStep3" class="res-step hidden">
-          <div class="form-group">
-            <label>Pre-order Menu Items</label>
-            <div id="resMenuChips" class="flex gap-1" style="flex-wrap:wrap;"></div>
-            <button type="button" id="resAddMenuBtn" class="btn btn-ghost btn-sm mt-1">+ Add Items</button>
-          </div>
-          <div class="form-group">
-            <label for="resNotes">Special Requests / Notes</label>
-            <textarea id="resNotes" placeholder="Allergies, seating preferences, etc."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="resDeposit">Deposit Amount</label>
-            <input type="number" id="resDeposit" min="0" step="0.01" placeholder="0.00" />
-          </div>
-        </div>
+      <div class="modal-body" id="res-modal-body">
+        <!-- Content dynamically generated by openReservationModal() -->
       </div>
-      <div class="modal-footer">
-        <button id="resPrevBtn" class="btn btn-ghost hidden">Back</button>
-        <button id="resNextBtn" class="btn btn-primary">Next</button>
-        <button id="resSaveBtn" class="btn btn-success hidden">Save Reservation</button>
-        <button class="btn btn-ghost" data-close="reservationModal">Cancel</button>
+      <div class="modal-footer" id="res-modal-footer">
+        <!-- Footer dynamically generated by openReservationModal() -->
       </div>
     </div>
   </div>
@@ -2623,10 +2813,12 @@
           <div class="view-card-body" id="viewCardBody">
             <!-- Populated dynamically -->
           </div>
-          <div class="view-card-footer">
+          <div class="view-card-footer" style="display:flex;flex-wrap:wrap;gap:.4rem;">
             <button id="viewEditBtn" class="btn btn-primary btn-sm">Edit</button>
             <button id="viewCancelBtn" class="btn btn-danger btn-sm">Cancel Res.</button>
-            <button id="viewPrintBtn" class="btn btn-ghost btn-sm">Print</button>
+            <button id="viewPrintBtn" class="btn btn-ghost btn-sm" onclick="window.print()">Print</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportViewPDF()" style="color:var(--err);">PDF</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportViewJPG()" style="color:var(--warn);">JPG</button>
           </div>
         </div>
       </div>
@@ -5560,6 +5752,34 @@ function renderDashboard(container) {
 
   // Build skeleton first
   el.innerHTML =
+    // Quick Reservation Card (Primary booking system)
+    '<div class="quick-res-card" id="quick-res-card">' +
+      '<h3>&#128197; ' + (L.reservations.newReservation || 'Quick Reservation') + '</h3>' +
+      '<div class="quick-res-grid">' +
+        '<div class="form-group">' +
+          '<label>' + L.reservations.guestName + ' *</label>' +
+          '<input type="text" id="qr-guest-name" placeholder="' + L.reservations.guestName + '" />' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label>' + L.reservations.phone + ' *</label>' +
+          '<input type="tel" id="qr-guest-phone" placeholder="' + L.reservations.phone + '" />' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label>' + L.reservations.date + ' *</label>' +
+          '<input type="date" id="qr-date" value="' + getBDToday() + '" />' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label>' + L.reservations.time + ' *</label>' +
+          '<input type="time" id="qr-time" />' +
+        '</div>' +
+        '<div class="quick-res-actions">' +
+          '<button class="btn btn-primary" onclick="quickResBook()">&#10133; ' + (c.save || 'Book') + '</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="openReservationModal()">&#9881; ' + (c.more || 'More') + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="qr-suggest-dropdown" style="display:none;position:absolute;top:auto;left:0;right:0;background:var(--dg2);border:1px solid var(--dg5);border-radius:var(--radius-sm);max-height:150px;overflow-y:auto;z-index:100;box-shadow:var(--shadow);"></div>' +
+    '</div>' +
+
     '<div class="stat-cards" id="dash-stat-cards">' +
       '<div class="stat-card green"><span class="stat-icon">&#128197;</span><div class="stat-value" id="ds-today-res">--</div><div class="stat-label">' + d.todayReservations + '</div><div class="decorative-circle"></div></div>' +
       '<div class="stat-card teal"><span class="stat-icon">&#128101;</span><div class="stat-value" id="ds-total-guests">--</div><div class="stat-label">' + d.totalGuests + '</div><div class="decorative-circle"></div></div>' +
@@ -5680,6 +5900,119 @@ function renderDashboard(container) {
 
   // Ensure clock is running
   startClock();
+
+  // Quick Reservation phone auto-suggest
+  var qrPhoneInput = document.getElementById('qr-guest-phone');
+  if (qrPhoneInput) {
+    qrPhoneInput.addEventListener('input', function() {
+      var query = this.value.trim().toLowerCase();
+      var dropdown = document.getElementById('qr-suggest-dropdown');
+      if (!dropdown || query.length < 2) {
+        if (dropdown) dropdown.style.display = 'none';
+        return;
+      }
+      var matches = [];
+      var seen = {};
+      for (var i = 0; i < APP.reservations.length; i++) {
+        var r = APP.reservations[i];
+        var phone = (r.guest_phone || r.phone || '').toLowerCase();
+        if (phone && phone.indexOf(query) !== -1 && !seen[phone]) {
+          seen[phone] = true;
+          matches.push({ name: r.guest_name || r.name || '', phone: r.guest_phone || r.phone || '' });
+        }
+      }
+      if (matches.length === 0) { dropdown.style.display = 'none'; return; }
+      matches = matches.slice(0, 5);
+      var html = '';
+      for (var k = 0; k < matches.length; k++) {
+        html += '<div style="padding:.4rem .7rem;cursor:pointer;font-size:.8rem;color:var(--t2);border-bottom:1px solid var(--dg4);" ' +
+          'onclick="document.getElementById(\'qr-guest-name\').value=\'' + escapeHtml(matches[k].name).replace(/'/g, "\\'") + '\';' +
+          'document.getElementById(\'qr-guest-phone\').value=\'' + escapeHtml(matches[k].phone).replace(/'/g, "\\'") + '\';' +
+          'document.getElementById(\'qr-suggest-dropdown\').style.display=\'none\';">' +
+          '<strong style="color:var(--t1);">' + escapeHtml(matches[k].name) + '</strong> ' +
+          '<span style="color:var(--g4);">' + escapeHtml(matches[k].phone) + '</span></div>';
+      }
+      dropdown.innerHTML = html;
+      dropdown.style.display = 'block';
+    });
+  }
+}
+
+// -----------------------------------------------------------
+// [F34b] quickResBook() - Quick Reservation from Dashboard
+// -----------------------------------------------------------
+function quickResBook() {
+  var L = LANG[APP.lang];
+  var c = L.common;
+  var rv = L.reservations;
+
+  var guestName = (document.getElementById('qr-guest-name') || {}).value || '';
+  var guestPhone = (document.getElementById('qr-guest-phone') || {}).value || '';
+  var date = (document.getElementById('qr-date') || {}).value || '';
+  var time = (document.getElementById('qr-time') || {}).value || '';
+
+  // Validate
+  if (!guestName.trim()) {
+    toast(rv.guestName + ' is ' + c.required, 'error');
+    document.getElementById('qr-guest-name').focus();
+    return;
+  }
+  if (!guestPhone.trim()) {
+    toast(rv.phone + ' is ' + c.required, 'error');
+    document.getElementById('qr-guest-phone').focus();
+    return;
+  }
+  if (!date) {
+    toast(rv.date + ' is ' + c.required, 'error');
+    return;
+  }
+  if (!time) {
+    toast(rv.time + ' is ' + c.required, 'error');
+    return;
+  }
+
+  var data = {
+    guest_name: guestName.trim(),
+    guest_phone: guestPhone.trim(),
+    date: date,
+    time: time,
+    category: 'dinner',
+    adults: 1,
+    babies: 0,
+    guests: 1,
+    type: 'reservation',
+    status: 'confirmed',
+    notes: '',
+    menu_packages: '',
+    deposit_amount: 0,
+    deposit_status: 'unpaid'
+  };
+
+  gasPost('addreservation', data)
+    .then(function(response) {
+      if (response && response.success) {
+        toast('Reservation created successfully!', 'success');
+        // Clear form
+        var nameInput = document.getElementById('qr-guest-name');
+        var phoneInput = document.getElementById('qr-guest-phone');
+        var timeInput = document.getElementById('qr-time');
+        if (nameInput) nameInput.value = '';
+        if (phoneInput) phoneInput.value = '';
+        if (timeInput) timeInput.value = '';
+        // Reload dashboard
+        loadReservations().then(function() {
+          renderPage('dashboard');
+        }).catch(function() {
+          renderPage('dashboard');
+        });
+      } else {
+        var errMsg = (response && response.message) ? response.message : 'Failed to create reservation';
+        toast(errMsg, 'error');
+      }
+    })
+    .catch(function(err) {
+      toast('Error: ' + err.message, 'error');
+    });
 }
 
 // Helper for dashboard stat card value updates
@@ -5925,11 +6258,19 @@ function renderReservations(container) {
       '<div class="filter-actions">' +
         '<button class="btn btn-ghost btn-sm" onclick="filterReservations()">' + c.filter + '</button>' +
         '<button class="btn btn-ghost btn-sm" onclick="quickViewReservations()">' + c.view + '</button>' +
+        '<button class="btn btn-ghost btn-sm" id="res-view-toggle" onclick="toggleResView()" title="Toggle Card/Table View">&#128196;</button>' +
       '</div>' +
     '</div>' +
 
-    // Table
-    '<div class="data-table-wrapper">' +
+    // Card view (mobile-friendly)
+    '<div id="res-card-view" style="display:none;">' +
+      '<div id="res-card-list" style="display:flex;flex-direction:column;gap:.6rem;">' +
+        '<p style="text-align:center;color:var(--t3);padding:2rem;">' + c.loading + '</p>' +
+      '</div>' +
+    '</div>' +
+
+    // Table view (desktop)
+    '<div class="data-table-wrapper" id="res-table-view">' +
       '<table class="data-table">' +
         '<thead>' +
           '<tr>' +
@@ -5955,6 +6296,14 @@ function renderReservations(container) {
   loadReservations()
     .then(function() {
       renderReservationsTable(APP.reservations);
+      // Auto-switch to card view on mobile
+      if (window.innerWidth <= 768) {
+        _resViewMode = 'card';
+        var cardView = document.getElementById('res-card-view');
+        var tableView = document.getElementById('res-table-view');
+        if (cardView) cardView.style.display = 'block';
+        if (tableView) tableView.style.display = 'none';
+      }
     })
     .catch(function(err) {
       console.error('Error loading reservations:', err);
@@ -6004,6 +6353,7 @@ function renderReservationsTable(data) {
     var actionBtns = '';
     actionBtns += '<button class="act-view" title="' + c.view + '" onclick="viewReservation(\'' + id + '\')">&#128065;</button>';
     actionBtns += '<button class="act-edit" title="' + c.edit + '" onclick="editReservation(\'' + id + '\')">&#9998;</button>';
+    actionBtns += '<button style="color:var(--warn);" title="Export JPG" onclick="exportViewJPGById(\'' + id + '\')">&#128247;</button>';
 
     if (status === 'confirmed') {
       actionBtns += '<button class="act-delete" title="' + r.cancelReservation + '" onclick="cancelReservation(\'' + id + '\')">&#10060;</button>';
@@ -6027,6 +6377,116 @@ function renderReservationsTable(data) {
   }
 
   tbody.innerHTML = html;
+
+  // Also render card view
+  renderReservationsCards(data);
+}
+
+// -----------------------------------------------------------
+// Toggle between Card View and Table View
+// -----------------------------------------------------------
+var _resViewMode = 'table'; // 'table' or 'card'
+
+function toggleResView() {
+  var cardView = document.getElementById('res-card-view');
+  var tableView = document.getElementById('res-table-view');
+  var toggleBtn = document.getElementById('res-view-toggle');
+  if (!cardView || !tableView) return;
+
+  if (_resViewMode === 'table') {
+    _resViewMode = 'card';
+    cardView.style.display = 'block';
+    tableView.style.display = 'none';
+    if (toggleBtn) toggleBtn.innerHTML = '&#128203;'; // table icon
+  } else {
+    _resViewMode = 'table';
+    cardView.style.display = 'none';
+    tableView.style.display = 'block';
+    if (toggleBtn) toggleBtn.innerHTML = '&#128196;'; // card icon
+  }
+}
+
+// -----------------------------------------------------------
+// Render reservations as mobile-friendly cards
+// -----------------------------------------------------------
+function renderReservationsCards(data) {
+  var container = document.getElementById('res-card-list');
+  if (!container) return;
+
+  var L = LANG[APP.lang];
+  var r = L.reservations;
+  var c = L.common;
+
+  if (!data || data.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--t3);padding:2rem;">' + c.nodata + '</p>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < data.length; i++) {
+    var item = data[i];
+    var id = item.id || item.rowId || (i + 1);
+    var guestName = escapeHtml(item.guest_name || item.name || item.guestName || 'N/A');
+    var phone = escapeHtml(item.guest_phone || item.phone || '--');
+    var date = escapeHtml(item.date || '--');
+    var time = fmtTime(item.time || item.reservation_time || '');
+    var guests = item.guests || (parseInt(item.adults || 0, 10) + parseInt(item.babies || 0, 10)) || '--';
+    var table = escapeHtml(item.table_name || item.table || item.tableName || '--');
+    var status = item.status || 'confirmed';
+    var type = escapeHtml(item.type || item.reservation_type || '--');
+
+    var badgeClass = 'badge-gold';
+    var statusLabel = status;
+    if (status === 'confirmed') { badgeClass = 'badge-success'; statusLabel = r.confirmed; }
+    else if (status === 'checked_in') { badgeClass = 'badge-info'; statusLabel = r.checkedIn; }
+    else if (status === 'cancelled') { badgeClass = 'badge-danger'; statusLabel = r.cancelled; }
+    else if (status === 'no_show') { badgeClass = 'badge-warning'; statusLabel = r.noShow; }
+
+    html += '<div style="background:var(--dg2);border:1px solid var(--dg4);border-radius:var(--radius);padding:.8rem 1rem;transition:border-color var(--transition);" ' +
+      'onmouseover="this.style.borderColor=\'var(--g2)\'" onmouseout="this.style.borderColor=\'var(--dg4)\'">' +
+      // Top: Name + Status + ID
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">' +
+        '<div style="display:flex;align-items:center;gap:.4rem;">' +
+          '<span style="color:var(--t3);font-size:.65rem;">#' + id + '</span>' +
+          '<strong style="color:var(--t1);font-size:.9rem;">' + guestName + '</strong>' +
+        '</div>' +
+        '<span class="badge ' + badgeClass + '">' + statusLabel + '</span>' +
+      '</div>' +
+      // Details grid
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem .8rem;font-size:.78rem;margin-bottom:.5rem;">' +
+        '<div><span style="color:var(--t3);font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;">' + r.phone + '</span><br><span style="color:var(--t1);">' + phone + '</span></div>' +
+        '<div><span style="color:var(--t3);font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;">' + r.date + '</span><br><span style="color:var(--t1);">' + date + '</span></div>' +
+        '<div><span style="color:var(--t3);font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;">' + r.time + '</span><br><span style="color:var(--g4);font-weight:600;font-variant-numeric:tabular-nums;">' + time + '</span></div>' +
+        '<div><span style="color:var(--t3);font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;">' + r.guests + '</span><br><span style="color:var(--t1);">' + guests + ' pax</span></div>' +
+        '<div><span style="color:var(--t3);font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;">' + r.table + '</span><br><span style="color:var(--t1);">' + table + '</span></div>' +
+        '<div><span style="color:var(--t3);font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;">' + c.type + '</span><br><span style="color:var(--t1);">' + type + '</span></div>' +
+      '</div>' +
+      // Actions
+      '<div style="display:flex;gap:.4rem;flex-wrap:wrap;">' +
+        '<button class="btn btn-primary btn-sm" onclick="viewReservation(\'' + id + '\')" style="font-size:.7rem;padding:3px 8px;">&#128065; ' + c.view + '</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="editReservation(\'' + id + '\')" style="font-size:.7rem;padding:3px 8px;">&#9998; ' + c.edit + '</button>' +
+        (status === 'confirmed' ?
+          '<button class="btn btn-ghost btn-sm" onclick="cancelReservation(\'' + id + '\')" style="font-size:.7rem;padding:3px 8px;color:var(--err);">&#10060; ' + r.cancel + '</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="exportViewJPGById(\'' + id + '\')" style="font-size:.7rem;padding:3px 8px;color:var(--warn);">&#128247; JPG</button>'
+        : status === 'cancelled' || status === 'no_show' ?
+          '<button class="btn btn-ghost btn-sm" onclick="reactivateReservation(\'' + id + '\')" style="font-size:.7rem;padding:3px 8px;color:var(--ok);">&#128260; Restore</button>'
+        : '') +
+      '</div>' +
+    '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+// -----------------------------------------------------------
+// Export JPG directly from card view (by ID)
+// -----------------------------------------------------------
+function exportViewJPGById(id) {
+  // Open the view first, then export JPG
+  viewReservation(id);
+  setTimeout(function() {
+    exportViewJPG();
+  }, 500);
 }
 
 // Quick View: opens the quick view modal with today's reservations
@@ -6187,6 +6647,44 @@ function resNextStep(step) {
     if (j < step - 1) {
       lines[j].classList.add('completed');
     }
+  }
+
+  // Update Back / Next / Save button visibility
+  var backBtn = document.getElementById('res-btn-back');
+  var nextBtn = document.getElementById('res-btn-next');
+  var saveBtn = document.getElementById('res-btn-save');
+  if (backBtn) backBtn.style.display = (step > 1) ? 'inline-flex' : 'none';
+  if (nextBtn) nextBtn.style.display = (step < 3) ? 'inline-flex' : 'none';
+  if (saveBtn) saveBtn.style.display = (step === 3) ? 'inline-flex' : 'none';
+}
+
+// Helper: go to next step in wizard
+function resGoNext() {
+  var currentStep = 1;
+  for (var s = 1; s <= 3; s++) {
+    var stepEl = document.getElementById('res-step-' + s);
+    if (stepEl && stepEl.style.display !== 'none') {
+      currentStep = s;
+      break;
+    }
+  }
+  if (currentStep < 3) {
+    resNextStep(currentStep + 1);
+  }
+}
+
+// Helper: go to previous step in wizard
+function resGoBack() {
+  var currentStep = 1;
+  for (var s = 1; s <= 3; s++) {
+    var stepEl = document.getElementById('res-step-' + s);
+    if (stepEl && stepEl.style.display !== 'none') {
+      currentStep = s;
+      break;
+    }
+  }
+  if (currentStep > 1) {
+    resNextStep(currentStep - 1);
   }
 }
 
@@ -6388,10 +6886,10 @@ function openReservationModal(editData) {
   var modalFooter = document.getElementById('res-modal-footer');
   if (modalFooter) {
     modalFooter.innerHTML =
-      '<button class="btn btn-ghost btn-sm" id="res-btn-back" onclick="resNextStep(1)" style="display:none;">' + c.back + '</button>' +
-      '<button class="btn btn-ghost btn-sm" id="res-btn-next" onclick="resNextStep(2)">' + c.next + '</button>' +
+      '<button class="btn btn-ghost btn-sm" id="res-btn-back" onclick="resGoBack()" style="display:none;">' + c.back + '</button>' +
+      '<button class="btn btn-ghost btn-sm" id="res-btn-next" onclick="resGoNext()">' + c.next + '</button>' +
       '<button class="btn btn-primary btn-sm" id="res-btn-save" onclick="saveReservation()" style="display:none;">' + c.save + '</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="closeModal(\'reservation-modal\')">' + c.cancel + '</button>';
+      '<button class="btn btn-ghost btn-sm" onclick="closeModal(\'reservationModal\')">' + c.cancel + '</button>';
   }
 
   // Populate selects
