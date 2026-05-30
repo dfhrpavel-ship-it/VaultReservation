@@ -304,11 +304,31 @@
     }
 
     .backend-config-body.open {
-      max-height: 200px;
+      max-height: 300px;
     }
 
     .backend-config-body .form-group {
       margin-top: .6rem;
+    }
+
+    .backend-config-body input {
+      width: 100%;
+      padding: .6rem .8rem;
+      background: var(--dg1);
+      border: 1px solid var(--dg5);
+      border-radius: var(--radius-sm);
+      color: var(--t1);
+      font-size: .82rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .backend-config-body input:focus {
+      border-color: var(--g3);
+      box-shadow: 0 0 0 3px rgba(196,154,42,.15);
+    }
+
+    .backend-config-body input::placeholder {
+      color: var(--t3);
     }
 
     /* ============================================================
@@ -2305,12 +2325,16 @@
         </div>
         <div id="backendConfigBody" class="backend-config-body">
           <div class="form-group">
-            <label for="backendUrl">API Base URL</label>
-            <input type="url" id="backendUrl" placeholder="http://localhost:3000" />
+            <label for="gas-url-input">Google Apps Script URL</label>
+            <input type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" />
           </div>
-          <div class="form-group">
-            <label for="backendKey">API Key</label>
-            <input type="password" id="backendKey" placeholder="Optional API key" />
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
+            <span id="connection-status-dot" style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0;"></span>
+            <span id="connection-status-text" style="font-size:.75rem;color:var(--t3);">Not connected</span>
+          </div>
+          <div style="display:flex;gap:.5rem;">
+            <button type="button" id="test-connection-btn" class="btn btn-ghost btn-sm" style="flex:1;">Test</button>
+            <button type="button" id="save-gas-url-btn" class="btn btn-primary btn-sm" style="flex:1;">Save</button>
           </div>
         </div>
       </div>
@@ -14338,12 +14362,12 @@ function exportReservationsCSV() {
 // -----------------------------------------------------------
 (function init() {
   // ---- 1. Check localStorage for saved GAS URL ----
-  var savedGasUrl = localStorage.getItem('vault_gas_url');
+  var savedGasUrl = localStorage.getItem('vault_reservation_gas_url') || localStorage.getItem('vault_gas_url');
   if (savedGasUrl) {
     APP.gasUrl = savedGasUrl;
 
     // Auto-fill login form if it exists
-    var gasUrlInput = document.getElementById('login-gas-url');
+    var gasUrlInput = document.getElementById('gas-url-input');
     if (gasUrlInput) {
       gasUrlInput.value = savedGasUrl;
     }
@@ -14429,39 +14453,69 @@ function exportReservationsCSV() {
     });
   }
 
-  // ---- 5. Set up event listeners for backend config buttons ----
-  var saveBackendBtn = document.getElementById('save-backend-btn');
-  if (saveBackendBtn) {
-    saveBackendBtn.addEventListener('click', function() {
-      var gasUrlInput = document.getElementById('backend-gas-url');
-      if (gasUrlInput) {
-        var url = gasUrlInput.value.trim();
-        if (url) {
-          localStorage.setItem('vault_gas_url', url);
-          APP.gasUrl = url;
-          toast('Backend URL saved', 'success');
-        } else {
-          toast('Please enter a valid URL', 'error');
+  // ---- 5. Backend Configuration Toggle ----
+  var backendToggle = document.getElementById('backendConfigToggle');
+  var backendBody = document.getElementById('backendConfigBody');
+  if (backendToggle && backendBody) {
+    backendToggle.addEventListener('click', function() {
+      var isOpen = backendBody.classList.contains('open');
+      if (isOpen) {
+        backendBody.classList.remove('open');
+        backendToggle.classList.remove('open');
+      } else {
+        backendBody.classList.add('open');
+        backendToggle.classList.add('open');
+      }
+    });
+  }
+
+  // ---- 5b. Save GAS URL button ----
+  var saveGasUrlBtn = document.getElementById('save-gas-url-btn');
+  if (saveGasUrlBtn) {
+    saveGasUrlBtn.addEventListener('click', function() {
+      if (typeof saveGasUrl === 'function') {
+        saveGasUrl();
+      } else {
+        var gasUrlInput = document.getElementById('gas-url-input');
+        if (gasUrlInput) {
+          var url = gasUrlInput.value.trim();
+          if (url) {
+            localStorage.setItem('vault_reservation_gas_url', url);
+            APP.gasUrl = url;
+            toast('Backend URL saved', 'success');
+          } else {
+            toast('Please enter a valid URL', 'error');
+          }
         }
       }
     });
   }
 
-  var testBackendBtn = document.getElementById('test-backend-btn');
-  if (testBackendBtn) {
-    testBackendBtn.addEventListener('click', function() {
-      var gasUrlInput = document.getElementById('backend-gas-url');
-      if (gasUrlInput && gasUrlInput.value.trim()) {
-        APP.gasUrl = gasUrlInput.value.trim();
-        gasGet('ping', {})
-          .then(function() {
-            toast('Backend connection successful', 'success');
-          })
-          .catch(function(err) {
-            toast('Connection failed: ' + (err.message || 'Unknown error'), 'error');
-          });
+  // ---- 5c. Test GAS Connection button ----
+  var testConnBtn = document.getElementById('test-connection-btn');
+  if (testConnBtn) {
+    testConnBtn.addEventListener('click', function() {
+      if (typeof testGasConnection === 'function') {
+        // First save the URL so testGasConnection can use it
+        var gasUrlInput = document.getElementById('gas-url-input');
+        if (gasUrlInput && gasUrlInput.value.trim()) {
+          APP.gasUrl = gasUrlInput.value.trim();
+        }
+        testGasConnection();
       } else {
-        toast('Please enter a GAS URL first', 'error');
+        var gasUrlInput = document.getElementById('gas-url-input');
+        if (gasUrlInput && gasUrlInput.value.trim()) {
+          APP.gasUrl = gasUrlInput.value.trim();
+          gasGet('init', {})
+            .then(function() {
+              toast('Backend connection successful', 'success');
+            })
+            .catch(function(err) {
+              toast('Connection failed: ' + (err.message || 'Unknown error'), 'error');
+            });
+        } else {
+          toast('Please enter a GAS URL first', 'error');
+        }
       }
     });
   }
