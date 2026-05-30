@@ -5048,8 +5048,11 @@ function showApp() {
   }
 
   startClock();
-  loadInitialData();
-  navigate('dashboard');
+  loadInitialData().then(function() {
+    navigate('dashboard');
+  }).catch(function() {
+    navigate('dashboard');
+  });
 }
 
 // -----------------------------------------------------------
@@ -5680,14 +5683,24 @@ function stopClock() {
 // loadInitialData() - Load Essential Initial Data
 // -----------------------------------------------------------
 function loadInitialData() {
-  // Tables and menu packages are needed for select dropdowns across the app
-  loadTables().catch(function(err) {
-    console.error('Failed to load tables on init:', err);
-  });
+  // Load all essential data and return a promise that resolves when all are done
+  var promises = [];
 
-  loadMenuPackages().catch(function(err) {
+  // Load reservations first (needed for dashboard stats)
+  promises.push(loadReservations().catch(function(err) {
+    console.error('Failed to load reservations on init:', err);
+  }));
+
+  // Tables and menu packages are needed for select dropdowns across the app
+  promises.push(loadTables().catch(function(err) {
+    console.error('Failed to load tables on init:', err);
+  }));
+
+  promises.push(loadMenuPackages().catch(function(err) {
     console.error('Failed to load menu packages on init:', err);
-  });
+  }));
+
+  return Promise.all(promises);
 }
 
 // -----------------------------------------------------------
@@ -5822,7 +5835,80 @@ function renderDashboard(container) {
     gridEl.style.gridTemplateColumns = 'repeat(auto-fit, minmax(320px, 1fr))';
   }
 
-  // Fetch dashboard stats from backend
+  // ---- PRIMARY: Compute dashboard from APP.reservations (client-side) ----
+  // This ensures today's date matches Asia/Dhaka timezone exactly
+  var todayBD = getBDToday();
+  var todayRes = [];
+  var allActiveRes = [];
+  for (var ri = 0; ri < APP.reservations.length; ri++) {
+    var res = APP.reservations[ri];
+    if (res.date === todayBD) {
+      todayRes.push(res);
+    }
+    if (res.status !== 'cancelled') {
+      allActiveRes.push(res);
+    }
+  }
+
+  var totalGuests = 0;
+  var cancelledCount = 0;
+  var checkedInCount = 0;
+  for (var rj = 0; rj < todayRes.length; rj++) {
+    totalGuests += parseInt(todayRes[rj].guests || todayRes[rj].adults || 0, 10);
+    if (todayRes[rj].status === 'cancelled') cancelledCount++;
+    if (todayRes[rj].status === 'checked_in') checkedInCount++;
+  }
+
+  var availTables = 0;
+  for (var tk = 0; tk < APP.tables.length; tk++) {
+    if (APP.tables[tk].status === 'available') availTables++;
+  }
+
+  var totalTables = APP.tables.length || 1;
+  var occupancyRate = Math.round((checkedInCount / totalTables) * 100);
+
+  // Compute revenue & deposits from today's reservations
+  var todayRevenue = 0;
+  var todayDeposits = 0;
+  for (var rd = 0; rd < todayRes.length; rd++) {
+    var depAmt = parseFloat(todayRes[rd].deposit_amount || todayRes[rd].depositAmount || 0);
+    if (todayRes[rd].status !== 'cancelled') {
+      todayRevenue += depAmt;
+    }
+    if (todayRes[rd].deposit_status === 'paid' || todayRes[rd].depositStatus === 'paid') {
+      todayDeposits += depAmt;
+    }
+  }
+
+  // Update stat cards immediately from client data
+  setStatValue('ds-today-res', todayRes.length);
+  setStatValue('ds-total-guests', totalGuests);
+  setStatValue('ds-avail-tables', availTables);
+  setStatValue('ds-occupancy', occupancyRate + '%');
+  setStatValue('ds-revenue', '\u09F3' + Number(todayRevenue).toLocaleString());
+  setStatValue('ds-deposits', '\u09F3' + Number(todayDeposits).toLocaleString());
+  setStatValue('ds-cancelled', cancelledCount);
+
+  // Render arrivals from client data
+  renderDashboardArrivals(todayRes);
+
+  // Render peak hours from client data
+  var hourMap = {};
+  for (var rh = 0; rh < todayRes.length; rh++) {
+    var rhour = String(todayRes[rh].time || '').split(':')[0];
+    if (rhour) {
+      hourMap[rhour] = (hourMap[rhour] || 0) + 1;
+    }
+  }
+  renderDashboardPeakHours(hourMap);
+
+  // Update reservation badge in sidebar
+  var resBadge = document.getElementById('resBadge');
+  if (resBadge) {
+    resBadge.textContent = todayRes.length;
+  }
+
+  // ---- SECONDARY: Try backend API for richer data (optional) ----
   gasGet('getdashboardstats', {})
     .then(function(response) {
       var stats = response;
@@ -5830,72 +5916,54 @@ function renderDashboard(container) {
         stats = response.data;
       }
 
-      // Populate stat cards
-      var todayRes = (stats.todayReservations !== undefined) ? stats.todayReservations : 0;
-      var totalGuests = (stats.totalGuests !== undefined) ? stats.totalGuests : 0;
-      var availTables = (stats.availableTables !== undefined) ? stats.availableTables : 0;
-      var occupancy = (stats.occupancyRate !== undefined) ? stats.occupancyRate : 0;
-      var revenue = (stats.todayRevenue !== undefined) ? stats.todayRevenue : 0;
-      var deposits = (stats.depositSummary !== undefined) ? stats.depositSummary : 0;
-      var cancelled = (stats.cancelled !== undefined) ? stats.cancelled : 0;
+      // Only override client data if backend provides values
+      // Map backend nested response to flat stat values
+      var bTodayRes = stats.todayReservations !== undefined ? stats.todayReservations :
+                      (stats.reservations && stats.reservations.total !== undefined ? stats.reservations.total : undefined);
+      var bTotalGuests = stats.totalGuests !== undefined ? stats.totalGuests :
+                         (stats.guests && stats.guests.total !== undefined ? stats.guests.total : undefined);
+      var bAvailTables = stats.availableTables !== undefined ? stats.availableTables :
+                         (stats.tables && stats.tables.available !== undefined ? stats.tables.available : undefined);
+      var bOccupancy = stats.occupancyRate !== undefined ? stats.occupancyRate :
+                       (stats.tables && stats.tables.occupancy_rate !== undefined ? parseInt(stats.tables.occupancy_rate) : undefined);
+      var bRevenue = stats.todayRevenue !== undefined ? stats.todayRevenue :
+                     (stats.revenue && stats.revenue.total !== undefined ? stats.revenue.total : undefined);
+      var bDeposits = stats.depositSummary !== undefined ? stats.depositSummary :
+                      (stats.deposits && stats.deposits.total_paid !== undefined ? stats.deposits.total_paid : undefined);
+      var bCancelled = stats.cancelled !== undefined ? stats.cancelled :
+                       (stats.reservations && stats.reservations.cancelled !== undefined ? stats.reservations.cancelled : undefined);
 
-      setStatValue('ds-today-res', todayRes);
-      setStatValue('ds-total-guests', totalGuests);
-      setStatValue('ds-avail-tables', availTables);
-      setStatValue('ds-occupancy', occupancy + '%');
-      setStatValue('ds-revenue', '\u09F3' + Number(revenue).toLocaleString());
-      setStatValue('ds-deposits', '\u09F3' + Number(deposits).toLocaleString());
-      setStatValue('ds-cancelled', cancelled);
+      if (bTodayRes !== undefined) setStatValue('ds-today-res', bTodayRes);
+      if (bTotalGuests !== undefined) setStatValue('ds-total-guests', bTotalGuests);
+      if (bAvailTables !== undefined) setStatValue('ds-avail-tables', bAvailTables);
+      if (bOccupancy !== undefined) setStatValue('ds-occupancy', bOccupancy + '%');
+      if (bRevenue !== undefined) setStatValue('ds-revenue', '\u09F3' + Number(bRevenue).toLocaleString());
+      if (bDeposits !== undefined) setStatValue('ds-deposits', '\u09F3' + Number(bDeposits).toLocaleString());
+      if (bCancelled !== undefined) setStatValue('ds-cancelled', bCancelled);
 
-      // Render arrivals
-      renderDashboardArrivals(stats.upcomingArrivals || []);
+      // Use backend arrivals if available
+      var bArrivals = stats.upcomingArrivals || todayRes;
+      if (bArrivals && bArrivals.length > 0) {
+        renderDashboardArrivals(bArrivals);
+      }
 
-      // Render recent activity
-      renderDashboardActivity(stats.recentActivity || []);
+      // Use backend activity if available
+      var bActivity = stats.recentActivity || stats.recent_activity;
+      if (bActivity && bActivity.length > 0) {
+        renderDashboardActivity(bActivity);
+      } else {
+        renderDashboardActivity([]);
+      }
 
-      // Render peak hours
-      renderDashboardPeakHours(stats.hourlyDistribution || {});
+      // Use backend hourly data if available
+      var bHourly = stats.hourlyDistribution || stats.timeline;
+      if (bHourly && ((typeof bHourly === 'object' && Object.keys(bHourly).length > 0))) {
+        renderDashboardPeakHours(bHourly);
+      }
     })
     .catch(function(err) {
-      console.error('Error loading dashboard stats:', err);
-
-      // Fallback: compute from APP.reservations if available
-      var today = getBDToday();
-      var todayRes = [];
-      for (var i = 0; i < APP.reservations.length; i++) {
-        if (APP.reservations[i].date === today) {
-          todayRes.push(APP.reservations[i]);
-        }
-      }
-
-      var totalGuests = 0;
-      var cancelledCount = 0;
-      var checkedInCount = 0;
-      for (var j = 0; j < todayRes.length; j++) {
-        totalGuests += parseInt(todayRes[j].guests || todayRes[j].adults || 0, 10);
-        if (todayRes[j].status === 'cancelled') cancelledCount++;
-        if (todayRes[j].status === 'checked_in') checkedInCount++;
-      }
-
-      var availTables = 0;
-      for (var k = 0; k < APP.tables.length; k++) {
-        if (APP.tables[k].status === 'available') availTables++;
-      }
-
-      var totalTables = APP.tables.length || 1;
-      var occupancyRate = Math.round((checkedInCount / totalTables) * 100);
-
-      setStatValue('ds-today-res', todayRes.length);
-      setStatValue('ds-total-guests', totalGuests);
-      setStatValue('ds-avail-tables', availTables);
-      setStatValue('ds-occupancy', occupancyRate + '%');
-      setStatValue('ds-revenue', '\u09F30');
-      setStatValue('ds-deposits', '\u09F30');
-      setStatValue('ds-cancelled', cancelledCount);
-
-      renderDashboardArrivals(todayRes);
+      console.error('Backend dashboard stats unavailable, using client data:', err);
       renderDashboardActivity([]);
-      renderDashboardPeakHours({});
     });
 
   // Ensure clock is running
@@ -7411,13 +7479,32 @@ function viewReservation(id) {
     return;
   }
 
+  // Store current view reservation for export functions
+  APP.currentViewReservation = reservation;
+
   var viewContent = document.getElementById('viewModalContent');
   if (!viewContent) return;
 
+  var L = LANG[APP.lang];
+  var rv = L.reservations;
+  var c = L.common;
+  var status = reservation.status || 'confirmed';
+
+  // Build the view card HTML
   viewContent.innerHTML = buildViewCardHTML(reservation);
 
-  // Store current view reservation for export functions
-  APP.currentViewReservation = reservation;
+  // Add action buttons below the view card
+  var actionDiv = document.createElement('div');
+  actionDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--dg4);';
+  actionDiv.innerHTML =
+    '<button class="btn btn-primary btn-sm" onclick="editReservation(\'' + id + '\')">&#9998; ' + c.edit + '</button>' +
+    (status === 'confirmed' ? '<button class="btn btn-danger btn-sm" onclick="cancelReservation(\'' + id + '\')">&#10060; ' + rv.cancelReservation + '</button>' : '') +
+    (status === 'cancelled' || status === 'no_show' ? '<button class="btn btn-ghost btn-sm" style="color:var(--ok);" onclick="reactivateReservation(\'' + id + '\')">&#128260; Restore</button>' : '') +
+    '<button class="btn btn-ghost btn-sm" onclick="exportViewPDF()" style="color:var(--err);">&#128196; PDF</button>' +
+    '<button class="btn btn-ghost btn-sm" onclick="exportViewJPG()" style="color:var(--warn);">&#128247; JPG</button>' +
+    '<button class="btn btn-ghost btn-sm" onclick="shareWhatsApp()">&#128172; WhatsApp</button>';
+
+  viewContent.appendChild(actionDiv);
 
   openModal('viewModal');
 }
