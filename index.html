@@ -2313,7 +2313,7 @@
           <label for="loginPass">Password</label>
           <input type="password" id="loginPass" placeholder="Enter password" required />
         </div>
-        <button type="submit" class="btn-login">SIGN IN</button>
+        <button type="submit" id="login-btn" class="btn-login">SIGN IN</button>
         <div id="loginError" class="login-error"></div>
       </form>
 
@@ -2373,7 +2373,7 @@
           <span>Reservations</span>
           <span class="nav-badge" id="resBadge">0</span>
         </div>
-        <div class="nav-item" data-page="floor-plan">
+        <div class="nav-item" data-page="floorplan">
           <span class="nav-icon">&#127968;</span>
           <span>Floor Plan</span>
         </div>
@@ -2382,9 +2382,9 @@
           <span>Waitlist</span>
           <span class="nav-badge" id="wlBadge">0</span>
         </div>
-        <div class="nav-item" data-page="calendar">
-          <span class="nav-icon">&#128197;</span>
-          <span>Calendar</span>
+        <div class="nav-item" data-page="checkin">
+          <span class="nav-icon">&#9989;</span>
+          <span>Check-In</span>
         </div>
 
         <!-- Group: Management -->
@@ -2393,22 +2393,17 @@
           <span class="nav-icon">&#128186;</span>
           <span>Tables</span>
         </div>
-        <div class="nav-item" data-page="menu">
+        <div class="nav-item" data-page="menupackages">
           <span class="nav-icon">&#127869;</span>
-          <span>Menu</span>
+          <span>Menu / Packages</span>
         </div>
-        <div class="nav-item" data-page="staff">
+        <div class="nav-item" data-page="users">
           <span class="nav-icon">&#128101;</span>
-          <span>Staff</span>
+          <span>Staff / Users</span>
         </div>
-        <div class="nav-item" data-page="customers">
+        <div class="nav-item" data-page="preferences">
           <span class="nav-icon">&#128100;</span>
-          <span>Customers</span>
-        </div>
-        <div class="nav-item" data-page="notifications">
-          <span class="nav-icon">&#128276;</span>
-          <span>Notifications</span>
-          <span class="nav-badge" id="notifBadge">0</span>
+          <span>Guest AI</span>
         </div>
 
         <!-- Group: Financial -->
@@ -2417,9 +2412,20 @@
           <span class="nav-icon">&#128179;</span>
           <span>Payments</span>
         </div>
-        <div class="nav-item" data-page="reports">
+        <div class="nav-item" data-page="revenue">
+          <span class="nav-icon">&#128176;</span>
+          <span>Revenue</span>
+        </div>
+
+        <!-- Group: Analytics -->
+        <div class="nav-group-title">Analytics</div>
+        <div class="nav-item" data-page="analytics">
           <span class="nav-icon">&#128200;</span>
           <span>Reports</span>
+        </div>
+        <div class="nav-item" data-page="forecast">
+          <span class="nav-icon">&#128202;</span>
+          <span>Forecast</span>
         </div>
 
         <!-- Group: Tools -->
@@ -2427,6 +2433,7 @@
         <div class="nav-item" data-page="reminders">
           <span class="nav-icon">&#128276;</span>
           <span>Reminders</span>
+          <span class="nav-badge" id="notifBadge">0</span>
         </div>
         <div class="nav-item" data-page="recurring">
           <span class="nav-icon">&#128260;</span>
@@ -2439,10 +2446,6 @@
         <div class="nav-item" data-page="settings">
           <span class="nav-icon">&#9881;</span>
           <span>Settings</span>
-        </div>
-        <div class="nav-item" data-page="audit-log">
-          <span class="nav-icon">&#128220;</span>
-          <span>Audit Log</span>
         </div>
       </nav>
 
@@ -4886,7 +4889,7 @@ function setLang(l) {
   APP.lang = l;
   document.documentElement.dataset.lang = l;
 
-  var toggleBtn = document.getElementById('lang-toggle-btn');
+  var toggleBtn = document.getElementById('langToggle');
   if (toggleBtn) {
     toggleBtn.textContent = l === 'en' ? 'BN' : 'EN';
     toggleBtn.setAttribute('aria-label', l === 'en' ? 'Switch to Bengali' : 'Switch to English');
@@ -4919,7 +4922,7 @@ function navigate(p) {
   }
 
   // Update page title
-  var pageTitleEl = document.getElementById('page-title');
+  var pageTitleEl = document.getElementById('pageTitle');
   if (pageTitleEl && LANG[APP.lang] && LANG[APP.lang].nav && LANG[APP.lang].nav[p]) {
     pageTitleEl.textContent = LANG[APP.lang].nav[p];
   }
@@ -4932,7 +4935,7 @@ function navigate(p) {
 // [F12] renderPage(p) - Render Page Content
 // -----------------------------------------------------------
 function renderPage(p) {
-  var contentArea = document.getElementById('page-content');
+  var contentArea = document.getElementById('pageContent');
   if (!contentArea) return;
 
   switch (p) {
@@ -4949,7 +4952,11 @@ function renderPage(p) {
       renderWaitlist(contentArea);
       break;
     case 'checkin':
-      renderCheckIn(contentArea);
+      if (typeof renderCheckin === 'function') {
+        renderCheckin();
+      } else {
+        renderCheckIn(contentArea);
+      }
       break;
     case 'recurring':
       renderRecurring(contentArea);
@@ -5229,7 +5236,13 @@ function loadGuestPrefs() {
 function openModal(id) {
   var modal = document.getElementById(id);
   if (modal) {
-    modal.classList.add('show');
+    // Support multiple patterns: modal-overlay / quick-view-modal with .active, display:none/flex, hidden class
+    if (modal.classList.contains('modal-overlay') || modal.classList.contains('quick-view-modal')) {
+      modal.classList.add('active');
+    } else {
+      modal.style.display = 'flex';
+      modal.classList.remove('hidden');
+    }
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
   }
@@ -5241,7 +5254,13 @@ function openModal(id) {
 function closeModal(id) {
   var modal = document.getElementById(id);
   if (modal) {
-    modal.classList.remove('show');
+    // Support multiple patterns: modal-overlay / quick-view-modal with .active, display:none/flex, hidden class
+    if (modal.classList.contains('modal-overlay') || modal.classList.contains('quick-view-modal')) {
+      modal.classList.remove('active');
+    } else {
+      modal.style.display = 'none';
+      modal.classList.add('hidden');
+    }
     // Restore body scroll
     document.body.style.overflow = '';
   }
@@ -5251,7 +5270,7 @@ function closeModal(id) {
 // [F26] toast(msg, type) - Toast Notification
 // -----------------------------------------------------------
 function toast(msg, type) {
-  var container = document.getElementById('toast-container');
+  var container = document.getElementById('toastContainer');
   if (!container) {
     // Create container if it doesn't exist
     container = document.createElement('div');
@@ -5416,7 +5435,7 @@ function getBDToday() {
 // [F31] updateBDClock() - Update BD Clock Display
 // -----------------------------------------------------------
 function updateBDClock() {
-  var clockEl = document.getElementById('bd-clock');
+  var clockEl = document.getElementById('clock');
   if (!clockEl) return;
 
   var now = new Date();
@@ -6016,10 +6035,10 @@ function quickViewReservations() {
   var d = L.dashboard;
   var c = L.common;
 
-  var qvModal = document.getElementById('quick-view-modal');
+  var qvModal = document.getElementById('quickViewModal');
   if (!qvModal) return;
 
-  var qvBody = document.getElementById('quick-view-body');
+  var qvBody = document.getElementById('qvList');
   if (!qvBody) return;
 
   var today = getBDToday();
@@ -6414,7 +6433,7 @@ function openReservationModal(editData) {
   renderMenuChips();
   resNextStep(1);
 
-  openModal('reservation-modal');
+  openModal('reservationModal');
 }
 
 
@@ -6725,7 +6744,7 @@ function saveReservation() {
     .then(function(response) {
       if (response && response.success) {
         toast(editId ? 'Reservation updated successfully' : 'Reservation created successfully', 'success');
-        closeModal('reservation-modal');
+        closeModal('reservationModal');
         // Reload and re-render
         loadReservations()
           .then(function() {
@@ -6894,7 +6913,7 @@ function viewReservation(id) {
     return;
   }
 
-  var viewContent = document.getElementById('view-card-content');
+  var viewContent = document.getElementById('viewModalContent');
   if (!viewContent) return;
 
   viewContent.innerHTML = buildViewCardHTML(reservation);
@@ -6902,7 +6921,7 @@ function viewReservation(id) {
   // Store current view reservation for export functions
   APP.currentViewReservation = reservation;
 
-  openModal('view-modal');
+  openModal('viewModal');
 }
 
 
@@ -7411,7 +7430,7 @@ function quickViewReservations(filter) {
   // Store current quick-view list globally so export-all can access it
   APP._quickViewList = list;
 
-  var container = document.getElementById('quick-view-list');
+  var container = document.getElementById('qvList');
   if (!container) {
     toast('Quick View container not found', 'error');
     return;
@@ -7471,7 +7490,7 @@ function quickViewReservations(filter) {
     exportBtn.style.display = list.length > 0 ? 'inline-flex' : 'none';
   }
 
-  openModal('quick-view-modal');
+  openModal('quickViewModal');
 }
 
 // Helper: status color mapping
@@ -7506,9 +7525,9 @@ function _esc(str) {
 // Close Quick View modal and reset position
 // ------------------------------------------------------------
 function closeQuickView() {
-  closeModal('quick-view-modal');
+  closeModal('quickViewModal');
 
-  var modal = document.getElementById('quick-view-modal');
+  var modal = document.getElementById('quickViewModal');
   if (modal) {
     modal.style.top = '50%';
     modal.style.left = '50%';
@@ -7521,7 +7540,7 @@ function closeQuickView() {
 // Make #quick-view-modal draggable via header handle
 // ------------------------------------------------------------
 function initQuickViewDrag() {
-  var modal = document.getElementById('quick-view-modal');
+  var modal = document.getElementById('quickViewModal');
   if (!modal) return;
 
   var handle = modal.querySelector('.quick-view-header');
@@ -7933,7 +7952,7 @@ function _findReservation(resId) {
 // Render the floor plan grid with table units
 // ------------------------------------------------------------
 function renderFloorPlan() {
-  var page = document.getElementById('page-floorplan');
+  var page = document.getElementById('pageContent');
   if (!page) return;
   page.innerHTML = '';
 
@@ -8157,12 +8176,132 @@ function _reloadTables() {
   });
 }
 
+// -----------------------------------------------------------
+// [F63] renderCheckIn() - Render Check-In Page
+// -----------------------------------------------------------
+function renderCheckIn(container) {
+  var el = (typeof container === 'string') ? document.getElementById(container) : container;
+  if (!el) return;
+
+  var L = LANG[APP.lang];
+  var c = L.common;
+
+  var todayRes = APP.reservations.filter(function(r) {
+    return r.date === getBDToday() && (r.status === 'confirmed' || r.status === 'pending');
+  });
+
+  var html = '<div class="page-header" style="margin-bottom:1.5rem;">' +
+    '<h2 style="margin:0;color:var(--t1);">Check-In</h2>' +
+    '<p style="margin:0;color:var(--t3);font-size:.85rem;">Today\'s reservations ready for check-in</p>' +
+  '</div>';
+
+  if (todayRes.length === 0) {
+    html += '<div class="empty-state" style="text-align:center;padding:60px 20px;">' +
+      '<p style="color:var(--t3);font-size:1rem;">No reservations to check in today</p>' +
+    '</div>';
+  } else {
+    html += '<div style="display:grid;gap:.75rem;">';
+    todayRes.forEach(function(res) {
+      var statusColor = _statusColor(res.status);
+      html += '<div style="background:var(--dg2);border:1px solid var(--dg5);border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;">' +
+        '<div>' +
+          '<div style="font-weight:600;color:var(--t1);">' + _esc(res.guest_name || 'Guest') + '</div>' +
+          '<div style="font-size:.8rem;color:var(--t3);">' + fmtTime(res.time) + ' &bull; ' + (res.guests || res.adults || 1) + ' guests &bull; Table ' + (res.table_id || res.table || 'TBD') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:.5rem;align-items:center;">' +
+          '<span style="padding:4px 10px;border-radius:6px;font-size:.7rem;font-weight:600;background:' + statusColor + '1a;color:' + statusColor + ';">' + _statusLabel(res.status) + '</span>' +
+          '<button onclick="checkInGuest(\'' + res.id + '\')" style="padding:6px 14px;border-radius:8px;background:var(--g2);color:#fff;border:none;cursor:pointer;font-size:.78rem;font-weight:600;">Check In</button>' +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+// Helper: check in a guest
+function checkInGuest(resId) {
+  gasPost('checkin', { id: resId })
+    .then(function(response) {
+      if (response && response.success) {
+        toast('Guest checked in successfully', 'success');
+        loadReservations().then(function() {
+          renderPage(APP.currentPage);
+        });
+      } else {
+        toast('Check-in failed: ' + ((response && response.error) || 'Unknown error'), 'error');
+      }
+    })
+    .catch(function(err) {
+      toast('Check-in failed: ' + err.message, 'error');
+    });
+}
+
+// -----------------------------------------------------------
+// [F70] renderAnalytics() - Render Analytics / Reports Page
+// -----------------------------------------------------------
+function renderAnalytics(container) {
+  var el = (typeof container === 'string') ? document.getElementById(container) : container;
+  if (!el) return;
+
+  var L = LANG[APP.lang];
+  var c = L.common;
+
+  var html = '<div class="page-header" style="margin-bottom:1.5rem;">' +
+    '<h2 style="margin:0;color:var(--t1);">Analytics & Reports</h2>' +
+    '<p style="margin:0;color:var(--t3);font-size:.85rem;">Insights and reporting for your restaurant</p>' +
+  '</div>';
+
+  // Summary cards
+  var totalRes = APP.reservations.length;
+  var confirmed = APP.reservations.filter(function(r) { return r.status === 'confirmed'; }).length;
+  var cancelled = APP.reservations.filter(function(r) { return r.status === 'cancelled'; }).length;
+  var completed = APP.reservations.filter(function(r) { return r.status === 'completed'; }).length;
+  var avgGuests = totalRes > 0 ? Math.round(APP.reservations.reduce(function(s, r) { return s + (parseInt(r.guests || r.adults) || 0); }, 0) / totalRes) : 0;
+
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">' +
+    '<div class="stat-card green"><div class="stat-value">' + totalRes + '</div><div class="stat-label">Total Reservations</div></div>' +
+    '<div class="stat-card teal"><div class="stat-value">' + confirmed + '</div><div class="stat-label">Confirmed</div></div>' +
+    '<div class="stat-card gold"><div class="stat-value">' + completed + '</div><div class="stat-label">Completed</div></div>' +
+    '<div class="stat-card red"><div class="stat-value">' + cancelled + '</div><div class="stat-label">Cancelled</div></div>' +
+    '<div class="stat-card purple"><div class="stat-value">' + avgGuests + '</div><div class="stat-label">Avg Party Size</div></div>' +
+  '</div>';
+
+  // Status breakdown
+  html += '<div style="background:var(--dg2);border:1px solid var(--dg5);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;">' +
+    '<h3 style="margin:0 0 1rem 0;color:var(--t1);font-size:1rem;">Status Breakdown</h3>' +
+    '<div style="display:flex;gap:1rem;flex-wrap:wrap;">';
+
+  var statuses = ['confirmed', 'pending', 'completed', 'cancelled', 'no-show', 'seated'];
+  statuses.forEach(function(status) {
+    var count = APP.reservations.filter(function(r) { return r.status === status; }).length;
+    var pct = totalRes > 0 ? Math.round(count / totalRes * 100) : 0;
+    var color = _statusColor(status);
+    html += '<div style="flex:1;min-width:120px;text-align:center;padding:.75rem;background:var(--dg1);border-radius:8px;">' +
+      '<div style="font-size:1.5rem;font-weight:700;color:' + color + ';">' + count + '</div>' +
+      '<div style="font-size:.75rem;color:var(--t3);text-transform:capitalize;">' + status + '</div>' +
+      '<div style="font-size:.7rem;color:var(--t3);">' + pct + '%</div>' +
+    '</div>';
+  });
+
+  html += '</div></div>';
+
+  // Export buttons
+  html += '<div style="display:flex;gap:.75rem;flex-wrap:wrap;">' +
+    '<button onclick="exportReservationsCSV()" class="btn btn-primary" style="padding:10px 20px;">Export CSV</button>' +
+    '<button onclick="exportReservationsPDF()" class="btn btn-ghost" style="padding:10px 20px;">Export PDF</button>' +
+  '</div>';
+
+  el.innerHTML = html;
+}
+
 // ------------------------------------------------------------
 // [F64] renderWaitlist()
 // Render the waitlist management page
 // ------------------------------------------------------------
 function renderWaitlist() {
-  var page = document.getElementById('page-waitlist');
+  var page = document.getElementById('pageContent');
   if (!page) return;
   page.innerHTML = '';
 
@@ -8429,7 +8568,7 @@ function removeWaitlist(id) {
 // Render the check-in management page
 // ------------------------------------------------------------
 function renderCheckin() {
-  var page = document.getElementById('page-checkin');
+  var page = document.getElementById('pageContent');
   if (!page) return;
   page.innerHTML = '';
 
@@ -8815,7 +8954,7 @@ function _reloadReservations() {
 // -----------------------------------------------------------
 function renderRecurring() {
   var list = APP.recurring || [];
-  var container = document.getElementById('page-content');
+  var container = document.getElementById('pageContent');
   if (!container) return;
 
   var freqBadge = function(freq) {
@@ -9208,7 +9347,7 @@ function loadRecurring() {
 // -----------------------------------------------------------
 function renderOccasions() {
   var list = APP.occasions || [];
-  var container = document.getElementById('page-content');
+  var container = document.getElementById('pageContent');
   if (!container) return;
 
   var occasionBadge = function(type) {
@@ -9527,7 +9666,7 @@ function loadOccasions() {
 // -----------------------------------------------------------
 function renderMenuPackages() {
   var list = APP.menuPackages || [];
-  var container = document.getElementById('page-content');
+  var container = document.getElementById('pageContent');
   if (!container) return;
 
   var catBadge = function(cat) {
@@ -9835,7 +9974,7 @@ function loadMenuPackages() {
 // -----------------------------------------------------------
 function renderPayments() {
   var list = APP.payments || [];
-  var container = document.getElementById('page-content');
+  var container = document.getElementById('pageContent');
   if (!container) return;
 
   // Apply date filters if present
@@ -10149,7 +10288,7 @@ function loadPayments() {
 // -----------------------------------------------------------
 function renderReminders() {
   var list = APP.reminders || [];
-  var container = document.getElementById('page-content');
+  var container = document.getElementById('pageContent');
   if (!container) return;
 
   var typeBadge = function(type) {
@@ -10435,7 +10574,7 @@ function loadReminders() {
 // [F88] renderReports - Analytics / Reports Page
 // -----------------------------------------------------------
 function renderReports() {
-  var page = APP.dom.getPage();
+  var page = document.getElementById('pageContent');
   if (!page) return;
 
   // Initialize report state if not present
@@ -11003,7 +11142,7 @@ APP.renderBarChart = function(cid, data) {
 // [F91] renderRevenue - Revenue Analytics Page
 // -----------------------------------------------------------
 function renderRevenue() {
-  var page = APP.dom.getPage();
+  var page = document.getElementById('pageContent');
   if (!page) return;
 
   // Initialize revenue state
@@ -11401,7 +11540,7 @@ APP.renderRevenueDailyTable = function(daily) {
 // [F92] renderForecast - Demand Forecast Page
 // -----------------------------------------------------------
 function renderForecast() {
-  var page = APP.dom.getPage();
+  var page = document.getElementById('pageContent');
   if (!page) return;
 
   // Initialize forecast state
@@ -11798,7 +11937,7 @@ APP.renderForecastTrendChart = function(data) {
 // [F93] renderPreferences - Guest AI / Preferences Page
 // -----------------------------------------------------------
 function renderPreferences() {
-  var page = APP.dom.getPage();
+  var page = document.getElementById('pageContent');
   if (!page) return;
 
   // Initialize guest preferences state
@@ -13067,7 +13206,7 @@ APP.navRoutes.preferences = { renderer: renderPreferences, label: 'Guest AI', ic
 // [F94] renderUsers() - Render users management page
 // -----------------------------------------------------------
 function renderUsers() {
-  var container = document.getElementById('page-content');
+  var container = document.getElementById('pageContent');
   if (!container) return;
 
   var L = LANG[APP.lang];
@@ -13527,7 +13666,7 @@ function deleteUserItem(id) {
 // [F99] renderTables() - Render tables management page
 // -----------------------------------------------------------
 function renderTables() {
-  var container = document.getElementById('page-content');
+  var container = document.getElementById('pageContent');
   if (!container) return;
 
   var L = LANG[APP.lang];
@@ -13869,7 +14008,7 @@ function deleteTableItem(id) {
 // [F104] renderSettings() - Render settings page
 // -----------------------------------------------------------
 function renderSettings() {
-  var container = document.getElementById('page-content');
+  var container = document.getElementById('pageContent');
   if (!container) return;
 
   var L = LANG[APP.lang];
@@ -14623,6 +14762,109 @@ function exportReservationsCSV() {
   // ---- 10. Start clock ----
   if (typeof startClock === 'function') {
     startClock();
+  }
+
+  // ---- 11. Sidebar Toggle ----
+  var sidebarToggleBtn = document.getElementById('sidebarToggle');
+  if (sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener('click', function() {
+      var sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('open');
+      }
+      var overlay = document.getElementById('sidebarOverlay');
+      if (overlay) {
+        overlay.classList.toggle('active');
+      }
+    });
+  }
+
+  // Sidebar overlay click (close sidebar on mobile)
+  var sidebarOverlay = document.getElementById('sidebarOverlay');
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', function() {
+      var sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        sidebar.classList.remove('open');
+      }
+      sidebarOverlay.classList.remove('active');
+    });
+  }
+
+  // ---- 12. Navigation Items ----
+  var navItems = document.querySelectorAll('.nav-item');
+  for (var ni = 0; ni < navItems.length; ni++) {
+    navItems[ni].addEventListener('click', function() {
+      var page = this.getAttribute('data-page');
+      if (page && typeof navigate === 'function') {
+        navigate(page);
+      }
+    });
+  }
+
+  // ---- 13. Language Toggle ----
+  var langToggleBtn = document.getElementById('langToggle');
+  if (langToggleBtn) {
+    langToggleBtn.addEventListener('click', function() {
+      if (typeof toggleLang === 'function') {
+        toggleLang();
+      }
+    });
+  }
+
+  // ---- 14. Notification Button ----
+  var notifBtn = document.getElementById('notifBtn');
+  if (notifBtn) {
+    notifBtn.addEventListener('click', function() {
+      if (typeof navigate === 'function') {
+        navigate('reminders');
+      }
+    });
+  }
+
+  // ---- 15. User Menu Dropdown ----
+  var userMenuBtn = document.getElementById('userMenu');
+  if (userMenuBtn) {
+    userMenuBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var dropdown = this.querySelector('.user-dropdown-menu') || this.nextElementSibling;
+      if (dropdown) {
+        dropdown.classList.toggle('show');
+      }
+      // Toggle user dropdown
+      this.classList.toggle('open');
+    });
+  }
+
+  // Close user menu when clicking outside
+  document.addEventListener('click', function(e) {
+    var userMenu = document.getElementById('userMenu');
+    if (userMenu && !userMenu.contains(e.target)) {
+      userMenu.classList.remove('open');
+    }
+  });
+
+  // ---- 16. Modal close buttons ----
+  var modalCloseBtns = document.querySelectorAll('[data-close]');
+  for (var mc = 0; mc < modalCloseBtns.length; mc++) {
+    modalCloseBtns[mc].addEventListener('click', function() {
+      var modalId = this.getAttribute('data-close');
+      if (modalId) {
+        closeModal(modalId);
+      }
+    });
+  }
+
+  // Quick view close button
+  var qvCloseBtn = document.getElementById('qvClose');
+  if (qvCloseBtn) {
+    qvCloseBtn.addEventListener('click', function() {
+      if (typeof closeQuickView === 'function') {
+        closeQuickView();
+      } else {
+        closeModal('quickViewModal');
+      }
+    });
   }
 
   // ---- Initialization complete ----
