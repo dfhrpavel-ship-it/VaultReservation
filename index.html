@@ -4320,6 +4320,23 @@ function gasGet(action, params) {
 
     var fullUrl = url + '?' + queryString;
 
+    // Helper to parse GAS response (may be wrapped in HTML or have redirects)
+    function parseGasResponse(text) {
+      // Try direct JSON parse first
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        // GAS sometimes wraps response in HTML - extract JSON from it
+        var jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            return JSON.parse(jsonMatch[0]);
+          } catch (e2) {}
+        }
+        throw new Error('Invalid JSON response: ' + e.message);
+      }
+    }
+
     // Method 1: Direct fetch with redirect follow
     if (typeof fetch === 'function') {
       fetch(fullUrl, {
@@ -4330,17 +4347,15 @@ function gasGet(action, params) {
         }
       })
       .then(function(response) {
-        if (!response.ok) {
-          throw new Error('HTTP error ' + response.status);
-        }
         return response.text();
       })
       .then(function(text) {
         try {
-          var data = JSON.parse(text);
+          var data = parseGasResponse(text);
           resolve(data);
         } catch (e) {
-          reject(new Error('Invalid JSON response: ' + e.message));
+          // Method 2: JSONP fallback
+          gasGetJsonp(fullUrl, resolve, reject);
         }
       })
       .catch(function(fetchErr) {
@@ -4444,40 +4459,72 @@ function gasPost(action, data) {
 
     var postData = Object.assign({ action: action }, data || {});
 
-    // Method 1: fetch with JSON body and redirect follow
+    // IMPORTANT: Google Apps Script Web Apps redirect POST to GET (302),
+    // which loses the POST body. The reliable approach is to send ALL data
+    // as GET query parameters. The GAS doPost reads e.parameter as fallback.
+
+    // Build query string from all data
+    var queryString = 'action=' + encodeURIComponent(action);
+    var keys = Object.keys(data || {});
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var val = data[key];
+      if (val !== undefined && val !== null) {
+        if (typeof val === 'object') {
+          queryString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(JSON.stringify(val));
+        } else {
+          queryString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(String(val));
+        }
+      }
+    }
+
+    // Method 1: Use fetch with GET (most reliable for GAS Web Apps)
+    var fullUrl = url + '?' + queryString;
+
+    // Helper to parse GAS response (may be wrapped in HTML)
+    function parseGasResponse(text) {
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        var jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            return JSON.parse(jsonMatch[0]);
+          } catch (e2) {}
+        }
+        throw new Error('Invalid JSON response: ' + e.message);
+      }
+    }
+
     if (typeof fetch === 'function') {
-      fetch(url, {
-        method: 'POST',
+      fetch(fullUrl, {
+        method: 'GET',
         redirect: 'follow',
         headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json'
-        },
-        body: JSON.stringify(postData)
+        }
       })
       .then(function(response) {
-        if (!response.ok) {
-          throw new Error('HTTP error ' + response.status);
-        }
         return response.text();
       })
       .then(function(text) {
         try {
-          var result = JSON.parse(text);
+          var result = parseGasResponse(text);
           resolve(result);
         } catch (e) {
-          reject(new Error('Invalid JSON response: ' + e.message));
+          // Fallback: try JSONP
+          gasGetJsonp(fullUrl, resolve, reject);
         }
       })
       .catch(function(fetchErr) {
-        // Method 2: XHR with form-encoded data
-        gasPostXhr(url, postData, resolve, reject);
+        // Method 2: JSONP fallback
+        gasGetJsonp(fullUrl, resolve, reject);
       });
       return;
     }
 
-    // Method 2: XHR with form-encoded data
-    gasPostXhr(url, postData, resolve, reject);
+    // Method 2: JSONP fallback
+    gasGetJsonp(fullUrl, resolve, reject);
   });
 }
 
@@ -4617,9 +4664,9 @@ function saveGasUrl() {
     return;
   }
 
-  // Basic URL validation
-  if (url.indexOf('script.google.com') === -1 && url.indexOf('http') !== 0) {
-    toast('Please enter a valid Google Apps Script URL', 'error');
+  // Basic URL validation - must start with http AND contain script.google.com
+  if (url.indexOf('http') !== 0 || url.indexOf('script.google.com') === -1) {
+    toast('Please enter a valid Google Apps Script URL (https://script.google.com/macros/s/.../exec)', 'error');
     return;
   }
 
@@ -4649,26 +4696,57 @@ function testGasConnection() {
     statusText.textContent = 'Testing...';
   }
 
-  gasGet('init', {})
+  // First save the URL before testing
+  var urlInput = document.getElementById('gas-url-input');
+  if (urlInput && urlInput.value.trim()) {
+    APP.gasUrl = urlInput.value.trim();
+    try {
+      localStorage.setItem('vault_reservation_gas_url', APP.gasUrl);
+    } catch (e) {}
+  }
+
+  if (!APP.gasUrl) {
+    if (statusDot) statusDot.style.backgroundColor = '#ef4444';
+    if (statusText) statusText.textContent = 'No URL configured';
+    toast('Please enter and save the GAS URL first', 'error');
+    return;
+  }
+
+  gasGet('verify', {})
     .then(function(response) {
-      if (statusDot) {
-        statusDot.className = 'status-dot connected';
-        statusDot.style.backgroundColor = '#10b981';
+      if (response && (response.success || response.message)) {
+        if (statusDot) {
+          statusDot.style.backgroundColor = '#10b981';
+        }
+        if (statusText) {
+          statusText.textContent = 'Connected';
+        }
+        toast('Connection successful!', 'success');
+      } else {
+        throw new Error('Invalid response');
       }
-      if (statusText) {
-        statusText.textContent = 'Connected';
-      }
-      toast('Connection successful!', 'success');
     })
     .catch(function(err) {
-      if (statusDot) {
-        statusDot.className = 'status-dot disconnected';
-        statusDot.style.backgroundColor = '#ef4444';
-      }
-      if (statusText) {
-        statusText.textContent = 'Disconnected';
-      }
-      toast('Connection failed: ' + err.message, 'error');
+      // Try init as fallback
+      gasGet('init', {})
+        .then(function(response2) {
+          if (statusDot) {
+            statusDot.style.backgroundColor = '#10b981';
+          }
+          if (statusText) {
+            statusText.textContent = 'Connected';
+          }
+          toast('Connection successful!', 'success');
+        })
+        .catch(function(err2) {
+          if (statusDot) {
+            statusDot.style.backgroundColor = '#ef4444';
+          }
+          if (statusText) {
+            statusText.textContent = 'Disconnected';
+          }
+          toast('Connection failed: ' + (err2.message || err.message), 'error');
+        });
     });
 }
 
@@ -4676,8 +4754,8 @@ function testGasConnection() {
 // [F05] doLogin() - Login
 // -----------------------------------------------------------
 function doLogin() {
-  var usernameInput = document.getElementById('login-username');
-  var passwordInput = document.getElementById('login-password');
+  var usernameInput = document.getElementById('loginUser');
+  var passwordInput = document.getElementById('loginPass');
 
   if (!usernameInput || !passwordInput) {
     toast('Login form not found', 'error');
@@ -4698,13 +4776,14 @@ function doLogin() {
         APP.user = response.user;
         try {
           localStorage.setItem('vault_reservation_user', JSON.stringify(response.user));
+          localStorage.setItem('vault_session', JSON.stringify({ user: response.user, gasUrl: APP.gasUrl }));
         } catch (e) {
           // localStorage not available
         }
         toast('Login successful! Welcome, ' + (response.user.name || response.user.username), 'success');
         showApp();
       } else {
-        var msg = (response && response.message) ? response.message : 'Invalid username or password';
+        var msg = (response && (response.message || response.error)) ? (response.message || response.error) : 'Invalid username or password';
         toast(msg, 'error');
       }
     })
@@ -4732,25 +4811,26 @@ function doLogout() {
 
   try {
     localStorage.removeItem('vault_reservation_user');
+    localStorage.removeItem('vault_session');
   } catch (e) {
     // localStorage not available
   }
 
   stopClock();
 
-  var appContainer = document.getElementById('app-container');
-  var loginContainer = document.getElementById('login-container');
+  var appContainer = document.getElementById('appContainer');
+  var loginContainer = document.getElementById('loginPage');
 
   if (appContainer) {
-    appContainer.style.display = 'none';
+    appContainer.classList.add('hidden');
   }
   if (loginContainer) {
     loginContainer.style.display = 'flex';
   }
 
   // Clear login form
-  var usernameInput = document.getElementById('login-username');
-  var passwordInput = document.getElementById('login-password');
+  var usernameInput = document.getElementById('loginUser');
+  var passwordInput = document.getElementById('loginPass');
   if (usernameInput) usernameInput.value = '';
   if (passwordInput) passwordInput.value = '';
 
@@ -4761,13 +4841,14 @@ function doLogout() {
 // [F07] showApp() - Show App After Login
 // -----------------------------------------------------------
 function showApp() {
-  var loginContainer = document.getElementById('login-container');
-  var appContainer = document.getElementById('app-container');
+  var loginContainer = document.getElementById('loginPage');
+  var appContainer = document.getElementById('appContainer');
 
   if (loginContainer) {
     loginContainer.style.display = 'none';
   }
   if (appContainer) {
+    appContainer.classList.remove('hidden');
     appContainer.style.display = 'flex';
   }
 
@@ -14404,24 +14485,21 @@ function exportReservationsCSV() {
             .then(function(response) {
               if (response && response.success) {
                 // Session is valid - show main app
-                if (typeof showMainApp === 'function') {
-                  showMainApp();
-                }
+                  showApp();
               } else {
                 // Session expired - clear and show login
                 localStorage.removeItem('vault_session');
                 APP.user = null;
-                if (typeof showLoginScreen === 'function') {
-                  showLoginScreen();
+                var loginPage = document.getElementById('loginPage');
+                if (loginPage) {
+                  loginPage.style.display = 'flex';
                 }
               }
             })
             .catch(function(err) {
               // Network error - still try to show app with cached data
               console.warn('Session verification failed, using cached session:', err);
-              if (typeof showMainApp === 'function') {
-                showMainApp();
-              }
+              showApp();
             });
         }
       }
@@ -14432,13 +14510,11 @@ function exportReservationsCSV() {
   }
 
   // ---- 4. Set up event listeners for login form ----
-  var loginForm = document.getElementById('login-form');
+  var loginForm = document.getElementById('loginForm');
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      if (typeof handleLogin === 'function') {
-        handleLogin();
-      }
+      doLogin();
     });
   }
 
@@ -14447,9 +14523,7 @@ function exportReservationsCSV() {
   if (loginBtn) {
     loginBtn.addEventListener('click', function(e) {
       e.preventDefault();
-      if (typeof handleLogin === 'function') {
-        handleLogin();
-      }
+      doLogin();
     });
   }
 
