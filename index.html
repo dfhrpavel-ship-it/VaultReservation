@@ -187,6 +187,7 @@ tr:hover{background:rgba(212,160,23,.03);}
   th,td{padding:6px 8px;}
   .bd-clock{font-size:9px;padding:3px 8px;}
   .bd-clock .clock-date{display:none;}
+  .stat-card .value{font-size:22px;}
 }
 @media(max-width:400px){
   .stats-grid{grid-template-columns:1fr;}
@@ -791,21 +792,32 @@ async function renderDashboard() {
   await loadTables();
   const c = document.getElementById('contentArea');
   const today = getBDToday();
+
+  // ═══ FILTER: ONLY TODAY'S DATA (00:00 AM — 11:59 PM Dhaka) ═══
   const todayRes = APP.reservations.filter(r => r.date === today);
-  const confirmed = APP.reservations.filter(r => r.status==='confirmed').length;
-  const cancelled = APP.reservations.filter(r => r.status==='cancelled').length;
-  const noShow = APP.reservations.filter(r => r.status==='no_show').length;
-  const totalGuests = todayRes.reduce((s,r) => s+(parseInt(r.guests)||2), 0);
-  const checkedIn = todayRes.filter(r => r.checked_in || r.status==='checked_in').length;
-  const totalDep = APP.reservations.reduce((s,r) => s+(parseFloat(r.deposit_amount)||0), 0);
-  const paidDep = APP.reservations.filter(r => r.deposit_status==='paid').reduce((s,r) => s+(parseFloat(r.deposit_amount)||0), 0);
+  const todayConfirmed = todayRes.filter(r => r.status==='confirmed');
+  const todayCancelled = todayRes.filter(r => r.status==='cancelled');
+  const todayNoShow = todayRes.filter(r => r.status==='no_show');
+  const todayCheckedIn = todayRes.filter(r => r.checked_in || r.status==='checked_in');
+  const totalGuests = todayRes.reduce((s,r) => s+(parseInt(r.adults)||0)+(parseInt(r.babies)||0), 0);
+
+  // Lunch & Dinner split for today only
+  const lunchRes = todayRes.filter(r => r.category === 'lunch');
+  const dinnerRes = todayRes.filter(r => r.category === 'dinner');
+  const lunchGuests = lunchRes.reduce((s,r) => s+(parseInt(r.adults)||0)+(parseInt(r.babies)||0), 0);
+  const dinnerGuests = dinnerRes.reduce((s,r) => s+(parseInt(r.adults)||0)+(parseInt(r.babies)||0), 0);
+
+  // Deposits for today only
+  const todayDepTotal = todayRes.reduce((s,r) => s+(parseFloat(r.deposit_amount)||0), 0);
+  const todayDepPaid = todayRes.filter(r => r.deposit_status==='paid').reduce((s,r) => s+(parseFloat(r.deposit_amount)||0), 0);
+
   const totalCap = APP.tables.reduce((s,t) => s+(parseInt(t.capacity)||0), 0);
   const occPct = totalCap > 0 ? Math.round((totalGuests/totalCap)*100) : 0;
   const availTables = APP.tables.filter(t => t.status==='available').length;
 
-  // Peak hours calc
+  // Peak hours calc — today only
   const hourCounts = {};
-  APP.reservations.forEach(r => {
+  todayRes.forEach(r => {
     if (r.time) {
       const h = r.time.split(':')[0];
       hourCounts[h] = (hourCounts[h]||0) + 1;
@@ -816,8 +828,8 @@ async function renderDashboard() {
   // Arrival timeline for today
   const arrivals = todayRes.filter(r=>r.status==='confirmed'||r.status==='checked_in').sort((a,b)=>(a.time||'').localeCompare(b.time||''));
 
-  // Recent activity (last 10)
-  const recent = [...APP.reservations].sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||'')).slice(0,8);
+  // Recent activity — today only (last 10)
+  const recent = [...todayRes].sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||'')).slice(0,10);
 
   const statusBadge = (s) => {
     const m = {confirmed:'badge-success',cancelled:'badge-danger',no_show:'badge-warning',checked_in:'badge-info'};
@@ -825,52 +837,128 @@ async function renderDashboard() {
   };
 
   c.innerHTML = `
-  <div class="stats-grid">
-    <div class="stat-card lux-green"><div class="label">Today's Reservations</div><div class="value">${todayRes.length}</div><div class="sub">${totalGuests} guests</div></div>
-    <div class="stat-card lux-gold"><div class="label">Total Confirmed</div><div class="value">${confirmed}</div></div>
-    <div class="stat-card lux-red"><div class="label">Cancelled</div><div class="value">${cancelled}</div></div>
-    <div class="stat-card lux-teal"><div class="label">Checked In</div><div class="value">${checkedIn}</div></div>
-    <div class="stat-card lux-purple"><div class="label">Occupancy</div><div class="value">${occPct}%</div><div class="sub">${availTables} tables free</div></div>
-    <div class="stat-card lux-blue"><div class="label">Deposits</div><div class="value">৳${totalDep.toLocaleString()}</div><div class="sub">৳${paidDep.toLocaleString()} paid</div></div>
-    <div class="stat-card lux-orange"><div class="label">No Show</div><div class="value">${noShow}</div></div>
-    <div class="stat-card lux-pink"><div class="label">BD Time</div><div class="value" id="dashClock">🕐</div></div>
+  <!-- ═══ ACTION BAR: New Reservation Button ═══ -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div style="font-size:11px;color:var(--txt3);">📅 Today: <strong style="color:var(--g4);">${today}</strong> | Showing data from 12:00 AM — 11:59 PM (Dhaka)</div>
+    <button class="btn btn-gold" onclick="openReservationModal()" style="font-size:14px;padding:10px 22px;box-shadow:0 4px 20px rgba(212,160,23,.4);">
+      ➕ New Reservation
+    </button>
   </div>
+
+  <!-- ═══ MAIN STAT CARDS — Today Only ═══ -->
+  <div class="stats-grid">
+    <div class="stat-card lux-green" style="cursor:pointer;" onclick="quickViewReservations('today')">
+      <div class="label">Today's Reservations</div>
+      <div class="value">${todayRes.length}</div>
+      <div class="sub">${totalGuests} guests</div>
+      <div style="position:absolute;bottom:6px;right:10px;font-size:9px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:8px;">👁 Quick View</div>
+    </div>
+    <div class="stat-card lux-gold" style="cursor:pointer;" onclick="quickViewReservations('confirmed')">
+      <div class="label">Confirmed</div>
+      <div class="value">${todayConfirmed.length}</div>
+      <div class="sub">today</div>
+      <div style="position:absolute;bottom:6px;right:10px;font-size:9px;background:rgba(0,0,0,.1);padding:2px 8px;border-radius:8px;">👁 Quick View</div>
+    </div>
+    <div class="stat-card lux-red" style="cursor:pointer;" onclick="quickViewReservations('cancelled')">
+      <div class="label">Cancelled</div>
+      <div class="value">${todayCancelled.length}</div>
+      <div class="sub">today</div>
+      <div style="position:absolute;bottom:6px;right:10px;font-size:9px;background:rgba(255,255,255,.12);padding:2px 8px;border-radius:8px;">👁 Quick View</div>
+    </div>
+    <div class="stat-card lux-teal" style="cursor:pointer;" onclick="quickViewReservations('checked_in')">
+      <div class="label">Checked In</div>
+      <div class="value">${todayCheckedIn.length}</div>
+      <div class="sub">today</div>
+      <div style="position:absolute;bottom:6px;right:10px;font-size:9px;background:rgba(255,255,255,.12);padding:2px 8px;border-radius:8px;">👁 Quick View</div>
+    </div>
+    <div class="stat-card lux-purple">
+      <div class="label">Occupancy</div>
+      <div class="value">${occPct}%</div>
+      <div class="sub">${availTables} tables free</div>
+    </div>
+    <div class="stat-card lux-blue">
+      <div class="label">Deposits</div>
+      <div class="value">৳${todayDepTotal.toLocaleString()}</div>
+      <div class="sub">৳${todayDepPaid.toLocaleString()} paid</div>
+    </div>
+    <div class="stat-card lux-orange" style="cursor:pointer;" onclick="quickViewReservations('no_show')">
+      <div class="label">No Show</div>
+      <div class="value">${todayNoShow.length}</div>
+      <div class="sub">today</div>
+      <div style="position:absolute;bottom:6px;right:10px;font-size:9px;background:rgba(255,255,255,.12);padding:2px 8px;border-radius:8px;">👁 Quick View</div>
+    </div>
+    <div class="stat-card lux-pink">
+      <div class="label">BD Time</div>
+      <div class="value" id="dashClock">🕐</div>
+    </div>
+  </div>
+
+  <!-- ═══ LUNCH & DINNER SPLIT CARDS ═══ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+    <div class="stat-card" style="background:linear-gradient(135deg,#7c2d12,#f97316);border-color:rgba(249,115,22,.25);cursor:pointer;position:relative;" onclick="quickViewReservations('lunch')">
+      <div class="label">☀️ Lunch Bookings</div>
+      <div class="value">${lunchRes.length}</div>
+      <div class="sub">${lunchGuests} guests | ${todayConfirmed.filter(r=>r.category==='lunch').length} confirmed</div>
+      <div style="position:absolute;bottom:8px;right:12px;font-size:10px;background:rgba(255,255,255,.18);padding:3px 10px;border-radius:8px;font-weight:700;">👁 Quick View</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#1e1b4b,#6366f1);border-color:rgba(99,102,241,.25);cursor:pointer;position:relative;" onclick="quickViewReservations('dinner')">
+      <div class="label">🌙 Dinner Bookings</div>
+      <div class="value">${dinnerRes.length}</div>
+      <div class="sub">${dinnerGuests} guests | ${todayConfirmed.filter(r=>r.category==='dinner').length} confirmed</div>
+      <div style="position:absolute;bottom:8px;right:12px;font-size:10px;background:rgba(255,255,255,.18);padding:3px 10px;border-radius:8px;font-weight:700;">👁 Quick View</div>
+    </div>
+  </div>
+
+  <!-- ═══ ARRIVAL TIMELINE & PEAK HOURS ═══ -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
     <div class="panel">
-      <div class="panel-header"><h3>🕐 Arrival Timeline</h3><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('today')">Quick View</button></div>
+      <div class="panel-header"><h3>🕐 Arrival Timeline (Today)</h3><button class="btn btn-ghost btn-sm" onclick="quickViewReservations('today')">Quick View</button></div>
       ${arrivals.length===0?'<p style="color:var(--txt3);padding:8px;">No arrivals today</p>':
         arrivals.map(r=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(212,160,23,.06);font-size:12px;">
           <span style="color:var(--g3);font-weight:600;">${fmtTime(r.time)}</span>
-          <span>${r.guest_name} (${r.guests}p)</span>
+          <span>${r.guest_name} (${(parseInt(r.adults)||0)+(parseInt(r.babies)||0)}p)</span>
           ${statusBadge(r.status)}
         </div>`).join('')}
     </div>
     <div class="panel">
-      <div class="panel-header"><h3>📊 Peak Hours</h3></div>
-      <div class="bar-chart">${peakData.map(([h,c])=>`<div class="bar-col"><div class="bar-value">${c}</div><div class="bar" style="height:${Math.max(2,(c/Math.max(...peakData.map(x=>x[1]),1))*130)}px;background:linear-gradient(180deg,${COLORS[parseInt(h)%COLORS.length]},${COLORS[(parseInt(h)+3)%COLORS.length]});"></div><div class="bar-label">${fmtTime(h+':00')}</div></div>`).join('')}</div>
+      <div class="panel-header"><h3>📊 Peak Hours (Today)</h3></div>
+      <div class="bar-chart">${peakData.length===0?'<p style="color:var(--txt3);font-size:12px;">No data yet</p>':peakData.map(([h,c])=>`<div class="bar-col"><div class="bar-value">${c}</div><div class="bar" style="height:${Math.max(2,(c/Math.max(...peakData.map(x=>x[1]),1))*130)}px;background:linear-gradient(180deg,${COLORS[parseInt(h)%COLORS.length]},${COLORS[(parseInt(h)+3)%COLORS.length]});"></div><div class="bar-label">${fmtTime(h+':00')}</div></div>`).join('')}</div>
     </div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+  <!-- ═══ DEPOSIT SUMMARY & CANCELLED/NO SHOW ═══ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
     <div class="panel">
-      <div class="panel-header"><h3>💰 Deposit Summary</h3></div>
+      <div class="panel-header"><h3>💰 Deposit Summary (Today)</h3></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:100px;text-align:center;padding:10px;background:rgba(34,197,94,.06);border-radius:var(--r);"><div style="font-size:10px;color:var(--txt3);">Paid</div><div style="font-size:18px;font-weight:800;color:var(--ok);">৳${paidDep.toLocaleString()}</div></div>
-        <div style="flex:1;min-width:100px;text-align:center;padding:10px;background:rgba(234,179,8,.06);border-radius:var(--r);"><div style="font-size:10px;color:var(--txt3);">Unpaid</div><div style="font-size:18px;font-weight:800;color:var(--warn);">৳${(totalDep-paidDep).toLocaleString()}</div></div>
-        <div style="flex:1;min-width:100px;text-align:center;padding:10px;background:rgba(212,160,23,.06);border-radius:var(--r);"><div style="font-size:10px;color:var(--txt3);">Total</div><div style="font-size:18px;font-weight:800;color:var(--g4);">৳${totalDep.toLocaleString()}</div></div>
+        <div style="flex:1;min-width:100px;text-align:center;padding:10px;background:rgba(34,197,94,.06);border-radius:var(--r);"><div style="font-size:10px;color:var(--txt3);">Paid</div><div style="font-size:18px;font-weight:800;color:var(--ok);">৳${todayDepPaid.toLocaleString()}</div></div>
+        <div style="flex:1;min-width:100px;text-align:center;padding:10px;background:rgba(234,179,8,.06);border-radius:var(--r);"><div style="font-size:10px;color:var(--txt3);">Unpaid</div><div style="font-size:18px;font-weight:800;color:var(--warn);">৳${(todayDepTotal-todayDepPaid).toLocaleString()}</div></div>
+        <div style="flex:1;min-width:100px;text-align:center;padding:10px;background:rgba(212,160,23,.06);border-radius:var(--r);"><div style="font-size:10px;color:var(--txt3);">Total</div><div style="font-size:18px;font-weight:800;color:var(--g4);">৳${todayDepTotal.toLocaleString()}</div></div>
       </div>
     </div>
     <div class="panel">
-      <div class="panel-header"><h3>❌ Cancelled / No Show</h3></div>
+      <div class="panel-header"><h3>❌ Cancelled / No Show (Today)</h3></div>
       <div style="display:flex;gap:12px;">
-        <div style="flex:1;text-align:center;padding:10px;background:rgba(239,68,68,.06);border-radius:var(--r);"><div style="font-size:10px;color:var(--txt3);">Cancelled</div><div style="font-size:24px;font-weight:800;color:var(--err);">${cancelled}</div></div>
-        <div style="flex:1;text-align:center;padding:10px;background:rgba(234,179,8,.06);border-radius:var(--r);"><div style="font-size:10px;color:var(--txt3);">No Show</div><div style="font-size:24px;font-weight:800;color:var(--warn);">${noShow}</div></div>
+        <div style="flex:1;text-align:center;padding:10px;background:rgba(239,68,68,.06);border-radius:var(--r);cursor:pointer;" onclick="quickViewReservations('cancelled')">
+          <div style="font-size:10px;color:var(--txt3);">Cancelled</div>
+          <div style="font-size:24px;font-weight:800;color:var(--err);">${todayCancelled.length}</div>
+          <div style="font-size:9px;color:var(--txt3);">👁 View</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:10px;background:rgba(234,179,8,.06);border-radius:var(--r);cursor:pointer;" onclick="quickViewReservations('no_show')">
+          <div style="font-size:10px;color:var(--txt3);">No Show</div>
+          <div style="font-size:24px;font-weight:800;color:var(--warn);">${todayNoShow.length}</div>
+          <div style="font-size:9px;color:var(--txt3);">👁 View</div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="panel">
-    <div class="panel-header"><h3>⚡ Recent Activity</h3></div>
-    <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Date</th><th>Time</th><th>Status</th><th>Updated</th></tr></thead><tbody>
-    ${recent.map(r=>`<tr><td>${r.guest_name}</td><td>${r.date}</td><td>${fmtTime(r.time)}</td>${statusBadge(r.status)?`<td>${statusBadge(r.status)}</td>`:'<td>-</td>'}<td style="font-size:10px;color:var(--txt3);">${r.updated_at?new Date(r.updated_at).toLocaleString():''}</td></tr>`).join('')}
+
+  <!-- ═══ RECENT ACTIVITY — Today Only ═══ -->
+  <div class="panel" style="margin-top:14px;">
+    <div class="panel-header"><h3>⚡ Recent Activity (Today)</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>Guest</th><th>Date</th><th>Time</th><th>Category</th><th>Status</th><th>Updated</th></tr></thead><tbody>
+    ${recent.length===0?'<tr><td colspan="6" style="text-align:center;color:var(--txt3);">No activity today</td></tr>':
+    recent.map(r=>`<tr><td>${r.guest_name}</td><td>${r.date}</td><td>${fmtTime(r.time)}</td><td>${r.category==='lunch'?'☀️ Lunch':'🌙 Dinner'}</td><td>${statusBadge(r.status)}</td><td style="font-size:10px;color:var(--txt3);">${r.updated_at?new Date(r.updated_at).toLocaleString():''}</td></tr>`).join('')}
     </tbody></table></div>
   </div>`;
 
@@ -1171,18 +1259,34 @@ function shareWhatsApp() {
 function quickViewReservations(filter) {
   const today = getBDToday();
   let items = APP.reservations;
-  if (filter==='today') items = items.filter(r => r.date===today && (r.status==='confirmed'||r.status==='checked_in'));
-  else if (filter) items = items.filter(r => r.status===filter);
-  else items = items.filter(r => r.status==='confirmed'||r.status==='checked_in');
+  let titleSuffix = '';
+  if (filter==='today') {
+    items = items.filter(r => r.date===today && (r.status==='confirmed'||r.status==='checked_in'));
+    titleSuffix = "Today's Arrivals";
+  } else if (filter==='lunch') {
+    items = items.filter(r => r.date===today && r.category==='lunch');
+    titleSuffix = '☀️ Lunch Bookings';
+  } else if (filter==='dinner') {
+    items = items.filter(r => r.date===today && r.category==='dinner');
+    titleSuffix = '🌙 Dinner Bookings';
+  } else if (filter) {
+    items = items.filter(r => r.date===today && r.status===filter);
+    titleSuffix = filter.charAt(0).toUpperCase()+filter.slice(1).replace('_',' ');
+  } else {
+    items = items.filter(r => r.date===today && (r.status==='confirmed'||r.status==='checked_in'));
+    titleSuffix = "Today's Arrivals";
+  }
 
   const list = document.getElementById('quickViewList');
-  document.getElementById('quickViewTitle').textContent = `📋 Quick View (${items.length})`;
+  document.getElementById('quickViewTitle').textContent = `📋 Quick View: ${titleSuffix} (${items.length})`;
 
   if (items.length===0) {
     list.innerHTML = '<div class="quick-view-empty">No reservations found</div>';
   } else {
     list.innerHTML = items.slice(0,30).map(r => {
       const statusColor = {confirmed:'var(--ok)',cancelled:'var(--err)',no_show:'var(--warn)',checked_in:'var(--info)'};
+      const catIcon = r.category==='lunch'?'☀️':'🌙';
+      const totalP = (parseInt(r.adults)||0)+(parseInt(r.babies)||0);
       return `<div class="quick-view-item">
         <div class="qv-item-top">
           <span class="qv-item-name">${r.guest_name}</span>
@@ -1190,7 +1294,8 @@ function quickViewReservations(filter) {
         </div>
         <div class="qv-item-meta">
           <span>📅 ${r.date}</span>
-          <span>👥 ${r.guests}p</span>
+          <span>${catIcon} ${r.category==='lunch'?'Lunch':'Dinner'}</span>
+          <span>👥 ${totalP}p</span>
           <span>🪑 ${r.table_id||'Auto'}</span>
           <span style="color:${statusColor[r.status]||'var(--txt2)'};font-weight:600;">${r.status}</span>
         </div>
